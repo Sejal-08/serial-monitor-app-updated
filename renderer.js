@@ -22,14 +22,6 @@ function toggleCertUploadAndPort() {
 
   certSection.style.display = sslEnabled === "yes" ? "block" : "none";
   certUploadButton.style.display = sslEnabled === "yes" ? "block" : "none";
-
-  const portInput = document.getElementById("mqtt-port");
-
-  if (sslEnabled === "yes" && (portInput.value === "1883" || portInput.value === "")) {
-    portInput.value = "8883";
-  } else if (sslEnabled === "no" && (portInput.value === "8883" || portInput.value === "")) {
-    portInput.value = "1883";
-  }
 }
 
 function clearOutput() {
@@ -151,39 +143,6 @@ async function sendCommand(cmd) {
   document.getElementById("output").innerHTML += result + "<br>";
 }
 
-async function setDeviceID() {
-  const deviceID = document.getElementById("device-id").value.trim();
-  if (!deviceID) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">Please enter a valid Device ID.</span><br>`;
-    return;
-  }
-
-  // Basic validation: ensure Device ID is alphanumeric with optional hyphens/underscores
-  if (!/^[a-zA-Z0-9-_]+$/.test(deviceID)) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">Device ID must be alphanumeric with optional hyphens or underscores.</span><br>`;
-    return;
-  }
-
-  const result = await window.electronAPI.setDeviceID(deviceID);
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
-  }
-
-  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
-  await delay(500);
-  await window.electronAPI.getDeviceID(); // Verify setting
-}
-
-async function getDeviceID() {
-  const result = await window.electronAPI.getDeviceID();
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-  } else {
-    document.getElementById("output").innerHTML += result + "<br>";
-  }
-}
-
 async function setInterval() {
   const interval = document.getElementById("interval").value;
 
@@ -226,29 +185,30 @@ async function setProtocol() {
 }
 
 async function setFTPConfig() {
-  const host = document.getElementById("ftp-host").value;
-  const port = document.getElementById("ftp-port").value;
-  const user = document.getElementById("ftp-user").value;
+  const host = document.getElementById("ftp-host").value.trim();
+  const user = document.getElementById("ftp-user").value.trim();
   const password = document.getElementById("ftp-password").value;
 
-  if (!host && !port && !user && !password) {
+  if (!host && !user && !password) {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one FTP configuration field.</span><br>`;
     return;
   }
 
   const commands = [];
   if (host) commands.push(`SET_FTP_HOST:${host}`);
-  if (port && !isNaN(port) && port > 0) commands.push(`SET_FTP_PORT:${port}`);
   if (user) commands.push(`SET_FTP_USER:${user}`);
   if (password) commands.push(`SET_FTP_PASS:${password}`);
 
   for (const cmd of commands) {
+    console.log(`Sending command: ${cmd}`);
     const result = await window.electronAPI.sendData(cmd);
+    console.log(`Result for ${cmd}:`, result);
     if (result.error) {
       document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
     } else {
-      document.getElementById("output").innerHTML += result + "<br>";
+      document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
+    await delay(500); // Delay between commands
   }
 
   await delay(500);
@@ -265,36 +225,40 @@ async function getFTPConfig() {
 }
 
 async function setMQTTConfig() {
-  const broker = document.getElementById("mqtt-broker").value;
-  const port = document.getElementById("mqtt-port").value;
-  const user = document.getElementById("mqtt-user").value;
+  const broker = document.getElementById("mqtt-broker").value.trim();
+  const user = document.getElementById("mqtt-user").value.trim();
   const password = document.getElementById("mqtt-password").value;
   const sslEnabled = document.getElementById("mqtt-ssl").value;
 
-  if (!broker && !port && !user && !password && sslEnabled === "no") {
+  if (!broker && !user && !password && sslEnabled === "no") {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one MQTT configuration field.</span><br>`;
     return;
   }
 
+  const commands = [];
   if (sslEnabled !== "") {
-    await window.electronAPI.setMQTTSSL(sslEnabled === "yes");
-    await delay(1000);
-  }
-  if (port && !isNaN(port) && port > 0) {
-    await window.electronAPI.setMQTTPort(port);
-    await delay(500);
+    commands.push(`SET_MQTT_SSL:${sslEnabled === "yes" ? "ON" : "OFF"}`);
   }
   if (broker) {
-    await window.electronAPI.setMQTTBroker(broker);
-    await delay(500);
+    commands.push(`SET_MQTT_BROKER:${broker}`);
   }
   if (user) {
-    await window.electronAPI.setMQTTUser(user);
-    await delay(500);
+    commands.push(`SET_MQTT_USER:${user}`);
   }
   if (password) {
-    await window.electronAPI.setMQTTPassword(password);
-    await delay(500);
+    commands.push(`SET_MQTT_PASS:${password}`);
+  }
+
+  for (const cmd of commands) {
+    console.log(`Sending command: ${cmd}`);
+    const result = await window.electronAPI.sendData(cmd);
+    console.log(`Result for ${cmd}:`, result);
+    if (result.error) {
+      document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+    } else {
+      document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+    }
+    await delay(500); // Delay between commands
   }
 
   await window.electronAPI.setProtocol("MQTT");
@@ -315,8 +279,8 @@ async function getMQTTConfig() {
 }
 
 async function setHTTPConfig() {
-  const url = document.getElementById("http-url").value;
-  const user = document.getElementById("http-auth-user").value;
+  const url = document.getElementById("http-url").value.trim();
+  const user = document.getElementById("http-auth-user").value.trim();
   const password = document.getElementById("http-auth-password").value;
 
   if (!url && !user && !password) {
@@ -329,12 +293,15 @@ async function setHTTPConfig() {
   if (user && password) commands.push(`SET_HTTP_AUTH:${user}:${password}`);
 
   for (const cmd of commands) {
+    console.log(`Sending command: ${cmd}`);
     const result = await window.electronAPI.sendData(cmd);
+    console.log(`Result for ${cmd}:`, result);
     if (result.error) {
       document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
     } else {
-      document.getElementById("output").innerHTML += result + "<br>";
+      document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
+    await delay(500); // Delay between commands
   }
 
   await delay(500);
@@ -343,43 +310,6 @@ async function setHTTPConfig() {
 
 async function getHTTPConfig() {
   const result = await window.electronAPI.getHTTPConfig();
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-  } else {
-    document.getElementById("output").innerHTML += result + "<br>";
-  }
-}
-
-async function setSensorType() {
-  const sensor = document.getElementById("sensor-select").value;
-  const result = await window.electronAPI.setSensorType(sensor);
-
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-  } else {
-    document.getElementById("output").innerHTML += result + "<br>";
-  }
-
-  await delay(500);
-  await window.electronAPI.getSensorConfig();
-}
-
-async function setSensorFormat() {
-  const format = document.getElementById("sensor-format").value;
-  const result = await window.electronAPI.setSensorFormat(format);
-
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-  } else {
-    document.getElementById("output").innerHTML += result + "<br>";
-  }
-
-  await delay(500);
-  await window.electronAPI.getSensorConfig();
-}
-
-async function getSensorConfig() {
-  const result = await window.electronAPI.getSensorConfig();
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
@@ -408,6 +338,7 @@ function delay(ms) {
 }
 
 window.electronAPI.onSerialData((data) => {
+  console.log("Raw serial data:", data);
   if (data) {
     const sanitizedData = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const outputDiv = document.getElementById("output");
@@ -420,11 +351,10 @@ window.electronAPI.onSerialData((data) => {
       sanitizedData.includes("saved OK") ||
       sanitizedData.includes("Directory created") ||
       sanitizedData.includes("Connected to") ||
-      sanitizedData.includes("SSL configuration applied") ||
-      sanitizedData.includes("Device ID set")
+      sanitizedData.includes("SSL configuration applied")
     ) {
       color = "green";
-    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES") || sanitizedData.includes("Device ID:")) {
+    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES")) {
       color = "blue";
     } else if (sanitizedData.includes("MQTT connect OK")) {
       color = "green";
@@ -456,11 +386,6 @@ window.electronAPI.onSerialData((data) => {
     if (sanitizedData.startsWith("HTTP protocol")) {
       const urlMatch = sanitizedData.match(/url=([^,]+)/);
       if (urlMatch) document.getElementById("http-url").value = urlMatch[1];
-    }
-
-    if (sanitizedData.startsWith("Device ID:")) {
-      const idMatch = sanitizedData.match(/Device ID: ([a-zA-Z0-9-_]+)/);
-      if (idMatch) document.getElementById("device-id").value = idMatch[1];
     }
 
     outputDiv.scrollTop = outputDiv.scrollHeight;

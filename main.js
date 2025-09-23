@@ -17,6 +17,10 @@ async function sendCommand(message) {
   }
 
   try {
+    // Flush UART buffer
+    while (port.readable && port.readableLength > 0) {
+      port.read();
+    }
     const command = message + "\r\n";
     console.log(`Sending command: ${JSON.stringify(command)}`);
     mainWindow.webContents.send("serial-data", `> ${message}`);
@@ -224,18 +228,12 @@ ipcMain.handle("disconnect-port", async () => {
   }
 });
 
-// --- Device ID Config ---
-ipcMain.handle("set-device-id", (event, deviceID) => sendCommand(`SET_DEVICE_ID:${deviceID}`));
-ipcMain.handle("get-device-id", () => sendCommand("GET_DEVICE_ID"));
-
 // --- Basic config commands ---
 ipcMain.handle("send-data", (event, message) => sendCommand(message));
 ipcMain.handle("get-interval", () => sendCommand("GET_INTERVAL"));
 ipcMain.handle("get-ftp-config", () => sendCommand("GET_FTP_CONFIG"));
 ipcMain.handle("get-mqtt-config", () => sendCommand("GET_MQTT_CONFIG"));
 ipcMain.handle("get-http-config", () => sendCommand("GET_HTTP_CONFIG"));
-ipcMain.handle("get-tcp-config", () => sendCommand("GET_TCP_CONFIG"));
-ipcMain.handle("get-sensor-config", () => sendCommand("GET_SENSOR_CONFIG"));
 
 ipcMain.handle("set-interval", (event, interval) => {
   const i = parseInt(interval);
@@ -253,7 +251,6 @@ ipcMain.handle("set-protocol", (event, protocol) => {
 ipcMain.handle("set-ftp-host", (event, host) => sendCommand(`SET_FTP_HOST:${host}`));
 ipcMain.handle("set-ftp-user", (event, user) => sendCommand(`SET_FTP_USER:${user}`));
 ipcMain.handle("set-ftp-password", (event, pass) => sendCommand(`SET_FTP_PASS:${pass}`));
-ipcMain.handle("set-ftp-port", (event, portNum) => sendCommand(`SET_FTP_PORT:${portNum}`));
 
 // --- MQTT Config ---
 ipcMain.handle("set-mqtt-broker", async (event, broker) => {
@@ -273,7 +270,6 @@ ipcMain.handle("set-mqtt-broker", async (event, broker) => {
 });
 ipcMain.handle("set-mqtt-user", (event, user) => sendCommand(`SET_MQTT_USER:${user}`));
 ipcMain.handle("set-mqtt-password", (event, pass) => sendCommand(`SET_MQTT_PASS:${pass}`));
-ipcMain.handle("set-mqtt-port", (event, portNum) => sendCommand(`SET_MQTT_PORT:${portNum}`));
 ipcMain.handle("set-mqtt-ca-cert", (event, path) => sendCommand(`SET_MQTT_CERT:${path}`));
 ipcMain.handle("set-mqtt-client-key", (event, path) => sendCommand(`SET_MQTT_KEY:${path}`));
 ipcMain.handle("set-mqtt-ssl", (event, sslEnabled) => sendCommand(`SET_MQTT_SSL:${sslEnabled ? "ON" : "OFF"}`));
@@ -281,14 +277,6 @@ ipcMain.handle("set-mqtt-ssl", (event, sslEnabled) => sendCommand(`SET_MQTT_SSL:
 // --- HTTP Config ---
 ipcMain.handle("set-http-url", (event, url) => sendCommand(`SET_HTTP_URL:${url}`));
 ipcMain.handle("set-http-auth", (event, auth) => sendCommand(`SET_HTTP_AUTH:${auth}`));
-
-// --- TCP Config ---
-ipcMain.handle("set-tcp-host", (event, host) => sendCommand(`SET_TCP_HOST:${host}`));
-ipcMain.handle("set-tcp-port", (event, portNum) => sendCommand(`SET_TCP_PORT:${portNum}`));
-
-// --- Sensor Config ---
-ipcMain.handle("set-sensor-type", (event, type) => sendCommand(`SET_SENSOR_TYPE:${type}`));
-ipcMain.handle("set-sensor-format", (event, format) => sendCommand(`SET_SENSOR_FORMAT:${format}`));
 
 // --- File Upload ---
 ipcMain.handle("upload-file", async (event, filePath) => {
@@ -314,12 +302,7 @@ ipcMain.handle("set-mqtt-certificates", async (event, { caCertPath, clientKeyPat
     while (port.readable && port.readableLength > 0) {
       port.read();
     }
-    console.log("Flushed UART buffer before MKDIR");
-
-    // Ensure /usr/ directory exists
-    console.log("Sending MKDIR:/usr/ to ensure directory exists");
-    await sendCommand("MKDIR:/usr/");
-    await delay(1000);
+    console.log("Flushed UART buffer before uploads");
 
     // Upload certificate with retries
     let certResult;
@@ -421,11 +404,9 @@ ipcMain.handle("set-mqtt-certificates", async (event, { caCertPath, clientKeyPat
     let sslApplied = false;
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`Attempt ${attempt} to set MQTT SSL and port`);
+        console.log(`Attempt ${attempt} to set MQTT SSL`);
         await sendCommand(`SET_MQTT_SSL:ON`);
         await delay(1000);
-        await sendCommand(`SET_MQTT_PORT:8883`);
-        await delay(500);
 
         // Verify with GET_MQTT_CONFIG
         await sendCommand("GET_MQTT_CONFIG");

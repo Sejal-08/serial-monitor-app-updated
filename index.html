@@ -37,9 +37,6 @@
           <input type="text" id="ftp-host" class="input-field" placeholder="Host (e.g., 13.126.194.224)">
         </div>
         <div class="controls">
-          <input type="number" id="ftp-port" class="input-field" placeholder="Port (default 21, or 22 for SFTP/FTPS)" value="21" min="1">
-        </div>
-        <div class="controls">
           <input type="text" id="ftp-user" class="input-field" placeholder="User (e.g., iit_ropar)">
         </div>
         <div class="controls">
@@ -59,9 +56,6 @@
         <h3><i class="fas fa-comments"></i> MQTT Configuration</h3>
         <div class="controls">
           <input type="text" id="mqtt-broker" class="input-field" placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
-        </div>
-        <div class="controls">
-          <input type="number" id="mqtt-port" class="input-field" placeholder="Port (default 1883, or 8883 for TLS)" value="1883" min="1">
         </div>
         <div class="controls">
           <input type="text" id="mqtt-user" class="input-field" placeholder="User">
@@ -109,29 +103,6 @@
           <button class="action-button" onclick="getHTTPConfig()"><i class="fas fa-eye"></i> Get HTTP Config</button>
         </div>
       </section>
-
-      <section class="control-section" id="sensors-section">
-        <h3><i class="fas fa-microchip"></i> Sensors</h3>
-        <div class="controls">
-          <select id="sensor-select" class="input-field">
-            <option value="RS232">RS232</option>
-            <option value="I2C">I2C</option>
-            <option value="SPI">SPI</option>
-            <option value="RS485">RS485</option>
-          </select>
-          <button class="action-button" onclick="setSensorType()"><i class="fas fa-save"></i> Set Sensor</button>
-        </div>
-        <div class="controls">
-          <select id="sensor-format" class="input-field">
-            <option value="plain">Plain Text</option>
-            <option value="hex">Hex</option>
-          </select>
-          <button class="action-button" onclick="setSensorFormat()"><i class="fas fa-save"></i> Set Format</button>
-        </div>
-        <div class="controls">
-          <button class="action-button" onclick="getSensorConfig()"><i class="fas fa-eye"></i> Get Config</button>
-        </div>
-      </section>
     </div>
 
     <div class="right-panel">
@@ -153,15 +124,6 @@
             </select>
             <button class="action-button" onclick="connectPort()"><i class="fas fa-play"></i> Connect</button>
             <button class="action-button" onclick="disconnectPort()"><i class="fas fa-stop"></i> Disconnect</button>
-          </div>
-        </section>
-
-        <section class="control-section">
-          <h3><i class="fas fa-id-card"></i> Device ID Configuration</h3>
-          <div class="controls">
-            <input type="text" id="device-id" class="input-field" placeholder="Device ID (e.g., device-123)">
-            <button class="action-button" onclick="setDeviceID()"><i class="fas fa-save"></i> Set Device ID</button>
-            <button class="action-button" onclick="getDeviceID()"><i class="fas fa-eye"></i> Get Device ID</button>
           </div>
         </section>
 
