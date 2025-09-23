@@ -1,3 +1,20 @@
-dist/
+# Node.js dependencies
 node_modules/
-*.exe
+
+# Electron build output
+dist/
+out/
+release/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.iml
+
+# Environment files
+.env
