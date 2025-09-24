@@ -143,6 +143,39 @@ async function sendCommand(cmd) {
   document.getElementById("output").innerHTML += result + "<br>";
 }
 
+async function setDeviceID() {
+  const deviceID = document.getElementById("device-id").value.trim();
+  if (!deviceID) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Please enter a valid Device ID.</span><br>`;
+    return;
+  }
+
+  // Basic validation: ensure Device ID is alphanumeric with optional hyphens/underscores
+  if (!/^[a-zA-Z0-9-_]+$/.test(deviceID)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Device ID must be alphanumeric with optional hyphens or underscores.</span><br>`;
+    return;
+  }
+
+  const result = await window.electronAPI.setDeviceID(deviceID);
+  if (result.error) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+    return;
+  }
+
+  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+  await delay(500);
+  await window.electronAPI.getDeviceID(); // Verify setting
+}
+
+async function getDeviceID() {
+  const result = await window.electronAPI.getDeviceID();
+  if (result.error) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+  } else {
+    document.getElementById("output").innerHTML += result + "<br>";
+  }
+}
+
 async function setInterval() {
   const interval = document.getElementById("interval").value;
 
@@ -194,6 +227,11 @@ async function setFTPConfig() {
     return;
   }
 
+  if (host && !/^[a-zA-Z0-9.-]+$/.test(host)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Invalid FTP host format.</span><br>`;
+    return;
+  }
+
   const commands = [];
   if (host) commands.push(`SET_FTP_HOST:${host}`);
   if (user) commands.push(`SET_FTP_USER:${user}`);
@@ -232,6 +270,11 @@ async function setMQTTConfig() {
 
   if (!broker && !user && !password && sslEnabled === "no") {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one MQTT configuration field.</span><br>`;
+    return;
+  }
+
+  if (broker && !/^[a-zA-Z0-9.-]+$/.test(broker)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Invalid MQTT broker format.</span><br>`;
     return;
   }
 
@@ -285,6 +328,11 @@ async function setHTTPConfig() {
 
   if (!url && !user && !password) {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one HTTP configuration field.</span><br>`;
+    return;
+  }
+
+  if (url && !/^https?:\/\/.+$/.test(url)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Invalid HTTP URL format.</span><br>`;
     return;
   }
 
@@ -351,10 +399,11 @@ window.electronAPI.onSerialData((data) => {
       sanitizedData.includes("saved OK") ||
       sanitizedData.includes("Directory created") ||
       sanitizedData.includes("Connected to") ||
-      sanitizedData.includes("SSL configuration applied")
+      sanitizedData.includes("SSL configuration applied") ||
+      sanitizedData.includes("Device ID set")
     ) {
       color = "green";
-    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES")) {
+    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES") || sanitizedData.includes("Device ID:")) {
       color = "blue";
     } else if (sanitizedData.includes("MQTT connect OK")) {
       color = "green";
@@ -386,6 +435,11 @@ window.electronAPI.onSerialData((data) => {
     if (sanitizedData.startsWith("HTTP protocol")) {
       const urlMatch = sanitizedData.match(/url=([^,]+)/);
       if (urlMatch) document.getElementById("http-url").value = urlMatch[1];
+    }
+
+    if (sanitizedData.startsWith("Device ID:")) {
+      const idMatch = sanitizedData.match(/Device ID: ([a-zA-Z0-9-_]+)/);
+      if (idMatch) document.getElementById("device-id").value = idMatch[1];
     }
 
     outputDiv.scrollTop = outputDiv.scrollHeight;
