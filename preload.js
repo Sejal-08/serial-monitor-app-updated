@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setMQTTCACert: (filePath) => ipcRenderer.invoke("set-mqtt-ca-cert", filePath),
   setMQTTClientKey: (filePath) => ipcRenderer.invoke("set-mqtt-client-key", filePath),
   setMQTTBroker: (broker) => ipcRenderer.invoke("set-mqtt-broker", broker),
+  setMQTTPort: (port) => ipcRenderer.invoke("set-mqtt-port", port),
   setMQTTUser: (user) => ipcRenderer.invoke("set-mqtt-user", user),
   setMQTTPassword: (password) => ipcRenderer.invoke("set-mqtt-password", password),
   setMQTTSSL: (sslEnabled) => ipcRenderer.invoke("set-mqtt-ssl", sslEnabled),

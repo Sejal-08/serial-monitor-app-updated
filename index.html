@@ -58,6 +58,9 @@
           <input type="text" id="mqtt-broker" class="input-field" placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
         </div>
         <div class="controls">
+          <input type="number" id="mqtt-port" class="input-field" placeholder="Port (e.g., 1883)" value="1883">
+        </div>
+        <div class="controls">
           <input type="text" id="mqtt-user" class="input-field" placeholder="User">
         </div>
         <div class="controls">
@@ -104,19 +107,34 @@
         </div>
       </section>
 
-      <!-- Sensors Section with Dropdown -->
       <section class="control-section" id="sensors-section">
         <h3><i class="fas fa-microchip"></i> Sensors</h3>
         <div class="controls">
-          <select id="sensor-select" class="input-field">
-            <option value="" disabled selected>Select a Sensor</option>
-            <option value="temp-hum-probe">Temperature and Humidity Probe</option>
-            <option value="env-sensor">Temperature Humidity Light Intensity and Pressure Sensor</option>
-            <option value="anemometer">Ultrasonic Anemometer</option>
-            <option value="rain-gauge">Rain Gauge</option>
-            <option value="data-logger">Data Logger</option>
-            <option value="ble-gateway">BLE Gateway</option>
-          </select>
+         <select id="sensor-select" class="input-field" onchange="updateSensorUI()">
+  <option value="" disabled selected>Select a Sensor Protocol</option>
+  <option value="I2C">I2C</option>
+  <option value="ADC">ADC</option>
+  <option value="RS232">RS232</option>
+  <option value="RS485">RS485</option>
+  <option value="SPI">SPI</option>
+</select>
+        </div>
+        <div id="sensor-list" class="sensor-list-container">
+          <!-- Sensor list with presence indicators will be dynamically inserted here -->
+        </div>
+        <div id="sensor-data" class="sensor-data-container">
+          <!-- Sensor data will be dynamically inserted here -->
+        </div>
+         <div id="thermometer-container" class="thermometer-container">
+          <h4>Temperature</h4>
+          <svg width="60" height="200" viewBox="0 0 60 200" class="thermometer">
+            <rect x="20" y="20" width="20" height="160" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+            <rect id="thermometer-fill" x="22" y="20" width="16" height="0" fill="#ffeb3b"/>
+            <circle cx="30" cy="180" r="10" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+            <circle id="thermometer-bulb" cx="30" cy="180" r="8" fill="#ffeb3b"/>
+            <text x="45" y="100" font-size="12" fill="var(--text-color)">°C</text>
+          </svg>
+          <div id="thermometer-value" class="thermometer-value">N/A</div>
         </div>
       </section>
     </div>
@@ -183,8 +201,6 @@
       </div>
     </div>
   </div>
-
-
 
   <footer>
     <p><i class="fas fa-copyright"></i> Serial Monitor App © 2025</p>

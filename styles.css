@@ -91,12 +91,11 @@ body.light-mode .theme-toggle:hover {
 
 /* Dark mode theme toggle */
 body.dark-mode .theme-toggle {
-  color: #f5f7ff;   /* brighter so it's visible */
+  color: #f5f7ff;
 }
 body.dark-mode .theme-toggle:hover {
   color: #6b8af7;
 }
-
 
 /* Layout */
 .main-container {
@@ -146,14 +145,6 @@ h2 {
   margin-bottom: 18px;
   text-align: center;
   font-weight: 600;
-}
-
-/* Headings */
-h2 {
-  font-size: 1.8em;
-  margin-bottom: 18px;
-  text-align: center;
-  font-weight: 600;
   position: relative;
   padding: 8px 0;
 }
@@ -174,23 +165,6 @@ body.dark-mode h2 {
   background-clip: text;
 }
 
-/* Add a pseudo-element for the ">" prefix with a distinct style */
-/* h2:before {
-  content: ">";
-  font-weight: 700;
-  margin-right: 8px;
-  color: #ff6b6b; 
-  text-shadow: 0 1px 3px rgba(255, 107, 107, 0.4);
-  transition: color 0.3s ease;
-}
-
-body.dark-mode h2:before {
-  color: #ff8787;
-}
-
-body.light-mode h2:before {
-  color: #e63946; 
-} */
 h3 {
   font-size: 1.1em;
   margin-bottom: 12px;
@@ -385,6 +359,251 @@ body.dark-mode footer {
   background: linear-gradient(90deg, #2a4370, #0a0e1a);
 }
 
+/* Sensor List and Data Containers */
+.sensor-list-container {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.4s ease;
+}
+
+body.light-mode .sensor-list-container {
+  background: #f9f9f9;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .sensor-list-container {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.sensor-list-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .sensor-list-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .sensor-list-container h4 {
+  color: #a3bffa;
+}
+
+.sensor-list-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sensor-list-container li {
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+}
+
+body.light-mode .sensor-list-container li {
+  color: #1e293b;
+}
+
+body.dark-mode .sensor-list-container li {
+  color: #e0e7ff;
+}
+
+.sensor-list-container i {
+  margin-right: 8px;
+}
+
+.text-success {
+  color: #34d399;
+}
+
+.text-error {
+  color: #f87171;
+}
+
+.sensor-data-container {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.4s ease;
+}
+
+body.light-mode .sensor-data-container {
+  background: #f9f9f9;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .sensor-data-container {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.sensor-data-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .sensor-data-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .sensor-data-container h4 {
+  color: #a3bffa;
+}
+
+.sensor-data-item {
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+
+body.light-mode .sensor-data-item {
+  color: #1e293b;
+}
+
+body.dark-mode .sensor-data-item {
+  color: #e0e7ff;
+}
+
+.sensor-data-item strong {
+  color: #6b8af7;
+  font-weight: 600;
+}
+
+/* Thermometer Styles */
+.thermometer-container {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.4s ease;
+}
+
+body.light-mode .thermometer-container {
+  background: #f9f9f9;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .thermometer-container {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.thermometer-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .thermometer-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .thermometer-container h4 {
+  color: #a3bffa;
+}
+
+.thermometer {
+  margin: 10px 0;
+}
+
+.thermometer rect, .thermometer circle {
+  transition: fill 0.3s ease, height 0.3s ease, y 0.3s ease;
+}
+
+body.light-mode .thermometer rect:not(#thermometer-fill), body.light-mode .thermometer circle:not(#thermometer-bulb) {
+  stroke: #2d4060;
+  fill: #e0e7ff;
+}
+
+body.dark-mode .thermometer rect:not(#thermometer-fill), body.dark-mode .thermometer circle:not(#thermometer-bulb) {
+  stroke: #a3bffa;
+  fill: #2d4060;
+}
+
+.thermometer text {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+body.light-mode .thermometer text {
+  fill: #2d4060;
+}
+
+body.dark-mode .thermometer text {
+  fill: #a3bffa;
+}
+
+.thermometer-value {
+  font-size: 0.9em;
+  font-weight: 600;
+  text-align: center;
+}
+
+body.light-mode .thermometer-value {
+  color: #1e293b;
+}
+
+body.dark-mode .thermometer-value {
+  color: #e0e7ff;
+}
+
+/* Log color variables (theme-aware) */
+:root {
+  --log-text: #1e293b;
+  --log-success: #16a34a;
+  --log-error: #ef4444;
+  --log-info: #2563eb;
+  --log-cmd: #6b7280;
+  --log-muted: rgba(0,0,0,0.45);
+}
+
+body.dark-mode {
+  --log-text: #e6eefc;
+  --log-success: #34d399;
+  --log-error: #f87171;
+  --log-info: #60a5fa;
+  --log-cmd: #94a3b8;
+  --log-muted: rgba(255,255,255,0.12);
+}
+
+/* Each log line */
+#output .log-line {
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
+  font-size: 0.92em;
+  margin-bottom: 4px;
+  line-height: 1.35;
+  color: var(--log-text);
+}
+
+/* Semantic classes */
+#output .log-success { color: var(--log-success); font-weight: 600; }
+#output .log-error   { color: var(--log-error); font-weight: 700; }
+#output .log-info    { color: var(--log-info); font-weight: 600; }
+#output .log-cmd     { color: var(--log-cmd); opacity: 0.95; font-style: normal; }
+#output .log-default { color: var(--log-text); }
+
+/* Subtle container polish */
+#output {
+  padding: 12px;
+  border-radius: 10px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .main-container { flex-direction: column; }
@@ -397,47 +616,4 @@ body.dark-mode footer {
   .action-button, .input-field, select {
     width: 100%;
   }
-}
-/* -- Log color variables (theme-aware) */
-:root{
-  --log-text: #1e293b;
-  --log-success: #16a34a;
-  --log-error: #ef4444;
-  --log-info: #2563eb;
-  --log-cmd: #6b7280;
-  --log-muted: rgba(0,0,0,0.45);
-}
-body.dark-mode {
-  --log-text: #e6eefc;
-  --log-success: #34d399;
-  --log-error: #f87171;
-  --log-info: #60a5fa;
-  --log-cmd: #94a3b8;
-  --log-muted: rgba(255,255,255,0.12);
-}
-
-/* Each log line */
-#output .log-line {
-  white-space: pre-wrap;         /* preserve spacing and wraps */
-  font-family: 'Courier New', monospace;
-  font-size: 0.92em;
-  margin-bottom: 4px;
-  line-height: 1.35;
-  color: var(--log-text);
-}
-
-/* semantic classes */
-#output .log-success { color: var(--log-success); font-weight: 600; }
-#output .log-error   { color: var(--log-error); font-weight: 700; }
-#output .log-info    { color: var(--log-info); font-weight: 600; }
-#output .log-cmd     { color: var(--log-cmd); opacity: 0.95; font-style: normal; }
-#output .log-default { color: var(--log-text); }
-
-/* subtle container polish */
-#output {
-  padding: 12px;
-  border-radius: 10px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
 }

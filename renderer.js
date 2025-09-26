@@ -1,6 +1,148 @@
 let selectedCACertFile = null;
 let selectedClientKeyFile = null;
+// Sensor protocol to sensor mapping
+const sensorProtocolMap = {
+  "I2C": ["BME680", "VEML7700"], // I2C sensors
+  "ADC": ["Battery Voltage", "Rain Gauge"], // ADC sensors
+  "RS232": ["Ultrasonic Sensor"], // RS232
+  "RS485": [], // RS485
+  "SPI": [] // SPI
+};
 
+// Track sensor presence and data
+let sensorStatus = {
+  "I2C": { BME680: false, VEML7700: false },
+  "ADC": { "Battery Voltage": false, "Rain Gauge": false },
+  "RS232": { "Ultrasonic Sensor": false },
+  "RS485": {},
+  "SPI": {}
+};
+
+let sensorData = {
+  "I2C": {},
+  "ADC": {},
+  "RS232": {},
+  "RS485": {},
+  "SPI": {}
+};
+let currentTemperature = null; // Store latest temperature value
+
+// Update sensor UI (list, data, and thermometer)
+function updateSensorUI() {
+  const protocol = document.getElementById("sensor-select").value;
+  const sensorListDiv = document.getElementById("sensor-list");
+  const sensorDataDiv = document.getElementById("sensor-data");
+  const thermometerFill = document.getElementById("thermometer-fill");
+  const thermometerBulb = document.getElementById("thermometer-bulb");
+  const thermometerValue = document.getElementById("thermometer-value");
+  sensorListDiv.innerHTML = "";
+  sensorDataDiv.innerHTML = "";
+
+  if (protocol) {
+    // Display sensor list
+    const sensors = sensorProtocolMap[protocol] || [];
+    let listHtml = "<h4>Sensors</h4><ul>";
+    sensors.forEach(sensor => {
+      const isPresent = sensorStatus[protocol][sensor];
+      listHtml += `<li><i class="fas ${isPresent ? 'fa-check text-success' : 'fa-times text-error'}"></i> ${sensor}</li>`;
+    });
+    listHtml += "</ul>";
+    sensorListDiv.innerHTML = sensors.length > 0 ? listHtml : "<p>No sensors available.</p>";
+
+    // Display sensor data
+    const data = sensorData[protocol];
+    let dataHtml = "<h4>Sensor Data</h4>";
+    if (Object.keys(data).length > 0) {
+      for (const [key, value] of Object.entries(data)) {
+        dataHtml += `<div class="sensor-data-item"><strong>${key}:</strong> ${value}</div>`;
+      }
+    } else {
+      dataHtml += "<p>No sensor data available.</p>";
+    }
+    sensorDataDiv.innerHTML = dataHtml;
+
+    // Update thermometer (only for I2C protocol)
+    if (protocol === "I2C" && currentTemperature !== null) {
+      const temp = parseFloat(currentTemperature);
+      let fillColor;
+      if (temp < 25) {
+        fillColor = "#ffeb3b"; // Yellow
+      } else if (temp >= 25 && temp <= 35) {
+        fillColor = "#ff9800"; // Orange
+      } else {
+        fillColor = "#f44336"; // Red
+      }
+
+      // Calculate fill height (scale temperature to SVG height, assuming 0-50°C range)
+      const maxTemp = 50;
+      const minTemp = 0;
+      const maxHeight = 160; // SVG rect height
+      const fillHeight = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp) * maxHeight, 0), maxHeight);
+      
+      thermometerFill.setAttribute("y", 180 - fillHeight);
+      thermometerFill.setAttribute("height", fillHeight);
+      thermometerFill.setAttribute("fill", fillColor);
+      thermometerBulb.setAttribute("fill", fillColor);
+      thermometerValue.textContent = `${temp.toFixed(2)}°C`;
+    } else {
+      thermometerFill.setAttribute("y", 180);
+      thermometerFill.setAttribute("height", 0);
+      thermometerFill.setAttribute("fill", "#ffeb3b"); // Default yellow
+      thermometerBulb.setAttribute("fill", "#ffeb3b");
+      thermometerValue.textContent = "N/A";
+    }
+  } else {
+    sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
+    sensorDataDiv.innerHTML = "<p>No sensor data available.</p>";
+    thermometerFill.setAttribute("y", 180);
+    thermometerFill.setAttribute("height", 0);
+    thermometerFill.setAttribute("fill", "#ffeb3b");
+    thermometerBulb.setAttribute("fill", "#ffeb3b");
+    thermometerValue.textContent = "N/A";
+  }
+}
+
+// Parse sensor data and update presence
+function parseSensorData(data) {
+  const protocol = document.getElementById("sensor-select").value;
+  if (!protocol) return;
+
+  const lines = data.split("\n").map(line => line.trim()).filter(line => line);
+  lines.forEach(line => {
+    // Parse I2C sensor data (e.g., "BME680 - Temperature: 26.92°C")
+    const sensorMatch = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
+    if (sensorMatch) {
+      const sensorName = sensorMatch[1].trim();
+      const parameter = sensorMatch[2].trim();
+      const value = sensorMatch[3].trim();
+
+      // Check if sensor belongs to the current protocol
+      const sensors = sensorProtocolMap[protocol] || [];
+      if (sensors.includes(sensorName)) {
+        // Mark sensor as present
+        sensorStatus[protocol][sensorName] = true;
+        // Store sensor data
+        sensorData[protocol][`${sensorName} ${parameter}`] = value;
+        // Update temperature for thermometer
+        if (sensorName === "BME680" && parameter === "Temperature") {
+          currentTemperature = value.replace("°C", "").trim();
+        }
+        // Update UI
+        updateSensorUI();
+      }
+    }
+
+    // Parse Rain Gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
+    const rainMatch = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
+    if (rainMatch && protocol === "ADC") {
+      sensorStatus[protocol]["Rain Gauge"] = true;
+      sensorData[protocol]["Rain Gauge Hourly"] = `${rainMatch[1]} tips`;
+      sensorData[protocol]["Rain Gauge Daily"] = `${rainMatch[2]} tips`;
+      sensorData[protocol]["Rain Gauge Weekly"] = `${rainMatch[3]} tips`;
+      updateSensorUI();
+    }
+  });
+}
 function updateProtocolUI() {
   const protocol = document.getElementById("protocol-select").value;
 
@@ -19,13 +161,13 @@ function toggleCertUploadAndPort() {
   const sslEnabled = document.getElementById("mqtt-ssl").value;
   const certSection = document.getElementById("cert-section");
   const certUploadButton = document.getElementById("cert-upload-button");
+  const portField = document.getElementById("mqtt-port");
 
   certSection.style.display = sslEnabled === "yes" ? "block" : "none";
   certUploadButton.style.display = sslEnabled === "yes" ? "block" : "none";
-}
-
-function clearOutput() {
-  document.getElementById("output").innerHTML = "";
+  
+  // Update port based on SSL selection
+  portField.value = sslEnabled === "yes" ? "8883" : "1883";
 }
 
 async function browseCACert() {
@@ -264,11 +406,12 @@ async function getFTPConfig() {
 
 async function setMQTTConfig() {
   const broker = document.getElementById("mqtt-broker").value.trim();
+  const port = document.getElementById("mqtt-port").value.trim();
   const user = document.getElementById("mqtt-user").value.trim();
   const password = document.getElementById("mqtt-password").value;
   const sslEnabled = document.getElementById("mqtt-ssl").value;
 
-  if (!broker && !user && !password && sslEnabled === "no") {
+  if (!broker && !port && !user && !password && sslEnabled === "no") {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one MQTT configuration field.</span><br>`;
     return;
   }
@@ -278,12 +421,20 @@ async function setMQTTConfig() {
     return;
   }
 
+  if (port && (isNaN(port) || port <= 0 || port > 65535)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Invalid MQTT port. Must be between 1 and 65535.</span><br>`;
+    return;
+  }
+
   const commands = [];
   if (sslEnabled !== "") {
     commands.push(`SET_MQTT_SSL:${sslEnabled === "yes" ? "ON" : "OFF"}`);
   }
   if (broker) {
     commands.push(`SET_MQTT_BROKER:${broker}`);
+  }
+  if (port) {
+    commands.push(`SET_MQTT_PORT:${port}`);
   }
   if (user) {
     commands.push(`SET_MQTT_USER:${user}`);
@@ -311,7 +462,6 @@ async function setMQTTConfig() {
   await delay(1000);
   await window.electronAPI.getMQTTConfig();
 }
-
 async function getMQTTConfig() {
   const result = await window.electronAPI.getMQTTConfig();
   if (result.error) {
@@ -385,15 +535,21 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+
+
+// Update the onSerialData handler
 window.electronAPI.onSerialData((data) => {
-  console.log("Raw serial data:", data);
   if (data) {
     const sanitizedData = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const outputDiv = document.getElementById("output");
-    let color = "black";
+    let logClass = "log-default";
 
+    // Parse sensor data
+    parseSensorData(sanitizedData);
+
+    // Existing log classification logic
     if (sanitizedData.includes("Error") || sanitizedData.includes("error") || sanitizedData.includes("failed") || sanitizedData.includes("ENOENT")) {
-      color = "red";
+      logClass = "log-error";
     } else if (
       sanitizedData.includes("Successfully") ||
       sanitizedData.includes("saved OK") ||
@@ -402,17 +558,18 @@ window.electronAPI.onSerialData((data) => {
       sanitizedData.includes("SSL configuration applied") ||
       sanitizedData.includes("Device ID set")
     ) {
-      color = "green";
+      logClass = "log-success";
     } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES") || sanitizedData.includes("Device ID:")) {
-      color = "blue";
+      logClass = "log-info";
     } else if (sanitizedData.includes("MQTT connect OK")) {
-      color = "green";
+      logClass = "log-success";
     } else if (sanitizedData.includes("MQTT Connect error")) {
-      color = "red";
+      logClass = "log-error";
     }
 
-    outputDiv.innerHTML += `<span style="color: ${color};">${sanitizedData}</span><br>`;
+    outputDiv.innerHTML += `<span class="log-line ${logClass}">${sanitizedData}</span><br>`;
 
+    // Existing protocol configuration parsing
     if (sanitizedData.startsWith("FTP protocol")) {
       const hostMatch = sanitizedData.match(/host=([^,]+)/);
       const userMatch = sanitizedData.match(/user=([^,]+)/);
@@ -423,12 +580,15 @@ window.electronAPI.onSerialData((data) => {
     if (sanitizedData.startsWith("MQTT protocol") || sanitizedData.includes("MQTT extras")) {
       const brokerMatch = sanitizedData.match(/broker=([^,]+)/);
       const userMatch = sanitizedData.match(/user=([^,]+)/);
+      const portMatch = sanitizedData.match(/port=([^,]+)/);
       const sslMatch = sanitizedData.match(/ssl=([^,]+)/) || sanitizedData.match(/ssl_enabled=([^,]+)/);
       if (brokerMatch) document.getElementById("mqtt-broker").value = brokerMatch[1];
       if (userMatch) document.getElementById("mqtt-user").value = userMatch[1];
+      if (portMatch) document.getElementById("mqtt-port").value = portMatch[1];
       if (sslMatch) {
         const sslValue = sslMatch[1].toLowerCase();
         document.getElementById("mqtt-ssl").value = sslValue === "true" || sslValue === "on" ? "yes" : "no";
+        toggleCertUploadAndPort();
       }
     }
 
@@ -446,7 +606,9 @@ window.electronAPI.onSerialData((data) => {
   }
 });
 
+// Update DOMContentLoaded to initialize sensor UI
 window.addEventListener("DOMContentLoaded", () => {
   updateProtocolUI();
   listPorts();
+  updateSensorUI();
 });

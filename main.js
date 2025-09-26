@@ -271,6 +271,12 @@ ipcMain.handle("set-mqtt-broker", async (event, broker) => {
     console.error(`Failed to resolve MQTT broker "${broker}":`, error);
     return { error: `Failed to resolve MQTT broker: ${error.message}` };
   }
+});ipcMain.handle("set-mqtt-port", (event, port) => {
+  const p = parseInt(port);
+  if (isNaN(p) || p <= 0 || p > 65535) {
+    return { error: "Invalid MQTT port" };
+  }
+  return sendCommand(`SET_MQTT_PORT:${p}`);
 });
 ipcMain.handle("set-mqtt-user", (event, user) => sendCommand(`SET_MQTT_USER:${user}`));
 ipcMain.handle("set-mqtt-password", (event, pass) => sendCommand(`SET_MQTT_PASS:${pass}`));
