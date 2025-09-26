@@ -26,8 +26,13 @@ let sensorData = {
   "SPI": {}
 };
 let currentTemperature = null; // Store latest temperature value
+let currentHumidity = null;    // Store latest humidity value
+let currentPressure = null;    // Store latest pressure value
+let currentLight = null;       // Store latest light intensity value
 
-// Update sensor UI (list, data, and thermometer)
+
+
+// Update sensor UI (list, data, thermometer, and cards)
 function updateSensorUI() {
   const protocol = document.getElementById("sensor-select").value;
   const sensorListDiv = document.getElementById("sensor-list");
@@ -35,9 +40,19 @@ function updateSensorUI() {
   const thermometerFill = document.getElementById("thermometer-fill");
   const thermometerBulb = document.getElementById("thermometer-bulb");
   const thermometerValue = document.getElementById("thermometer-value");
+  const humidityValue = document.getElementById("humidity-value");
+  const humidityWave = document.getElementById("humidity-wave");
+  const wavePath = document.getElementById("wavePath");
+  const waveColor1 = document.getElementById("waveColor1");
+  const waveColor2 = document.getElementById("waveColor2");
+  const pressureValue = document.getElementById("pressure-value");
+  const pressureBar = document.getElementById("pressure-bar");
+  const lightValue = document.getElementById("light-value");
+  const lightBar = document.getElementById("light-bar");
   sensorListDiv.innerHTML = "";
   sensorDataDiv.innerHTML = "";
 
+  
   if (protocol) {
     // Display sensor list
     const sensors = sensorProtocolMap[protocol] || [];
@@ -72,13 +87,10 @@ function updateSensorUI() {
       } else {
         fillColor = "#f44336"; // Red
       }
-
-      // Calculate fill height (scale temperature to SVG height, assuming 0-50°C range)
       const maxTemp = 50;
       const minTemp = 0;
-      const maxHeight = 160; // SVG rect height
+      const maxHeight = 160;
       const fillHeight = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp) * maxHeight, 0), maxHeight);
-      
       thermometerFill.setAttribute("y", 180 - fillHeight);
       thermometerFill.setAttribute("height", fillHeight);
       thermometerFill.setAttribute("fill", fillColor);
@@ -87,9 +99,88 @@ function updateSensorUI() {
     } else {
       thermometerFill.setAttribute("y", 180);
       thermometerFill.setAttribute("height", 0);
-      thermometerFill.setAttribute("fill", "#ffeb3b"); // Default yellow
+      thermometerFill.setAttribute("fill", "#ffeb3b");
       thermometerBulb.setAttribute("fill", "#ffeb3b");
       thermometerValue.textContent = "N/A";
+    }
+
+    // Update humidity wave (only for I2C protocol)
+    if (protocol === "I2C" && currentHumidity !== null) {
+      const humidity = parseFloat(currentHumidity);
+      humidityValue.textContent = `${humidity.toFixed(1)}%`;
+
+      // Interpolate wave colors based on humidity
+      const t = Math.min(Math.max(humidity / 100, 0), 1);
+      const lowColor = { r: 61, g: 142, b: 180 }; // #3d8eb4
+      const highColor = { r: 4, g: 116, b: 168 }; // #0474a8
+      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+      const primaryColor = `rgb(${r}, ${g}, ${b})`;
+      waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
+      waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+
+      // Animate wave height
+      const waveHeight = 100 - (humidity * 100 / 100); // Invert for fill effect
+      const waveAnimation = `
+        @keyframes waveAnimation {
+          0% { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+          50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
+          100% { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+        }
+      `;
+      const styleSheet = document.styleSheets[0];
+      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+      wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
+      wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+    } else {
+      humidityValue.textContent = "N/A";
+      waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
+      waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
+      wavePath.style.animation = "";
+      wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
+    }
+
+    // Update pressure card (only for I2C protocol)
+    if (protocol === "I2C" && currentPressure !== null) {
+      const pressure = parseFloat(currentPressure);
+      let barColor;
+      if (pressure >= 950 && pressure <= 1050) {
+        barColor = "#34d399"; // Green
+      } else if ((pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100)) {
+        barColor = "#ffeb3b"; // Yellow
+      } else {
+        barColor = "#f87171"; // Red
+      }
+      const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
+      pressureValue.textContent = `${pressure.toFixed(1)} hPa`;
+      pressureBar.style.width = `${barWidth}%`;
+      pressureBar.style.backgroundColor = barColor;
+    } else {
+      pressureValue.textContent = "N/A";
+      pressureBar.style.width = "0%";
+      pressureBar.style.backgroundColor = "#34d399"; // Default green
+    }
+
+    // Update light intensity card (only for I2C protocol)
+    if (protocol === "I2C" && currentLight !== null) {
+      const light = parseFloat(currentLight);
+      let barColor;
+      if (light <= 10000) {
+        barColor = "#34d399"; // Green
+      } else if (light > 10000 && light <= 50000) {
+        barColor = "#ffeb3b"; // Yellow
+      } else {
+        barColor = "#f87171"; // Red
+      }
+      const barWidth = Math.min(Math.max(light / 120000 * 100, 0), 100);
+      lightValue.textContent = `${light.toFixed(1)} lux`;
+      lightBar.style.width = `${barWidth}%`;
+      lightBar.style.backgroundColor = barColor;
+    } else {
+      lightValue.textContent = "N/A";
+      lightBar.style.width = "0%";
+      lightBar.style.backgroundColor = "#34d399"; // Default green
     }
   } else {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -99,6 +190,17 @@ function updateSensorUI() {
     thermometerFill.setAttribute("fill", "#ffeb3b");
     thermometerBulb.setAttribute("fill", "#ffeb3b");
     thermometerValue.textContent = "N/A";
+    humidityValue.textContent = "N/A";
+    waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
+    waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
+    wavePath.style.animation = "";
+    wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
+    pressureValue.textContent = "N/A";
+    pressureBar.style.width = "0%";
+    pressureBar.style.backgroundColor = "#34d399";
+    lightValue.textContent = "N/A";
+    lightBar.style.width = "0%";
+    lightBar.style.backgroundColor = "#34d399";
   }
 }
 
@@ -123,9 +225,17 @@ function parseSensorData(data) {
         sensorStatus[protocol][sensorName] = true;
         // Store sensor data
         sensorData[protocol][`${sensorName} ${parameter}`] = value;
-        // Update temperature for thermometer
-        if (sensorName === "BME680" && parameter === "Temperature") {
-          currentTemperature = value.replace("°C", "").trim();
+        // Update specific values for cards
+        if (sensorName === "BME680") {
+          if (parameter === "Temperature") {
+            currentTemperature = value.replace("°C", "").trim();
+          } else if (parameter === "Humidity") {
+            currentHumidity = value.replace("%", "").trim();
+          } else if (parameter === "Pressure") {
+            currentPressure = value.replace("hpa", "").trim();
+          }
+        } else if (sensorName === "VEML7700" && parameter === "LightIntensity") {
+          currentLight = value.replace("lux", "").trim();
         }
         // Update UI
         updateSensorUI();
@@ -143,6 +253,7 @@ function parseSensorData(data) {
     }
   });
 }
+
 function updateProtocolUI() {
   const protocol = document.getElementById("protocol-select").value;
 

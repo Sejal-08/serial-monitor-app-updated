@@ -19,7 +19,9 @@
   "appId": "com.annam.serialmonitor",
   "productName": "Serial Monitor",
   "win": {
-    "target": "nsis"
+    "target": "nsis",
+      "icon": "build/icon.ico" 
+    
    
   },
   "nsis": {

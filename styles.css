@@ -559,61 +559,178 @@ body.dark-mode .thermometer-value {
   color: #e0e7ff;
 }
 
-/* Log color variables (theme-aware) */
-:root {
-  --log-text: #1e293b;
-  --log-success: #16a34a;
-  --log-error: #ef4444;
-  --log-info: #2563eb;
-  --log-cmd: #6b7280;
-  --log-muted: rgba(0,0,0,0.45);
-}
-
-body.dark-mode {
-  --log-text: #e6eefc;
-  --log-success: #34d399;
-  --log-error: #f87171;
-  --log-info: #60a5fa;
-  --log-cmd: #94a3b8;
-  --log-muted: rgba(255,255,255,0.12);
-}
-
-/* Each log line */
-#output .log-line {
-  white-space: pre-wrap;
-  font-family: 'Courier New', monospace;
-  font-size: 0.92em;
-  margin-bottom: 4px;
-  line-height: 1.35;
-  color: var(--log-text);
-}
-
-/* Semantic classes */
-#output .log-success { color: var(--log-success); font-weight: 600; }
-#output .log-error   { color: var(--log-error); font-weight: 700; }
-#output .log-info    { color: var(--log-info); font-weight: 600; }
-#output .log-cmd     { color: var(--log-cmd); opacity: 0.95; font-style: normal; }
-#output .log-default { color: var(--log-text); }
-
-/* Subtle container polish */
-#output {
+/* Wave Card Styles */
+.wave-card-container {
+  margin-top: 15px;
   padding: 12px;
-  border-radius: 10px;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.08);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  height: 150px; /* Fixed height for wave animation */
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .main-container { flex-direction: column; }
-  .left-panel, .right-panel {
-    width: 100%;
-    max-height: none; /* Remove max-height on mobile to prevent overlap */
-  }
-  nav { padding: 0 5vw; }
-  .controls { flex-direction: column; align-items: stretch; }
-  .action-button, .input-field, select {
-    width: 100%;
-  }
+body.light-mode .wave-card-container {
+  background: #f9f9f9;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .wave-card-container {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.wave-card-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .wave-card-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .wave-card-container h4 {
+  color: #a3bffa;
+}
+
+.wave-card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.wave-card-content i {
+  font-size: 18px;
+}
+
+body.light-mode .wave-card-content i {
+  color: #1e293b;
+}
+
+body.dark-mode .wave-card-content i {
+  color: #e0e7ff;
+}
+
+.wave-card-value {
+  font-size: 16px;
+  font-weight: bold;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.38);
+}
+
+body.light-mode .wave-card-value {
+  color: #1e293b;
+}
+
+body.dark-mode .wave-card-value {
+  color: #e0e7ff;
+}
+
+#humidity-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px; /* Wave height */
+  z-index: 0;
+}
+
+#humidity-wave path {
+  transition: d 1.2s ease-in-out;
+}
+
+/* Card Styles */
+.card-container {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.4s ease;
+}
+
+body.light-mode .card-container {
+  background: #f9f9f9;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .card-container {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.card-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .card-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .card-container h4 {
+  color: #a3bffa;
+}
+
+.card-value {
+  font-size: 0.9em;
+  font-weight: 600;
+  text-align: center;
+}
+
+body.light-mode .card-value {
+  color: #1e293b;
+}
+
+body.dark-mode .card-value {
+  color: #e0e7ff;
+}
+
+.card-bar {
+  width: 0%;
+  height: 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+body.light-mode .card-bar {
+  background-color: #34d399;
+}
+
+body.dark-mode .card-bar {
+  background-color: #34d399;
+}
+
+/* Log Styles */
+.log-line {
+  display: block;
+}
+
+.log-success {
+  color: #34d399;
+}
+
+.log-error {
+  color: #f87171;
+}
+
+.log-info {
+  color: #a3bffa;
+}
+
+.log-default {
+  color: inherit;
 }

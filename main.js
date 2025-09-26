@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog,Menu  } = require("electron");
 const path = require("path");
 const { SerialPort } = require("serialport");
 const fs = require("fs").promises;
@@ -123,10 +123,13 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 600,
+    icon: path.join(__dirname, "build", "icon.ico"), // 👈 add this
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
+
+    Menu.setApplicationMenu(null);
 
   mainWindow.loadFile("index.html");
 }

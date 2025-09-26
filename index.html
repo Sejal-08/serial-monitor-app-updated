@@ -8,7 +8,7 @@
 <body class="light-mode">
   <nav>
     <div class="logo">
-      <img src="logo.png" alt="Logo">
+      <img src="./build/logo.png" alt="Logo">
     </div>
     <ul class="nav-links">
       <li>
@@ -135,6 +135,32 @@
             <text x="45" y="100" font-size="12" fill="var(--text-color)">°C</text>
           </svg>
           <div id="thermometer-value" class="thermometer-value">N/A</div>
+        </div>
+        <div id="humidity-card" class="wave-card-container">
+          <h4>Humidity</h4>
+          <div class="wave-card-content">
+            <i class="fas fa-water-drop-outlined"></i>
+            <span id="humidity-value" class="wave-card-value">N/A</span>
+          </div>
+          <svg id="humidity-wave" width="100%" height="100" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" id="waveColor1" style="stop-color:#3d8eb4;stop-opacity:0.5"/>
+                <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1"/>
+              </linearGradient>
+            </defs>
+            <path id="wavePath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#waveGradient)"/>
+          </svg>
+        </div>
+        <div id="pressure-card" class="card-container">
+          <h4>Pressure</h4>
+          <div id="pressure-value" class="card-value">N/A</div>
+          <div id="pressure-bar" class="card-bar"></div>
+        </div>
+        <div id="light-card" class="card-container">
+          <h4>Light Intensity</h4>
+          <div id="light-value" class="card-value">N/A</div>
+          <div id="light-bar" class="card-bar"></div>
         </div>
       </section>
     </div>
