@@ -4,6 +4,35 @@
   <title>Serial Monitor</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .collapsible {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+    .collapsible i {
+      transition: transform 0.3s ease;
+    }
+    .collapsible.active i {
+      transform: rotate(180deg);
+    }
+    .collapsible-content {
+      display: none;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+    .collapsible-content.active {
+      display: block;
+    }
+  </style>
 </head>
 <body class="light-mode">
   <nav>
@@ -19,201 +48,242 @@
 
   <div class="main-container">
     <div class="left-panel">
+      <section class="control-section">
+        <h3><i class="fas fa-plug"></i> Serial Port</h3>
+        <div class="controls">
+          <button class="action-button" onclick="listPorts()"><i class="fas fa-list"></i> List Ports</button>
+          <select id="ports" class="input-field"></select>
+          <select id="baud-rate" class="input-field">
+            <option value="9600">9600</option>
+            <option value="19200">19200</option>
+            <option value="38400">38400</option>
+            <option value="57600">57600</option>
+            <option value="115200" selected>115200</option>
+            <option value="230400">230400</option>
+          </select>
+          <button class="action-button" onclick="connectPort()"><i class="fas fa-play"></i> Connect</button>
+          <button class="action-button" onclick="disconnectPort()"><i class="fas fa-stop"></i> Disconnect</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <h3><i class="fas fa-id-card"></i> Device ID Configuration</h3>
+        <div class="controls">
+          <input type="text" id="device-id" class="input-field" placeholder="Device ID (e.g., device-123)">
+          <button class="action-button" onclick="setDeviceID()"><i class="fas fa-save"></i> Set Device ID</button>
+          <button class="action-button" onclick="getDeviceID()"><i class="fas fa-eye"></i> Get Device ID</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
+        <div class="controls">
+          <input type="number" id="interval" class="input-field" placeholder="Interval (seconds)" min="1">
+          <button class="action-button" onclick="setInterval()"><i class="fas fa-save"></i> Set Interval</button>
+          <button class="action-button" onclick="getInterval()"><i class="fas fa-eye"></i> Get Interval</button>
+        </div>
+      </section>
+
+      <section class="control-section">
+        <h3><i class="fas fa-lightbulb"></i> LED Controls</h3>
+        <div class="controls">
+          <button id="led-toggle-button" class="action-button" onclick="toggleLED()">
+            <i class="fas fa-toggle-off"></i> Turn LED On
+          </button>
+          <button id="restart-button" class="action-button" onclick="restartDevice()">
+            <i class="fas fa-redo"></i> Restart Device
+          </button>
+        </div>
+      </section>
+
       <section class="control-section" id="protocol-section">
-        <h3><i class="fas fa-exchange-alt"></i> Protocol Selection</h3>
-        <div class="controls">
-          <select id="protocol-select" class="input-field" onchange="updateProtocolUI()">
-            <option value="FTP">FTP</option>
-            <option value="MQTT">MQTT</option>
-            <option value="HTTP">HTTP</option>
-          </select>
-          <button class="action-button" onclick="setProtocol()"><i class="fas fa-save"></i> Set Protocol</button>
-        </div>
-      </section>
-
-      <section class="control-section" id="ftp-section">
-        <h3><i class="fas fa-cloud-upload-alt"></i> FTP Configuration</h3>
-        <div class="controls">
-          <input type="text" id="ftp-host" class="input-field" placeholder="Host (e.g., 13.126.194.224)">
-        </div>
-        <div class="controls">
-          <input type="text" id="ftp-user" class="input-field" placeholder="User (e.g., iit_ropar)">
-        </div>
-        <div class="controls">
-          <input type="password" id="ftp-password" class="input-field" placeholder="Password">
-        </div>
-        <div class="controls">
-          <button class="action-button" onclick="setFTPConfig()"><i class="fas fa-save"></i> Set Config</button>
-          <button class="action-button" onclick="getFTPConfig()"><i class="fas fa-eye"></i> Get FTP Config</button>
-        </div>
-        <div class="controls">
-          <input type="text" id="upload-filename" class="input-field" placeholder="Filename (e.g., data1.json)">
-          <button class="action-button" onclick="uploadFile()"><i class="fas fa-file-upload"></i> Upload File</button>
-        </div>
-      </section>
-
-      <section class="control-section" id="mqtt-section" style="display: none;">
-        <h3><i class="fas fa-comments"></i> MQTT Configuration</h3>
-        <div class="controls">
-          <input type="text" id="mqtt-broker" class="input-field" placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
-        </div>
-        <div class="controls">
-          <input type="number" id="mqtt-port" class="input-field" placeholder="Port (e.g., 1883)" value="1883">
-        </div>
-        <div class="controls">
-          <input type="text" id="mqtt-user" class="input-field" placeholder="User">
-        </div>
-        <div class="controls">
-          <input type="password" id="mqtt-password" class="input-field" placeholder="Password">
-        </div>
-        <div class="controls">
-          <label for="mqtt-ssl">SSL/TLS Enabled:</label>
-          <select id="mqtt-ssl" class="input-field" onchange="toggleCertUploadAndPort()">
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-          </select>
-        </div>
-        <div id="cert-section" style="display: none;">
+        <button class="collapsible"><span><i class="fas fa-exchange-alt"></i> Protocol Configuration</span><i class="fas fa-chevron-down"></i></button>
+        <div class="collapsible-content">
           <div class="controls">
-            <label>Device Certificate:</label>
-            <input type="text" id="mqtt-ca-cert-path" class="input-field" placeholder="Path to certificate">
-            <button class="action-button" onclick="browseCACert()"><i class="fas fa-folder-open"></i> Browse</button>
+            <select id="protocol-select" class="input-field" onchange="updateProtocolUI()">
+              <option value="FTP">FTP</option>
+              <option value="MQTT">MQTT</option>
+              <option value="HTTP">HTTP</option>
+            </select>
+            <button class="action-button" onclick="setProtocol()"><i class="fas fa-save"></i> Set Protocol</button>
           </div>
-          <div class="controls">
-            <label>Private Key:</label>
-            <input type="text" id="mqtt-client-key-path" class="input-field" placeholder="Path to private key">
-            <button class="action-button" onclick="browseClientKey()"><i class="fas fa-folder-open"></i> Browse</button>
-          </div>
-        </div>
-        <div class="controls">
-          <button class="action-button" onclick="setMQTTConfig()"><i class="fas fa-save"></i> Set Config</button>
-          <button class="action-button" onclick="getMQTTConfig()"><i class="fas fa-eye"></i> Get MQTT Config</button>
-          <button class="action-button" id="cert-upload-button" onclick="uploadCertificates()" style="display: none;"><i class="fas fa-upload"></i> Upload Certificates</button>
-        </div>
-      </section>
 
-      <section class="control-section" id="http-section" style="display: none;">
-        <h3><i class="fas fa-globe"></i> HTTP Configuration</h3>
-        <div class="controls">
-          <input type="text" id="http-url" class="input-field" placeholder="URL (e.g., http://example.com/data)">
-        </div>
-        <div class="controls">
-          <input type="text" id="http-auth-user" class="input-field" placeholder="Auth User">
-          <input type="password" id="http-auth-password" class="input-field" placeholder="Auth Password">
-        </div>
-        <div class="controls">
-          <button class="action-button" onclick="setHTTPConfig()"><i class="fas fa-save"></i> Set Config</button>
-          <button class="action-button" onclick="getHTTPConfig()"><i class="fas fa-eye"></i> Get HTTP Config</button>
-        </div>
-      </section>
-
-      <section class="control-section" id="sensors-section">
-        <h3><i class="fas fa-microchip"></i> Sensors</h3>
-        <div class="controls">
-         <select id="sensor-select" class="input-field" onchange="updateSensorUI()">
-  <option value="" disabled selected>Select a Sensor Protocol</option>
-  <option value="I2C">I2C</option>
-  <option value="ADC">ADC</option>
-  <option value="RS232">RS232</option>
-  <option value="RS485">RS485</option>
-  <option value="SPI">SPI</option>
-</select>
-        </div>
-        <div id="sensor-list" class="sensor-list-container">
-          <!-- Sensor list with presence indicators will be dynamically inserted here -->
-        </div>
-        <div id="sensor-data" class="sensor-data-container">
-          <!-- Sensor data will be dynamically inserted here -->
-        </div>
-         <div id="thermometer-container" class="thermometer-container">
-          <h4>Temperature</h4>
-          <svg width="60" height="200" viewBox="0 0 60 200" class="thermometer">
-            <rect x="20" y="20" width="20" height="160" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
-            <rect id="thermometer-fill" x="22" y="20" width="16" height="0" fill="#ffeb3b"/>
-            <circle cx="30" cy="180" r="10" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
-            <circle id="thermometer-bulb" cx="30" cy="180" r="8" fill="#ffeb3b"/>
-            <text x="45" y="100" font-size="12" fill="var(--text-color)">°C</text>
-          </svg>
-          <div id="thermometer-value" class="thermometer-value">N/A</div>
-        </div>
-        <div id="humidity-card" class="wave-card-container">
-          <h4>Humidity</h4>
-          <div class="wave-card-content">
-            <i class="fas fa-water-drop-outlined"></i>
-            <span id="humidity-value" class="wave-card-value">N/A</span>
+          <div id="ftp-section">
+            <h3><i class="fas fa-cloud-upload-alt"></i> FTP Configuration</h3>
+            <div class="controls">
+              <input type="text" id="ftp-host" class="input-field" placeholder="Host (e.g., 13.126.194.224)">
+            </div>
+            <div class="controls">
+              <input type="text" id="ftp-user" class="input-field" placeholder="User (e.g., iit_ropar)">
+            </div>
+            <div class="controls">
+              <input type="password" id="ftp-password" class="input-field" placeholder="Password">
+            </div>
+            <div class="controls">
+              <button class="action-button" onclick="setFTPConfig()"><i class="fas fa-save"></i> Set Config</button>
+              <button class="action-button" onclick="getFTPConfig()"><i class="fas fa-eye"></i> Get FTP Config</button>
+            </div>
+            <div class="controls">
+              <input type="text" id="upload-filename" class="input-field" placeholder="Filename (e.g., data1.json)">
+              <button class="action-button" onclick="uploadFile()"><i class="fas fa-file-upload"></i> Upload File</button>
+            </div>
           </div>
-          <svg id="humidity-wave" width="100%" height="100" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" id="waveColor1" style="stop-color:#3d8eb4;stop-opacity:0.5"/>
-                <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1"/>
-              </linearGradient>
-            </defs>
-            <path id="wavePath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#waveGradient)"/>
-          </svg>
-        </div>
-        <div id="pressure-card" class="card-container">
-          <h4>Pressure</h4>
-          <div id="pressure-value" class="card-value">N/A</div>
-          <div id="pressure-bar" class="card-bar"></div>
-        </div>
-        <div id="light-card" class="card-container">
-          <h4>Light Intensity</h4>
-          <div id="light-value" class="card-value">N/A</div>
-          <div id="light-bar" class="card-bar"></div>
+
+          <div id="mqtt-section" style="display: none;">
+            <h3><i class="fas fa-comments"></i> MQTT Configuration</h3>
+            <div class="controls">
+              <input type="text" id="mqtt-broker" class="input-field" placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
+            </div>
+            <div class="controls">
+              <input type="number" id="mqtt-port" class="input-field" placeholder="Port (e.g., 1883)" value="1883">
+            </div>
+            <div class="controls">
+              <input type="text" id="mqtt-user" class="input-field" placeholder="User">
+            </div>
+            <div class="controls">
+              <input type="password" id="mqtt-password" class="input-field" placeholder="Password">
+            </div>
+            <div class="controls">
+              <label for="mqtt-ssl">SSL/TLS Enabled:</label>
+              <select id="mqtt-ssl" class="input-field" onchange="toggleCertUploadAndPort()">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+              </select>
+            </div>
+            <div id="cert-section" style="display: none;">
+              <div class="controls">
+                <label>Device Certificate:</label>
+                <input type="text" id="mqtt-ca-cert-path" class="input-field" placeholder="Path to certificate">
+                <button class="action-button" onclick="browseCACert()"><i class="fas fa-folder-open"></i> Browse</button>
+              </div>
+              <div class="controls">
+                <label>Private Key:</label>
+                <input type="text" id="mqtt-client-key-path" class="input-field" placeholder="Path to private key">
+                <button class="action-button" onclick="browseClientKey()"><i class="fas fa-folder-open"></i> Browse</button>
+              </div>
+            </div>
+            <div class="controls">
+              <button class="action-button" onclick="setMQTTConfig()"><i class="fas fa-save"></i> Set Config</button>
+              <button class="action-button" onclick="getMQTTConfig()"><i class="fas fa-eye"></i> Get MQTT Config</button>
+              <button class="action-button" id="cert-upload-button" onclick="uploadCertificates()" style="display: none;"><i class="fas fa-upload"></i> Upload Certificates</button>
+            </div>
+          </div>
+
+          <div id="http-section" style="display: none;">
+            <h3><i class="fas fa-globe"></i> HTTP Configuration</h3>
+            <div class="controls">
+              <input type="text" id="http-url" class="input-field" placeholder="URL (e.g., http://example.com/data)">
+            </div>
+            <div class="controls">
+              <input type="text" id="http-auth-user" class="input-field" placeholder="Auth User">
+              <input type="password" id="http-auth-password" class="input-field" placeholder="Auth Password">
+            </div>
+            <div class="controls">
+              <button class="action-button" onclick="setHTTPConfig()"><i class="fas fa-save"></i> Set Config</button>
+              <button class="action-button" onclick="getHTTPConfig()"><i class="fas fa-eye"></i> Get HTTP Config</button>
+            </div>
+          </div>
         </div>
       </section>
     </div>
 
     <div class="right-panel">
       <div class="container">
-        <h2><i class="fas fa-terminal"></i> Serial Monitor</h2>
-
-        <section class="control-section">
-          <h3><i class="fas fa-plug"></i> Serial Port</h3>
+        <section class="control-section" id="sensors-section">
+          <h3><i class="fas fa-microchip"></i> Sensor Protocols</h3>
           <div class="controls">
-            <button class="action-button" onclick="listPorts()"><i class="fas fa-list"></i> List Ports</button>
-            <select id="ports" class="input-field"></select>
-            <select id="baud-rate" class="input-field">
-              <option value="9600">9600</option>
-              <option value="19200">19200</option>
-              <option value="38400">38400</option>
-              <option value="57600">57600</option>
-              <option value="115200" selected>115200</option>
-              <option value="230400">230400</option>
+            <select id="sensor-select" class="input-field" onchange="updateSensorUI()">
+              <option value="" disabled selected>Select a Sensor Protocol</option>
+              <option value="I2C">I2C</option>
+              <option value="ADC">ADC</option>
+              <option value="RS232">RS232</option>
+              <option value="RS485">RS485</option>
+              <option value="SPI">SPI</option>
             </select>
-            <button class="action-button" onclick="connectPort()"><i class="fas fa-play"></i> Connect</button>
-            <button class="action-button" onclick="disconnectPort()"><i class="fas fa-stop"></i> Disconnect</button>
           </div>
-        </section>
-
-        <section class="control-section">
-          <h3><i class="fas fa-id-card"></i> Device ID Configuration</h3>
-          <div class="controls">
-            <input type="text" id="device-id" class="input-field" placeholder="Device ID (e.g., device-123)">
-            <button class="action-button" onclick="setDeviceID()"><i class="fas fa-save"></i> Set Device ID</button>
-            <button class="action-button" onclick="getDeviceID()"><i class="fas fa-eye"></i> Get Device ID</button>
+          <div id="sensor-list" class="sensor-list-container">
+            <!-- Sensor list with presence indicators will be dynamically inserted here -->
           </div>
-        </section>
-
-        <section class="control-section">
-          <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
-          <div class="controls">
-            <input type="number" id="interval" class="input-field" placeholder="Interval (seconds)" min="1">
-            <button class="action-button" onclick="setInterval()"><i class="fas fa-save"></i> Set Interval</button>
-            <button class="action-button" onclick="getInterval()"><i class="fas fa-eye"></i> Get Interval</button>
+          <div id="sensor-data" class="sensor-data-container">
+            <!-- Sensor data will be dynamically inserted here -->
           </div>
-        </section>
-
-        <section class="control-section">
-          <h3><i class="fas fa-lightbulb"></i> LED Controls</h3>
-          <div class="controls">
-            <button id="led-toggle-button" class="action-button" onclick="toggleLED()">
-              <i class="fas fa-toggle-off"></i> Turn LED On
-            </button>
-            <button id="restart-button" class="action-button" onclick="restartDevice()">
-              <i class="fas fa-redo"></i> Restart Device
-            </button>
+          <div class="sensor-cards">
+            <div id="thermometer-container" class="thermometer-container">
+              <h4>Temperature</h4>
+              <svg width="100" height="180" viewBox="0 0 100 220" class="thermometer">
+                <!-- Thermometer tube -->
+                <rect x="45" y="20" width="10" height="160" rx="5" ry="5" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+                <!-- Temperature fill -->
+                <rect id="thermometer-fill" x="47" y="20" width="6" height="0" rx="3" ry="3" fill="#ffeb3b"/>
+                <!-- Bulb at the bottom -->
+                <circle cx="50" cy="180" r="5" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
+                <circle id="thermometer-bulb" cx="50" cy="180" r="3" fill="#ffeb3b"/>
+                <!-- Temperature scale marks and labels -->
+                <line x1="60" y1="20" x2="65" y2="20" stroke="#333" stroke-width="2"/>
+                <text x="70" y="25" font-size="10" fill="var(--text-color)">50°C</text>
+                <line x1="60" y1="52" x2="65" y2="52" stroke="#333" stroke-width="1"/>
+                <text x="70" y="57" font-size="10" fill="var(--text-color)">40°C</text>
+                <line x1="60" y1="84" x2="65" y2="84" stroke="#333" stroke-width="1"/>
+                <text x="70" y="89" font-size="10" fill="var(--text-color)">30°C</text>
+                <line x1="60" y1="116" x2="65" y2="116" stroke="#333" stroke-width="1"/>
+                <text x="70" y="121" font-size="10" fill="var(--text-color)">20°C</text>
+                <line x1="60" y1="148" x2="65" y2="148" stroke="#333" stroke-width="1"/>
+                <text x="70" y="153" font-size="10" fill="var(--text-color)">10°C</text>
+                <line x1="60" y1="180" x2="65" y2="180" stroke="#333" stroke-width="2"/>
+                <text x="70" y="185" font-size="10" fill="var(--text-color)">0°C</text>
+                <!-- Current temperature value -->
+                <text x="10" y="210" font-size="12" fill="var(--text-color)" id="thermometer-value"></text>
+              </svg>
+            </div>
+            <div id="humidity-card" class="wave-card-container">
+              <h4>Humidity</h4>
+              <div class="wave-card-content">
+                <i class="fas fa-water-drop-outlined"></i>
+                <span id="humidity-value" class="wave-card-value"></span>
+              </div>
+              <svg id="humidity-wave" width="100%" height="80" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" id="waveColor1" style="stop-color:#3d8eb4;stop-opacity:0.5"/>
+                    <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1"/>
+                  </linearGradient>
+                </defs>
+                <path id="wavePath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#waveGradient)"/>
+              </svg>
+            </div>
+            <div id="pressure-card" class="card-container">
+              <h3>Pressure</h3>
+              <div id="pressure-value" class="card-value"></div>
+              <div id="pressure-bar" class="card-bar"></div>
+            </div>
+            <div id="light-card" class="card-container">
+              <h3>Light Intensity</h3>
+              <div id="light-value" class="card-value"></div>
+              <svg id="light-sun" width="80" height="80" viewBox="0 0 100 100">
+                <!-- Sun circle -->
+                <circle id="sun-circle" cx="50" cy="50" r="20" fill="#ffeb3b" />
+                <!-- Rays (simple lines for sunburst effect) -->
+                <line x1="50" y1="5" x2="50" y2="15" stroke="#ffeb3b" stroke-width="3" />
+                <line x1="50" y1="85" x2="50" y2="95" stroke="#ffeb3b" stroke-width="3" />
+                <line x1="5" y1="50" x2="15" y2="50" stroke="#ffeb3b" stroke-width="3" />
+                <line x1="85" y1="50" x2="95" y2="50" stroke="#ffeb3b" stroke-width="3" />
+                <line x1="21" y1="21" x2="29" y2="29" stroke="#ffeb3b" stroke-width="3" transform="rotate(45 50 50)" />
+                <line x1="21" y1="79" x2="29" y2="71" stroke="#ffeb3b" stroke-width="3" transform="rotate(45 50 50)" />
+                <line x1="79" y1="21" x2="71" y2="29" stroke="#ffeb3b" stroke-width="3" transform="rotate(45 50 50)" />
+                <line x1="79" y1="79" x2="71" y2="71" stroke="#ffeb3b" stroke-width="3" transform="rotate(45 50 50)" />
+                <!-- Glow filter (applied dynamically in JS) -->
+                <defs>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="0" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+              </svg>
+              <div id="light-value-display" class="parameter-value"></div>
+            </div>
           </div>
         </section>
 
@@ -265,6 +335,17 @@
       const icon = document.querySelector('.theme-toggle i');
       icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
     }
+
+    function clearOutput() {
+      document.getElementById('output').innerHTML = '';
+    }
+
+    // Collapsible functionality for Protocol Configuration
+    document.querySelector('.collapsible').addEventListener('click', function() {
+      this.classList.toggle('active');
+      const content = this.nextElementSibling;
+      content.classList.toggle('active');
+    });
 
     if (localStorage.getItem('theme') === 'dark') {
       document.body.classList.add('dark-mode');

@@ -48,7 +48,7 @@ function updateSensorUI() {
   const pressureValue = document.getElementById("pressure-value");
   const pressureBar = document.getElementById("pressure-bar");
   const lightValue = document.getElementById("light-value");
-  const lightBar = document.getElementById("light-bar");
+ 
   sensorListDiv.innerHTML = "";
   sensorDataDiv.innerHTML = "";
 
@@ -101,7 +101,7 @@ function updateSensorUI() {
       thermometerFill.setAttribute("height", 0);
       thermometerFill.setAttribute("fill", "#ffeb3b");
       thermometerBulb.setAttribute("fill", "#ffeb3b");
-      thermometerValue.textContent = "N/A";
+      thermometerValue.textContent = "";
     }
 
     // Update humidity wave (only for I2C protocol)
@@ -134,7 +134,7 @@ function updateSensorUI() {
       wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
       wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
     } else {
-      humidityValue.textContent = "N/A";
+      humidityValue.textContent = "";
       waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
       waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
       wavePath.style.animation = "";
@@ -157,30 +157,46 @@ function updateSensorUI() {
       pressureBar.style.width = `${barWidth}%`;
       pressureBar.style.backgroundColor = barColor;
     } else {
-      pressureValue.textContent = "N/A";
+      pressureValue.textContent = "";
       pressureBar.style.width = "0%";
       pressureBar.style.backgroundColor = "#34d399"; // Default green
     }
 
-    // Update light intensity card (only for I2C protocol)
+  // Update light intensity card (only for I2C protocol)
     if (protocol === "I2C" && currentLight !== null) {
       const light = parseFloat(currentLight);
-      let barColor;
+      let sunColor;
+      let glowStd = 0;
       if (light <= 10000) {
-        barColor = "#34d399"; // Green
+        sunColor = "#ffeb3b"; // Green
+        glowStd = 2;
       } else if (light > 10000 && light <= 50000) {
-        barColor = "#ffeb3b"; // Yellow
+        sunColor = "#ffc13bff"; // Yellow
+        glowStd = 5;
       } else {
-        barColor = "#f87171"; // Red
+        sunColor = "#f87171"; // Red
+        glowStd = 8;
       }
-      const barWidth = Math.min(Math.max(light / 120000 * 100, 0), 100);
+      const brightness = Math.min(Math.max(light / 120000, 0), 1); // 0 to 1 scale
+      const sunCircle = document.getElementById("sun-circle");
+      const rays = document.querySelectorAll("#light-sun line");
+      const glowFilter = document.querySelector("#glow feGaussianBlur");
+      sunCircle.setAttribute("fill", sunColor);
+      sunCircle.setAttribute("r", 20 + (10 * brightness)); // Scale radius from 20 to 30
+      rays.forEach(ray => ray.setAttribute("stroke", sunColor));
+      glowFilter.setAttribute("stdDeviation", glowStd * brightness); // Glow intensity
+      document.getElementById("light-sun").setAttribute("filter", "url(#glow)");
       lightValue.textContent = `${light.toFixed(1)} lux`;
-      lightBar.style.width = `${barWidth}%`;
-      lightBar.style.backgroundColor = barColor;
     } else {
-      lightValue.textContent = "N/A";
-      lightBar.style.width = "0%";
-      lightBar.style.backgroundColor = "#34d399"; // Default green
+      lightValue.textContent = "";
+      const sunCircle = document.getElementById("sun-circle");
+      const rays = document.querySelectorAll("#light-sun line");
+      const glowFilter = document.querySelector("#glow feGaussianBlur");
+      sunCircle.setAttribute("fill", "#ffeb3b"); 
+      sunCircle.setAttribute("r", 20);
+      rays.forEach(ray => ray.setAttribute("stroke", "#ffeb3b"));
+      glowFilter.setAttribute("stdDeviation", 0);
+      document.getElementById("light-sun").removeAttribute("filter");
     }
   } else {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -189,18 +205,17 @@ function updateSensorUI() {
     thermometerFill.setAttribute("height", 0);
     thermometerFill.setAttribute("fill", "#ffeb3b");
     thermometerBulb.setAttribute("fill", "#ffeb3b");
-    thermometerValue.textContent = "N/A";
-    humidityValue.textContent = "N/A";
+    thermometerValue.textContent = "";
+    humidityValue.textContent = "";
     waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
     waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
     wavePath.style.animation = "";
     wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
-    pressureValue.textContent = "N/A";
+    pressureValue.textContent = "";
     pressureBar.style.width = "0%";
     pressureBar.style.backgroundColor = "#34d399";
-    lightValue.textContent = "N/A";
-    lightBar.style.width = "0%";
-    lightBar.style.backgroundColor = "#34d399";
+    lightValue.textContent = "";
+   
   }
 }
 
