@@ -476,7 +476,10 @@ body.dark-mode .sensor-data-item {
   color: #6b8af7;
   font-weight: 600;
 }
-
+#thermometer-value {
+  font-size: 16px;
+    font-weight: bold;
+}
 /* Thermometer Styles */
 .thermometer-container {
   margin-top: 15px;

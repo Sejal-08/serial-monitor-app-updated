@@ -232,7 +232,7 @@
                 <line x1="60" y1="180" x2="65" y2="180" stroke="#333" stroke-width="2"/>
                 <text x="70" y="185" font-size="10" fill="var(--text-color)">0°C</text>
                 <!-- Current temperature value -->
-                <text x="10" y="210" font-size="12" fill="var(--text-color)" id="thermometer-value"></text>
+                <text x="10" y="210" fill="var(--text-color)" id="thermometer-value" class="wave-card-value"></text>
               </svg>
             </div>
             <div id="humidity-card" class="wave-card-container">
@@ -253,12 +253,13 @@
             </div>
             <div id="pressure-card" class="card-container">
               <h3>Pressure</h3>
-              <div id="pressure-value" class="card-value"></div>
+              <div id="pressure-value" class="wave-card-value"></div>
               <div id="pressure-bar" class="card-bar"></div>
             </div>
             <div id="light-card" class="card-container">
               <h3>Light Intensity</h3>
-              <div id="light-value" class="card-value"></div>
+              <div id="light-value" class="wave-card-value"></div>
+           
               <svg id="light-sun" width="80" height="80" viewBox="0 0 100 100">
                 <!-- Sun circle -->
                 <circle id="sun-circle" cx="50" cy="50" r="20" fill="#ffeb3b" />
@@ -282,7 +283,7 @@
                   </filter>
                 </defs>
               </svg>
-              <div id="light-value-display" class="parameter-value"></div>
+              <div id="light-value-display" class="wave-card-value"></div>
             </div>
           </div>
         </section>
