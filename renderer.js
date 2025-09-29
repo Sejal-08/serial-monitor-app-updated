@@ -1,12 +1,13 @@
 let selectedCACertFile = null;
 let selectedClientKeyFile = null;
+
 // Sensor protocol to sensor mapping
 const sensorProtocolMap = {
-  "I2C": ["BME680", "VEML7700"], // I2C sensors
-  "ADC": ["Battery Voltage", "Rain Gauge"], // ADC sensors
-  "RS232": ["Ultrasonic Sensor"], // RS232
-  "RS485": [], // RS485
-  "SPI": [] // SPI
+  "I2C": ["BME680", "VEML7700"],
+  "ADC": ["Battery Voltage", "Rain Gauge"],
+  "RS232": ["Ultrasonic Sensor"],
+  "RS485": [],
+  "SPI": []
 };
 
 // Track sensor presence and data
@@ -25,14 +26,12 @@ let sensorData = {
   "RS485": {},
   "SPI": {}
 };
-let currentTemperature = null; // Store latest temperature value
-let currentHumidity = null;    // Store latest humidity value
-let currentPressure = null;    // Store latest pressure value
-let currentLight = null;       // Store latest light intensity value
+let currentTemperature = null;
+let currentHumidity = null;
+let currentPressure = null;
+let currentLight = null;
 
-
-
-// Update sensor UI (list, data, thermometer, and cards)
+// Update sensor UI
 function updateSensorUI() {
   const protocol = document.getElementById("sensor-select").value;
   const sensorListDiv = document.getElementById("sensor-list");
@@ -48,13 +47,11 @@ function updateSensorUI() {
   const pressureValue = document.getElementById("pressure-value");
   const pressureBar = document.getElementById("pressure-bar");
   const lightValue = document.getElementById("light-value");
- 
+
   sensorListDiv.innerHTML = "";
   sensorDataDiv.innerHTML = "";
 
-  
   if (protocol) {
-    // Display sensor list
     const sensors = sensorProtocolMap[protocol] || [];
     let listHtml = "<h4>Sensors</h4><ul>";
     sensors.forEach(sensor => {
@@ -64,7 +61,6 @@ function updateSensorUI() {
     listHtml += "</ul>";
     sensorListDiv.innerHTML = sensors.length > 0 ? listHtml : "<p>No sensors available.</p>";
 
-    // Display sensor data
     const data = sensorData[protocol];
     let dataHtml = "<h4>Sensor Data</h4>";
     if (Object.keys(data).length > 0) {
@@ -76,20 +72,10 @@ function updateSensorUI() {
     }
     sensorDataDiv.innerHTML = dataHtml;
 
-    // Update thermometer (only for I2C protocol)
     if (protocol === "I2C" && currentTemperature !== null) {
       const temp = parseFloat(currentTemperature);
-      let fillColor;
-      if (temp < 25) {
-        fillColor = "#ffeb3b"; // Yellow
-      } else if (temp >= 25 && temp <= 35) {
-        fillColor = "#ff9800"; // Orange
-      } else {
-        fillColor = "#f44336"; // Red
-      }
-      const maxTemp = 50;
-      const minTemp = 0;
-      const maxHeight = 160;
+      let fillColor = temp < 25 ? "#ffeb3b" : temp <= 35 ? "#ff9800" : "#f44336";
+      const maxTemp = 50, minTemp = 0, maxHeight = 160;
       const fillHeight = Math.min(Math.max((temp - minTemp) / (maxTemp - minTemp) * maxHeight, 0), maxHeight);
       thermometerFill.setAttribute("y", 180 - fillHeight);
       thermometerFill.setAttribute("height", fillHeight);
@@ -104,24 +90,19 @@ function updateSensorUI() {
       thermometerValue.textContent = "";
     }
 
-    // Update humidity wave (only for I2C protocol)
     if (protocol === "I2C" && currentHumidity !== null) {
       const humidity = parseFloat(currentHumidity);
       humidityValue.textContent = `${humidity.toFixed(1)}%`;
-
-      // Interpolate wave colors based on humidity
       const t = Math.min(Math.max(humidity / 100, 0), 1);
-      const lowColor = { r: 61, g: 142, b: 180 }; // #3d8eb4
-      const highColor = { r: 4, g: 116, b: 168 }; // #0474a8
+      const lowColor = { r: 61, g: 142, b: 180 };
+      const highColor = { r: 4, g: 116, b: 168 };
       const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
       const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
       const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
       const primaryColor = `rgb(${r}, ${g}, ${b})`;
       waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
       waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
-
-      // Animate wave height
-      const waveHeight = 100 - (humidity * 100 / 100); // Invert for fill effect
+      const waveHeight = 100 - (humidity * 100 / 100);
       const waveAnimation = `
         @keyframes waveAnimation {
           0% { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
@@ -141,17 +122,9 @@ function updateSensorUI() {
       wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
     }
 
-    // Update pressure card (only for I2C protocol)
     if (protocol === "I2C" && currentPressure !== null) {
       const pressure = parseFloat(currentPressure);
-      let barColor;
-      if (pressure >= 950 && pressure <= 1050) {
-        barColor = "#34d399"; // Green
-      } else if ((pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100)) {
-        barColor = "#ffeb3b"; // Yellow
-      } else {
-        barColor = "#f87171"; // Red
-      }
+      let barColor = pressure >= 950 && pressure <= 1050 ? "#34d399" : (pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100) ? "#ffeb3b" : "#f87171";
       const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
       pressureValue.textContent = `${pressure.toFixed(1)} hPa`;
       pressureBar.style.width = `${barWidth}%`;
@@ -159,32 +132,21 @@ function updateSensorUI() {
     } else {
       pressureValue.textContent = "";
       pressureBar.style.width = "0%";
-      pressureBar.style.backgroundColor = "#34d399"; // Default green
+      pressureBar.style.backgroundColor = "#34d399";
     }
 
-  // Update light intensity card (only for I2C protocol)
     if (protocol === "I2C" && currentLight !== null) {
       const light = parseFloat(currentLight);
-      let sunColor;
-      let glowStd = 0;
-      if (light <= 10000) {
-        sunColor = "#ffeb3b"; // Green
-        glowStd = 2;
-      } else if (light > 10000 && light <= 50000) {
-        sunColor = "#ffc13bff"; // Yellow
-        glowStd = 5;
-      } else {
-        sunColor = "#f87171"; // Red
-        glowStd = 8;
-      }
-      const brightness = Math.min(Math.max(light / 120000, 0), 1); // 0 to 1 scale
+      let sunColor = light <= 10000 ? "#ffeb3b" : light <= 50000 ? "#ffc13bff" : "#f87171";
+      let glowStd = light <= 10000 ? 2 : light <= 50000 ? 5 : 8;
+      const brightness = Math.min(Math.max(light / 120000, 0), 1);
       const sunCircle = document.getElementById("sun-circle");
       const rays = document.querySelectorAll("#light-sun line");
       const glowFilter = document.querySelector("#glow feGaussianBlur");
       sunCircle.setAttribute("fill", sunColor);
-      sunCircle.setAttribute("r", 20 + (10 * brightness)); // Scale radius from 20 to 30
+      sunCircle.setAttribute("r", 20 + (10 * brightness));
       rays.forEach(ray => ray.setAttribute("stroke", sunColor));
-      glowFilter.setAttribute("stdDeviation", glowStd * brightness); // Glow intensity
+      glowFilter.setAttribute("stdDeviation", glowStd * brightness);
       document.getElementById("light-sun").setAttribute("filter", "url(#glow)");
       lightValue.textContent = `${light.toFixed(1)} lux`;
     } else {
@@ -192,7 +154,7 @@ function updateSensorUI() {
       const sunCircle = document.getElementById("sun-circle");
       const rays = document.querySelectorAll("#light-sun line");
       const glowFilter = document.querySelector("#glow feGaussianBlur");
-      sunCircle.setAttribute("fill", "#ffeb3b"); 
+      sunCircle.setAttribute("fill", "#ffeb3b");
       sunCircle.setAttribute("r", 20);
       rays.forEach(ray => ray.setAttribute("stroke", "#ffeb3b"));
       glowFilter.setAttribute("stdDeviation", 0);
@@ -215,49 +177,36 @@ function updateSensorUI() {
     pressureBar.style.width = "0%";
     pressureBar.style.backgroundColor = "#34d399";
     lightValue.textContent = "";
-   
   }
 }
 
-// Parse sensor data and update presence
+// Parse sensor data
 function parseSensorData(data) {
   const protocol = document.getElementById("sensor-select").value;
   if (!protocol) return;
 
   const lines = data.split("\n").map(line => line.trim()).filter(line => line);
   lines.forEach(line => {
-    // Parse I2C sensor data (e.g., "BME680 - Temperature: 26.92°C")
     const sensorMatch = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
     if (sensorMatch) {
       const sensorName = sensorMatch[1].trim();
       const parameter = sensorMatch[2].trim();
       const value = sensorMatch[3].trim();
-
-      // Check if sensor belongs to the current protocol
       const sensors = sensorProtocolMap[protocol] || [];
       if (sensors.includes(sensorName)) {
-        // Mark sensor as present
         sensorStatus[protocol][sensorName] = true;
-        // Store sensor data
         sensorData[protocol][`${sensorName} ${parameter}`] = value;
-        // Update specific values for cards
         if (sensorName === "BME680") {
-          if (parameter === "Temperature") {
-            currentTemperature = value.replace("°C", "").trim();
-          } else if (parameter === "Humidity") {
-            currentHumidity = value.replace("%", "").trim();
-          } else if (parameter === "Pressure") {
-            currentPressure = value.replace("hpa", "").trim();
-          }
-        } else if (sensorName === "VEML7700" && parameter === "LightIntensity") {
+          if (parameter === "Temperature") currentTemperature = value.replace("°C", "").trim();
+          else if (parameter === "Humidity") currentHumidity = value.replace("%", "").trim();
+          else if (parameter === "Pressure") currentPressure = value.replace("hPa", "").trim();
+        } else if (sensorName === "VEML7700" && parameter === "Light Intensity") {
           currentLight = value.replace("lux", "").trim();
         }
-        // Update UI
         updateSensorUI();
       }
     }
 
-    // Parse Rain Gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
     const rainMatch = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
     if (rainMatch && protocol === "ADC") {
       sensorStatus[protocol]["Rain Gauge"] = true;
@@ -271,29 +220,18 @@ function parseSensorData(data) {
 
 function updateProtocolUI() {
   const protocol = document.getElementById("protocol-select").value;
-
   document.getElementById("ftp-section").style.display = protocol === "FTP" ? "block" : "none";
   document.getElementById("mqtt-section").style.display = protocol === "MQTT" ? "block" : "none";
   document.getElementById("http-section").style.display = protocol === "HTTP" ? "block" : "none";
-
-  if (protocol === "MQTT") {
-    toggleCertUploadAndPort();
-  } else {
-    document.getElementById("cert-upload-button").style.display = "none";
-  }
+  if (protocol === "MQTT") toggleCertUploadAndPort();
+  else document.getElementById("cert-upload-button").style.display = "none";
 }
 
 function toggleCertUploadAndPort() {
   const sslEnabled = document.getElementById("mqtt-ssl").value;
-  const certSection = document.getElementById("cert-section");
-  const certUploadButton = document.getElementById("cert-upload-button");
-  const portField = document.getElementById("mqtt-port");
-
-  certSection.style.display = sslEnabled === "yes" ? "block" : "none";
-  certUploadButton.style.display = sslEnabled === "yes" ? "block" : "none";
-  
-  // Update port based on SSL selection
-  portField.value = sslEnabled === "yes" ? "8883" : "1883";
+  document.getElementById("cert-section").style.display = sslEnabled === "yes" ? "block" : "none";
+  document.getElementById("cert-upload-button").style.display = sslEnabled === "yes" ? "block" : "none";
+  document.getElementById("mqtt-port").value = sslEnabled === "yes" ? "8883" : "1883";
 }
 
 async function browseCACert() {
@@ -301,11 +239,9 @@ async function browseCACert() {
   if (filePath) {
     selectedCACertFile = filePath;
     document.getElementById("mqtt-ca-cert-path").value = "/usr/device_cert.pem.crt";
-    console.log("Selected certificate file:", filePath);
-    document.getElementById("output").innerHTML += `Selected certificate: ${filePath}<br>`;
+    document.getElementById("output").innerHTML += `<span style="color: green;">Selected certificate: ${filePath}</span><br>`;
   } else {
-    console.log("Certificate file selection cancelled");
-    document.getElementById("output").innerHTML += "Certificate file selection cancelled<br>";
+    document.getElementById("output").innerHTML += `<span style="color: red;">Certificate file selection cancelled</span><br>`;
   }
 }
 
@@ -314,25 +250,17 @@ async function browseClientKey() {
   if (filePath) {
     selectedClientKeyFile = filePath;
     document.getElementById("mqtt-client-key-path").value = "/usr/private_key.pem.key";
-    console.log("Selected private key file:", filePath);
-    document.getElementById("output").innerHTML += `Selected private key: ${filePath}<br>`;
+    document.getElementById("output").innerHTML += `<span style="color: green;">Selected private key: ${filePath}</span><br>`;
   } else {
-    console.log("Private key file selection cancelled");
-    document.getElementById("output").innerHTML += "Private key file selection cancelled<br>";
+    document.getElementById("output").innerHTML += `<span style="color: red;">Private key file selection cancelled</span><br>`;
   }
 }
 
 async function uploadCertificates() {
-  console.log("Attempting to upload certificates...");
-
   if (!selectedCACertFile || !selectedClientKeyFile) {
-    const errorMsg = "Please select both certificate and private key.";
-    console.log(errorMsg);
-    document.getElementById("output").innerHTML += `<span style="color: red;">${errorMsg}</span><br>`;
+    document.getElementById("output").innerHTML += `<span style="color: red;">Please select both certificate and private key.</span><br>`;
     return;
   }
-
-  console.log("Uploading certificate:", selectedCACertFile, "and key:", selectedClientKeyFile);
 
   const result = await window.electronAPI.setMQTTCertificates({
     caCertPath: selectedCACertFile,
@@ -340,10 +268,8 @@ async function uploadCertificates() {
   });
 
   if (result.error) {
-    console.log("Upload failed:", result.error);
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    console.log("Upload successful:", result);
     document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
@@ -381,72 +307,39 @@ async function connectPort() {
   }
 
   const result = await window.electronAPI.connectPort(portName, baudRate);
-
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
-
-  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
 }
 
 async function disconnectPort() {
   const result = await window.electronAPI.disconnectPort();
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
-  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
-}
-
-async function sendCommand(cmd) {
-  if (!cmd) return;
-
-  const result = await window.electronAPI.sendData(cmd);
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
-  }
-
-  document.getElementById("output").innerHTML += result + "<br>";
 }
 
 async function setDeviceID() {
   const deviceID = document.getElementById("device-id").value.trim();
-  if (!deviceID) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">Please enter a valid Device ID.</span><br>`;
-    return;
-  }
-
-  // Basic validation: ensure Device ID is alphanumeric with optional hyphens/underscores
-  if (!/^[a-zA-Z0-9-_]+$/.test(deviceID)) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">Device ID must be alphanumeric with optional hyphens or underscores.</span><br>`;
+  if (!deviceID || !/^[a-zA-Z0-9-_]+$/.test(deviceID)) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">Please enter a valid alphanumeric Device ID.</span><br>`;
     return;
   }
 
   const result = await window.electronAPI.setDeviceID(deviceID);
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
-  }
-
-  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
-  await delay(500);
-  await window.electronAPI.getDeviceID(); // Verify setting
-}
-
-async function getDeviceID() {
-  const result = await window.electronAPI.getDeviceID();
-  if (result.error) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    document.getElementById("output").innerHTML += result + "<br>";
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
 
 async function setInterval() {
   const interval = document.getElementById("interval").value;
-
   if (!interval || isNaN(interval) || interval <= 0) {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter a valid interval (positive seconds).</span><br>`;
     return;
@@ -455,12 +348,9 @@ async function setInterval() {
   const result = await window.electronAPI.setInterval(interval);
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
-
-  document.getElementById("output").innerHTML += result + "<br>";
-  await delay(500);
-  await window.electronAPI.getInterval();
 }
 
 async function getInterval() {
@@ -468,21 +358,19 @@ async function getInterval() {
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    document.getElementById("output").innerHTML += result + "<br>";
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
 
 async function setProtocol() {
   const protocol = document.getElementById("protocol-select").value;
   const result = await window.electronAPI.setProtocol(protocol);
-
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+    updateProtocolUI();
   }
-
-  document.getElementById("output").innerHTML += result + "<br>";
-  updateProtocolUI();
 }
 
 async function setFTPConfig() {
@@ -506,19 +394,23 @@ async function setFTPConfig() {
   if (password) commands.push(`SET_FTP_PASS:${password}`);
 
   for (const cmd of commands) {
-    console.log(`Sending command: ${cmd}`);
     const result = await window.electronAPI.sendData(cmd);
-    console.log(`Result for ${cmd}:`, result);
     if (result.error) {
       document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
     } else {
       document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
-    await delay(500); // Delay between commands
+    await delay(1500); // Increased delay
   }
 
-  await delay(500);
-  await window.electronAPI.getFTPConfig();
+  const result = await window.electronAPI.setProtocol("FTP");
+  if (result.error) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+    await delay(2000);
+    await window.electronAPI.getFTPConfig();
+  }
 }
 
 async function getFTPConfig() {
@@ -526,18 +418,17 @@ async function getFTPConfig() {
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    document.getElementById("output").innerHTML += result + "<br>";
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
 
 async function setMQTTConfig() {
   const broker = document.getElementById("mqtt-broker").value.trim();
-  const port = document.getElementById("mqtt-port").value.trim();
   const user = document.getElementById("mqtt-user").value.trim();
   const password = document.getElementById("mqtt-password").value;
   const sslEnabled = document.getElementById("mqtt-ssl").value;
 
-  if (!broker && !port && !user && !password && sslEnabled === "no") {
+  if (!broker && !user && !password && sslEnabled === "no") {
     document.getElementById("output").innerHTML += `<span style="color: red;">Please enter at least one MQTT configuration field.</span><br>`;
     return;
   }
@@ -547,53 +438,41 @@ async function setMQTTConfig() {
     return;
   }
 
-  if (port && (isNaN(port) || port <= 0 || port > 65535)) {
-    document.getElementById("output").innerHTML += `<span style="color: red;">Invalid MQTT port. Must be between 1 and 65535.</span><br>`;
-    return;
-  }
-
   const commands = [];
-  if (sslEnabled !== "") {
-    commands.push(`SET_MQTT_SSL:${sslEnabled === "yes" ? "ON" : "OFF"}`);
-  }
-  if (broker) {
-    commands.push(`SET_MQTT_BROKER:${broker}`);
-  }
-  if (port) {
-    commands.push(`SET_MQTT_PORT:${port}`);
-  }
-  if (user) {
-    commands.push(`SET_MQTT_USER:${user}`);
-  }
-  if (password) {
-    commands.push(`SET_MQTT_PASS:${password}`);
-  }
+  if (sslEnabled !== "") commands.push(`SET_MQTT_SSL:${sslEnabled === "yes" ? "ON" : "OFF"}`);
+  if (broker) commands.push(`SET_MQTT_BROKER:${broker}`);
+  if (user) commands.push(`SET_MQTT_USER:${user}`);
+  if (password) commands.push(`SET_MQTT_PASS:${password}`);
 
   for (const cmd of commands) {
-    console.log(`Sending command: ${cmd}`);
     const result = await window.electronAPI.sendData(cmd);
-    console.log(`Result for ${cmd}:`, result);
     if (result.error) {
       document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
     } else {
       document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
-    await delay(500); // Delay between commands
+    await delay(1500); // Increased delay
   }
 
-  await window.electronAPI.setProtocol("MQTT");
-  await delay(2000);
-
-  document.getElementById("output").innerHTML += `<span style="color: green;">MQTT config sent and reinitialized. Verifying...</span><br>`;
-  await delay(1000);
-  await window.electronAPI.getMQTTConfig();
+  const result = await window.electronAPI.setProtocol("MQTT");
+  if (result.error) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+    await delay(3000);
+    const verifyResult = await window.electronAPI.getMQTTConfig();
+    if (verifyResult.error || verifyResult.includes("MQTT not active")) {
+      document.getElementById("output").innerHTML += `<span style="color: red;">MQTT protocol not active after setting. Please check device.</span><br>`;
+    }
+  }
 }
+
 async function getMQTTConfig() {
   const result = await window.electronAPI.getMQTTConfig();
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    document.getElementById("output").innerHTML += result + "<br>";
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
 
@@ -617,19 +496,23 @@ async function setHTTPConfig() {
   if (user && password) commands.push(`SET_HTTP_AUTH:${user}:${password}`);
 
   for (const cmd of commands) {
-    console.log(`Sending command: ${cmd}`);
     const result = await window.electronAPI.sendData(cmd);
-    console.log(`Result for ${cmd}:`, result);
     if (result.error) {
       document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
     } else {
       document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
-    await delay(500); // Delay between commands
+    await delay(1500);
   }
 
-  await delay(500);
-  await window.electronAPI.getHTTPConfig();
+  const result = await window.electronAPI.setProtocol("HTTP");
+  if (result.error) {
+    document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
+    await delay(2000);
+    await window.electronAPI.getHTTPConfig();
+  }
 }
 
 async function getHTTPConfig() {
@@ -637,7 +520,7 @@ async function getHTTPConfig() {
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
   } else {
-    document.getElementById("output").innerHTML += result + "<br>";
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
 }
 
@@ -651,19 +534,16 @@ async function uploadFile() {
   const result = await window.electronAPI.uploadFile(filePath);
   if (result.error) {
     document.getElementById("output").innerHTML += `<span style="color: red;">${result.error}</span><br>`;
-    return;
+  } else {
+    document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
   }
-
-  document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
 }
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-
-
-// Update the onSerialData handler
+// Serial data handler
 window.electronAPI.onSerialData((data) => {
   if (data) {
     const sanitizedData = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -673,29 +553,39 @@ window.electronAPI.onSerialData((data) => {
     // Parse sensor data
     parseSensorData(sanitizedData);
 
-    // Existing log classification logic
-    if (sanitizedData.includes("Error") || sanitizedData.includes("error") || sanitizedData.includes("failed") || sanitizedData.includes("ENOENT")) {
+    // Skip redundant logs
+    if (
+      sanitizedData.includes("RX Received") ||
+      sanitizedData.includes("Text: '") ||
+      sanitizedData.includes("Config saved")
+    ) {
+      return; // Don't display echoes or repetitive logs
+    }
+
+    // Log classification
+    if (
+      sanitizedData.includes("Error") ||
+      sanitizedData.includes("error") ||
+      sanitizedData.includes("failed") ||
+      sanitizedData.includes("ENOENT") ||
+      sanitizedData.includes("not active")
+    ) {
       logClass = "log-error";
     } else if (
       sanitizedData.includes("Successfully") ||
       sanitizedData.includes("saved OK") ||
-      sanitizedData.includes("Directory created") ||
       sanitizedData.includes("Connected to") ||
-      sanitizedData.includes("SSL configuration applied") ||
-      sanitizedData.includes("Device ID set")
+      sanitizedData.includes("Current interval") ||
+      sanitizedData.includes("protocol initialized")
     ) {
       logClass = "log-success";
-    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("LIST_FILES") || sanitizedData.includes("Device ID:")) {
+    } else if (sanitizedData.includes("/usr contents") || sanitizedData.includes("Device ID:")) {
       logClass = "log-info";
-    } else if (sanitizedData.includes("MQTT connect OK")) {
-      logClass = "log-success";
-    } else if (sanitizedData.includes("MQTT Connect error")) {
-      logClass = "log-error";
     }
 
     outputDiv.innerHTML += `<span class="log-line ${logClass}">${sanitizedData}</span><br>`;
 
-    // Existing protocol configuration parsing
+    // Parse protocol configuration
     if (sanitizedData.startsWith("FTP protocol")) {
       const hostMatch = sanitizedData.match(/host=([^,]+)/);
       const userMatch = sanitizedData.match(/user=([^,]+)/);
@@ -706,11 +596,9 @@ window.electronAPI.onSerialData((data) => {
     if (sanitizedData.startsWith("MQTT protocol") || sanitizedData.includes("MQTT extras")) {
       const brokerMatch = sanitizedData.match(/broker=([^,]+)/);
       const userMatch = sanitizedData.match(/user=([^,]+)/);
-      const portMatch = sanitizedData.match(/port=([^,]+)/);
       const sslMatch = sanitizedData.match(/ssl=([^,]+)/) || sanitizedData.match(/ssl_enabled=([^,]+)/);
       if (brokerMatch) document.getElementById("mqtt-broker").value = brokerMatch[1];
       if (userMatch) document.getElementById("mqtt-user").value = userMatch[1];
-      if (portMatch) document.getElementById("mqtt-port").value = portMatch[1];
       if (sslMatch) {
         const sslValue = sslMatch[1].toLowerCase();
         document.getElementById("mqtt-ssl").value = sslValue === "true" || sslValue === "on" ? "yes" : "no";
@@ -723,16 +611,11 @@ window.electronAPI.onSerialData((data) => {
       if (urlMatch) document.getElementById("http-url").value = urlMatch[1];
     }
 
-    if (sanitizedData.startsWith("Device ID:")) {
-      const idMatch = sanitizedData.match(/Device ID: ([a-zA-Z0-9-_]+)/);
-      if (idMatch) document.getElementById("device-id").value = idMatch[1];
-    }
-
     outputDiv.scrollTop = outputDiv.scrollHeight;
   }
 });
 
-// Update DOMContentLoaded to initialize sensor UI
+// Initialize UI
 window.addEventListener("DOMContentLoaded", () => {
   updateProtocolUI();
   listPorts();
