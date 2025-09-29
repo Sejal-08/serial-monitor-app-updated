@@ -233,7 +233,7 @@ ipcMain.handle("disconnect-port", async () => {
 
 // --- Device ID Config ---
 ipcMain.handle("set-device-id", (event, deviceID) => sendCommand(`SET_DEVICE_ID:${deviceID}`));
-ipcMain.handle("get-device-id", () => sendCommand("GET_DEVICE_ID"));
+// ipcMain.handle("get-device-id", () => sendCommand("GET_DEVICE_ID"));
 
 // --- Basic config commands ---
 ipcMain.handle("send-data", (event, message) => sendCommand(message));

@@ -71,7 +71,7 @@
         <div class="controls">
           <input type="text" id="device-id" class="input-field" placeholder="Device ID (e.g., device-123)">
           <button class="action-button" onclick="setDeviceID()"><i class="fas fa-save"></i> Set Device ID</button>
-          <button class="action-button" onclick="getDeviceID()"><i class="fas fa-eye"></i> Get Device ID</button>
+          <!-- <button class="action-button" onclick="getDeviceID()"><i class="fas fa-eye"></i> Get Device ID</button> -->
         </div>
       </section>
 
@@ -85,11 +85,11 @@
       </section>
 
       <section class="control-section">
-        <h3><i class="fas fa-lightbulb"></i> LED Controls</h3>
+        <!-- <h3><i class="fas fa-lightbulb"></i> LED Controls</h3> -->
         <div class="controls">
-          <button id="led-toggle-button" class="action-button" onclick="toggleLED()">
+          <!-- <button id="led-toggle-button" class="action-button" onclick="toggleLED()">
             <i class="fas fa-toggle-off"></i> Turn LED On
-          </button>
+          </button> -->
           <button id="restart-button" class="action-button" onclick="restartDevice()">
             <i class="fas fa-redo"></i> Restart Device
           </button>
@@ -307,18 +307,18 @@
   <script>
     let isLedOn = false;
 
-    function toggleLED() {
-      isLedOn = !isLedOn;
-      const button = document.getElementById('led-toggle-button');
-      const icon = button.querySelector('i');
-      if (isLedOn) {
-        sendCommand('LED_ON');
-        button.innerHTML = '<i class="fas fa-toggle-on"></i> Turn LED Off';
-      } else {
-        sendCommand('LED_OFF');
-        button.innerHTML = '<i class="fas fa-toggle-off"></i> Turn LED On';
-      }
-    }
+    // function toggleLED() {
+    //   isLedOn = !isLedOn;
+    //   const button = document.getElementById('led-toggle-button');
+    //   const icon = button.querySelector('i');
+    //   if (isLedOn) {
+    //     sendCommand('LED_ON');
+    //     button.innerHTML = '<i class="fas fa-toggle-on"></i> Turn LED Off';
+    //   } else {
+    //     sendCommand('LED_OFF');
+    //     button.innerHTML = '<i class="fas fa-toggle-off"></i> Turn LED On';
+    //   }
+    // }
 
     function restartDevice() {
       sendCommand('RESTART');
