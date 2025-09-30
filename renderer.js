@@ -37,7 +37,7 @@ function updateSensorUI() {
   const humidityCard = document.getElementById("humidity-card");
   const pressureCard = document.getElementById("pressure-card");
   const lightCard = document.getElementById("light-card");
-  const batteryCard = document.getElementById("battery-card"); // New
+  const batteryCard = document.getElementById("battery-card");
   const rainGaugeCard = document.getElementById("rain-gauge-card");
 
   const thermometerFill = document.getElementById("thermometer-fill");
@@ -58,12 +58,12 @@ function updateSensorUI() {
   const sunGradient = document.getElementById("sunGradient");
   const sparkles = document.getElementById("sparkles");
 
-  const batteryValue = document.getElementById("battery-value"); // New
-  const batteryFill = document.getElementById("battery-fill"); // New
-  const rainGaugeValue = document.getElementById("rain-gauge-value"); // New
-  const rainPath = document.getElementById("rainPath"); // New
-  const rainColor1 = document.getElementById("rainColor1"); // New
-  const rainColor2 = document.getElementById("rainColor2"); // New
+  const batteryValue = document.getElementById("battery-value");
+  const batteryFill = document.getElementById("battery-fill");
+  const rainGaugeValue = document.getElementById("rain-gauge-value");
+  const rainPath = document.getElementById("rainPath");
+  const rainColor1 = document.getElementById("rainColor1");
+  const rainColor2 = document.getElementById("rainColor2");
 
   sensorListDiv.innerHTML = "";
   if (sensorDataDiv) sensorDataDiv.innerHTML = "";
@@ -73,8 +73,8 @@ function updateSensorUI() {
   humidityCard.style.display = "none";
   pressureCard.style.display = "none";
   lightCard.style.display = "none";
-  batteryCard.style.display = "none"; // New
-  rainGaugeCard.style.display = "none"; // New
+  batteryCard.style.display = "none";
+  rainGaugeCard.style.display = "none";
 
   if (!protocol) {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -202,21 +202,51 @@ function updateSensorUI() {
       sparkles.style.opacity = brightness * 0.7;
 
       lightValue.textContent = `${light.toFixed(1)} lux`;
-    } }else if (protocol === "ADC") {
+    }
+  } else if (protocol === "ADC") {
     /* Battery Voltage */
     if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"]))) {
       batteryCard.style.display = "block";
       const voltage = parseFloat(sensorData.ADC["Battery Voltage"]);
-      const maxVoltage = 5.0; // Assuming 5V max for battery
-      const fillWidth = Math.min(Math.max((voltage / maxVoltage) * 66, 0), 66); // Max width of fill is 66 (out of 70)
+      const maxVoltage = 4.2; // 100%
+      const minVoltage = 3.0; // 0%
 
-      batteryFill.style.transition = "width 0.8s ease";
+      // Convert voltage to percentage (based on provided C++ logic)
+      let percentage;
+      if (voltage >= maxVoltage) {
+        percentage = 100.0;
+      } else if (voltage <= minVoltage) {
+        percentage = 0.0;
+      } else {
+        percentage = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+      }
+
+      const fillWidth = (percentage / 100) * 66; // Max width of fill is 66 (out of 70)
+
+      batteryFill.style.transition = "width 0.8s ease, fill 0.8s ease";
       batteryFill.setAttribute("width", fillWidth);
 
-      const fillColor = voltage >= 3.7 ? "#34d399" : voltage >= 3.3 ? "#ffeb3b" : "#f87171";
+      // Interpolate color from red (0%) to yellow (50%) to green (100%)
+      let fillColor;
+      if (percentage <= 50) {
+        // Red (#f87171) to Yellow (#ffeb3b)
+        const t = percentage / 50;
+        const r = Math.round(248 + (255 - 248) * t); // 248 -> 255
+        const g = Math.round(113 + (235 - 113) * t); // 113 -> 235
+        const b = Math.round(113 + (59 - 113) * t);  // 113 -> 59
+        fillColor = `rgb(${r}, ${g}, ${b})`;
+      } else {
+        // Yellow (#ffeb3b) to Green (#34d399)
+        const t = (percentage - 50) / 50;
+        const r = Math.round(255 + (52 - 255) * t);  // 255 -> 52
+        const g = Math.round(235 + (211 - 235) * t); // 235 -> 211
+        const b = Math.round(59 + (153 - 59) * t);   // 59 -> 153
+        fillColor = `rgb(${r}, ${g}, ${b})`;
+      }
       batteryFill.setAttribute("fill", fillColor);
+      batteryCard.style.setProperty("--glow", fillColor); // Update glow color
 
-      batteryValue.textContent = `${voltage.toFixed(2)} V`;
+      batteryValue.textContent = `${voltage.toFixed(2)} V (${percentage.toFixed(0)}%)`;
       batteryCard.classList.remove("shake");
       void batteryCard.offsetWidth;
       batteryCard.classList.add("shake");
@@ -228,7 +258,7 @@ function updateSensorUI() {
       const rainTips = parseFloat(sensorData.ADC["Rain Gauge Hourly"]);
       rainGaugeValue.textContent = `${rainTips.toFixed(0)} tips`;
 
-      const maxTips = 50; // Assuming 50 tips max for scaling
+      const maxTips = 50;
       const t = Math.min(Math.max(rainTips / maxTips, 0), 1);
       const lowColor = { r: 30, g: 144, b: 255 };
       const highColor = { r: 0, g: 0, b: 139 };
@@ -239,7 +269,7 @@ function updateSensorUI() {
       rainColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
       rainColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
 
-      const waveHeight = 100 - (t * 80); // Scale to 80% of height max
+      const waveHeight = 100 - (t * 80);
       const rainWaveAnimation = `
         @keyframes rainWaveAnimation {
           0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
@@ -253,18 +283,18 @@ function updateSensorUI() {
       rainPath.style.animation = "rainWaveAnimation 8s ease-in-out infinite";
       rainPath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
     }
-  }else {
-      lightCard.style.display = "none";
-      lightValue.textContent = "N/A"; // Fallback text if no data
-      sunCircle.setAttribute("r", 20);
-      glowFilter.setAttribute("stdDeviation", 5);
-      sunGradient.children[0].setAttribute("style", "stop-color:#ffd700; stop-opacity:0.9");
-      sunGradient.children[1].setAttribute("style", "stop-color:#ff8c00; stop-opacity:0.4");
-      sunGradient.children[2].setAttribute("style", "stop-color:#ff4500; stop-opacity:0");
-      lightCard.querySelector("rect").style.filter = "brightness(1)";
-      sparkles.style.opacity = 0;
-    }
+  } else {
+    lightCard.style.display = "none";
+    lightValue.textContent = "N/A";
+    sunCircle.setAttribute("r", 20);
+    glowFilter.setAttribute("stdDeviation", 5);
+    sunGradient.children[0].setAttribute("style", "stop-color:#ffd700; stop-opacity:0.9");
+    sunGradient.children[1].setAttribute("style", "stop-color:#ff8c00; stop-opacity:0.4");
+    sunGradient.children[2].setAttribute("style", "stop-color:#ff4500; stop-opacity:0");
+    lightCard.querySelector("rect").style.filter = "brightness(1)";
+    sparkles.style.opacity = 0;
   }
+}
 /* ------------------------------------------------------------------ */
 /*  DATA PARSER                                                       */
 /* ------------------------------------------------------------------ */
