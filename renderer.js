@@ -36,6 +36,10 @@ function updateSensorUI() {
   const protocol = document.getElementById("sensor-select").value;
   const sensorListDiv = document.getElementById("sensor-list");
   const sensorDataDiv = document.getElementById("sensor-data");
+  const thermometerContainer = document.getElementById("thermometer-container");
+  const humidityCard = document.getElementById("humidity-card");
+  const pressureCard = document.getElementById("pressure-card");
+  const lightCard = document.getElementById("light-card");
   const thermometerFill = document.getElementById("thermometer-fill");
   const thermometerBulb = document.getElementById("thermometer-bulb");
   const thermometerValue = document.getElementById("thermometer-value");
@@ -47,9 +51,16 @@ function updateSensorUI() {
   const pressureValue = document.getElementById("pressure-value");
   const pressureBar = document.getElementById("pressure-bar");
   const lightValue = document.getElementById("light-value");
+  const lightValueDisplay = document.getElementById("light-value-display");
 
   sensorListDiv.innerHTML = "";
   sensorDataDiv.innerHTML = "";
+
+  // Reset card visibility
+  thermometerContainer.style.display = "none";
+  humidityCard.style.display = "none";
+  pressureCard.style.display = "none";
+  lightCard.style.display = "none";
 
   if (protocol) {
     const sensors = sensorProtocolMap[protocol] || [];
@@ -63,16 +74,20 @@ function updateSensorUI() {
 
     const data = sensorData[protocol];
     let dataHtml = "<h4>Sensor Data</h4>";
+    let hasData = false;
     if (Object.keys(data).length > 0) {
       for (const [key, value] of Object.entries(data)) {
-        dataHtml += `<div class="sensor-data-item"><strong>${key}:</strong> ${value}</div>`;
+        if (value !== null && value !== undefined && value !== "null" && value !== "") {
+          dataHtml += `<div class="sensor-data-item"><strong>${key}:</strong> ${value}</div>`;
+          hasData = true;
+        }
       }
-    } else {
-      dataHtml += "<p>No sensor data available.</p>";
     }
-    sensorDataDiv.innerHTML = dataHtml;
+    sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
 
-    if (protocol === "I2C" && currentTemperature !== null) {
+    // Show cards only if valid data is available
+    if (protocol === "I2C" && currentTemperature !== null && currentTemperature !== undefined && currentTemperature !== "null" && !isNaN(parseFloat(currentTemperature))) {
+      thermometerContainer.style.display = "flex";
       const temp = parseFloat(currentTemperature);
       let fillColor = temp < 25 ? "#ffeb3b" : temp <= 35 ? "#ff9800" : "#f44336";
       const maxTemp = 50, minTemp = 0, maxHeight = 160;
@@ -90,7 +105,8 @@ function updateSensorUI() {
       thermometerValue.textContent = "";
     }
 
-    if (protocol === "I2C" && currentHumidity !== null) {
+    if (protocol === "I2C" && currentHumidity !== null && currentHumidity !== undefined && currentHumidity !== "null" && !isNaN(parseFloat(currentHumidity))) {
+      humidityCard.style.display = "flex";
       const humidity = parseFloat(currentHumidity);
       humidityValue.textContent = `${humidity.toFixed(1)}%`;
       const t = Math.min(Math.max(humidity / 100, 0), 1);
@@ -111,7 +127,11 @@ function updateSensorUI() {
         }
       `;
       const styleSheet = document.styleSheets[0];
-      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+      try {
+        styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+      } catch (e) {
+        // Rule may already exist, update the path directly
+      }
       wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
       wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
     } else {
@@ -122,7 +142,8 @@ function updateSensorUI() {
       wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
     }
 
-    if (protocol === "I2C" && currentPressure !== null) {
+    if (protocol === "I2C" && currentPressure !== null && currentPressure !== undefined && currentPressure !== "null" && !isNaN(parseFloat(currentPressure))) {
+      pressureCard.style.display = "flex";
       const pressure = parseFloat(currentPressure);
       let barColor = pressure >= 950 && pressure <= 1050 ? "#34d399" : (pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100) ? "#ffeb3b" : "#f87171";
       const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
@@ -135,7 +156,8 @@ function updateSensorUI() {
       pressureBar.style.backgroundColor = "#34d399";
     }
 
-    if (protocol === "I2C" && currentLight !== null) {
+    if (protocol === "I2C" && currentLight !== null && currentLight !== undefined && currentLight !== "null" && !isNaN(parseFloat(currentLight))) {
+      lightCard.style.display = "flex";
       const light = parseFloat(currentLight);
       let sunColor = light <= 10000 ? "#ffeb3b" : light <= 50000 ? "#ffc13bff" : "#f87171";
       let glowStd = light <= 10000 ? 2 : light <= 50000 ? 5 : 8;
@@ -149,8 +171,10 @@ function updateSensorUI() {
       glowFilter.setAttribute("stdDeviation", glowStd * brightness);
       document.getElementById("light-sun").setAttribute("filter", "url(#glow)");
       lightValue.textContent = `${light.toFixed(1)} lux`;
+      lightValueDisplay.textContent = `${light.toFixed(1)} lux`;
     } else {
       lightValue.textContent = "";
+      lightValueDisplay.textContent = "";
       const sunCircle = document.getElementById("sun-circle");
       const rays = document.querySelectorAll("#light-sun line");
       const glowFilter = document.querySelector("#glow feGaussianBlur");
@@ -163,20 +187,6 @@ function updateSensorUI() {
   } else {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
     sensorDataDiv.innerHTML = "<p>No sensor data available.</p>";
-    thermometerFill.setAttribute("y", 180);
-    thermometerFill.setAttribute("height", 0);
-    thermometerFill.setAttribute("fill", "#ffeb3b");
-    thermometerBulb.setAttribute("fill", "#ffeb3b");
-    thermometerValue.textContent = "";
-    humidityValue.textContent = "";
-    waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
-    waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
-    wavePath.style.animation = "";
-    wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
-    pressureValue.textContent = "";
-    pressureBar.style.width = "0%";
-    pressureBar.style.backgroundColor = "#34d399";
-    lightValue.textContent = "";
   }
 }
 
@@ -194,14 +204,23 @@ function parseSensorData(data) {
       const value = sensorMatch[3].trim();
       const sensors = sensorProtocolMap[protocol] || [];
       if (sensors.includes(sensorName)) {
-        sensorStatus[protocol][sensorName] = true;
-        sensorData[protocol][`${sensorName} ${parameter}`] = value;
+        // Check if the value is valid (not null, undefined, or empty)
+        if (value === "null" || value === "" || isNaN(parseFloat(value.replace(/[^0-9.-]+/g, "")))) {
+          sensorStatus[protocol][sensorName] = false; // Mark as not present (red tick)
+        } else {
+          sensorStatus[protocol][sensorName] = true; // Mark as present (green tick)
+          sensorData[protocol][`${sensorName} ${parameter}`] = value;
+        }
         if (sensorName === "BME680") {
-          if (parameter === "Temperature") currentTemperature = value.replace("°C", "").trim();
-          else if (parameter === "Humidity") currentHumidity = value.replace("%", "").trim();
-          else if (parameter === "Pressure") currentPressure = value.replace("hPa", "").trim();
+          if (parameter === "Temperature") {
+            currentTemperature = (value === "null" || value === "" || isNaN(parseFloat(value.replace("°C", "").trim()))) ? null : value.replace("°C", "").trim();
+          } else if (parameter === "Humidity") {
+            currentHumidity = (value === "null" || value === "" || isNaN(parseFloat(value.replace("%", "").trim()))) ? null : value.replace("%", "").trim();
+          } else if (parameter === "Pressure") {
+            currentPressure = (value === "null" || value === "" || isNaN(parseFloat(value.replace("hPa", "").trim()))) ? null : value.replace("hPa", "").trim();
+          }
         } else if (sensorName === "VEML7700" && parameter === "Light Intensity") {
-          currentLight = value.replace("lux", "").trim();
+          currentLight = (value === "null" || value === "" || isNaN(parseFloat(value.replace("lux", "").trim()))) ? null : value.replace("lux", "").trim();
         }
         updateSensorUI();
       }
@@ -400,7 +419,7 @@ async function setFTPConfig() {
     } else {
       document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
-    await delay(1500); // Increased delay
+    await delay(1500);
   }
 
   const result = await window.electronAPI.setProtocol("FTP");
@@ -451,7 +470,7 @@ async function setMQTTConfig() {
     } else {
       document.getElementById("output").innerHTML += `<span style="color: green;">${result}</span><br>`;
     }
-    await delay(1500); // Increased delay
+    await delay(1500);
   }
 
   const result = await window.electronAPI.setProtocol("MQTT");
@@ -550,19 +569,16 @@ window.electronAPI.onSerialData((data) => {
     const outputDiv = document.getElementById("output");
     let logClass = "log-default";
 
-    // Parse sensor data
     parseSensorData(sanitizedData);
 
-    // Skip redundant logs
     if (
       sanitizedData.includes("RX Received") ||
       sanitizedData.includes("Text: '") ||
       sanitizedData.includes("Config saved")
     ) {
-      return; // Don't display echoes or repetitive logs
+      return;
     }
 
-    // Log classification
     if (
       sanitizedData.includes("Error") ||
       sanitizedData.includes("error") ||
@@ -585,7 +601,6 @@ window.electronAPI.onSerialData((data) => {
 
     outputDiv.innerHTML += `<span class="log-line ${logClass}">${sanitizedData}</span><br>`;
 
-    // Parse protocol configuration
     if (sanitizedData.startsWith("FTP protocol")) {
       const hostMatch = sanitizedData.match(/host=([^,]+)/);
       const userMatch = sanitizedData.match(/user=([^,]+)/);

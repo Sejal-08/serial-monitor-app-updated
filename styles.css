@@ -39,7 +39,9 @@ nav {
   align-items: center;
   background: linear-gradient(90deg, #0a0e1a, #2a4370, #4b6cb7);
   position: fixed;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 4.5rem;
   padding: 0 2vw;
   z-index: 10;
@@ -77,6 +79,7 @@ ul.nav-links {
   cursor: pointer;
   transition: transform 0.2s ease, color 0.3s;
 }
+
 .theme-toggle:hover {
   transform: scale(1.1);
   color: #6b8af7;
@@ -85,14 +88,15 @@ ul.nav-links {
 body.light-mode .theme-toggle {
   color: #2d4060;
 }
+
 body.light-mode .theme-toggle:hover {
   color: #4b6cb7;
 }
 
-/* Dark mode theme toggle */
 body.dark-mode .theme-toggle {
   color: #f5f7ff;
 }
+
 body.dark-mode .theme-toggle:hover {
   color: #6b8af7;
 }
@@ -103,7 +107,7 @@ body.dark-mode .theme-toggle:hover {
   flex: 1;
   gap: 20px;
   padding: 20px;
-  min-height: calc(100vh - 4.5rem - 40px); /* Adjust for navbar and footer */
+  min-height: calc(100vh - 4.5rem - 40px);
 }
 
 .left-panel, .right-panel {
@@ -130,13 +134,13 @@ body.dark-mode .right-panel {
 .left-panel {
   width: 32%;
   overflow-y: auto;
-  max-height: calc(100vh - 4.5rem - 40px - 40px); /* Adjust for padding and footer */
+  max-height: calc(100vh - 4.5rem - 40px - 40px);
 }
 
 .right-panel {
   flex: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 4.5rem - 40px - 40px); /* Adjust for padding and footer */
+  max-height: calc(100vh - 4.5rem - 40px - 40px);
 }
 
 /* Headings */
@@ -355,10 +359,6 @@ body.light-mode footer {
   box-shadow: 0 -2px 6px rgba(75, 108, 183, 0.2);
 }
 
-body.dark-mode footer {
-  background: linear-gradient(90deg, #2a4370, #0a0e1a);
-}
-
 /* Sensor List and Data Containers */
 .sensor-list-container {
   margin-top: 15px;
@@ -397,6 +397,10 @@ body.dark-mode .sensor-list-container h4 {
   list-style: none;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: row; /* Display sensors in a horizontal line */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 15px; /* Space between sensors */
 }
 
 .sensor-list-container li {
@@ -449,6 +453,7 @@ body.dark-mode .sensor-data-container {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  text-align: center;
 }
 
 body.light-mode .sensor-data-container h4 {
@@ -476,33 +481,60 @@ body.dark-mode .sensor-data-item {
   color: #6b8af7;
   font-weight: 600;
 }
-#thermometer-value {
-  font-size: 16px;
-    font-weight: bold;
-}
-/* Thermometer Styles */
-.thermometer-container {
+
+/* Sensor Cards Container */
+.sensor-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
   margin-top: 15px;
+  justify-content: center; /* Center cards when fewer than four */
+  align-items: stretch;
+}
+
+body.light-mode .sensor-cards {
+  background: transparent;
+}
+
+body.dark-mode .sensor-cards {
+  background: transparent;
+}
+
+/* Sensor Card Base Styles */
+.thermometer-container,
+.wave-card-container,
+.card-container {
+  flex: 1;
+  max-width: 200px;
+  min-width: 150px;
+  min-height: 200px; /* Consistent minimum height for all cards */
   padding: 12px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: all 0.4s ease;
+  position: relative; /* Ensure absolute positioning of child elements is contained */
+  overflow: hidden; /* Prevent overflow of absolute elements like the wave */
 }
 
-body.light-mode .thermometer-container {
+body.light-mode .thermometer-container,
+body.light-mode .wave-card-container,
+body.light-mode .card-container {
   background: #f9f9f9;
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-body.dark-mode .thermometer-container {
+body.dark-mode .thermometer-container,
+body.dark-mode .wave-card-container,
+body.dark-mode .card-container {
   background: linear-gradient(135deg, #1a2a4d, #2d4060);
   border: 1px solid rgba(45, 65, 90, 0.5);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
+/* Thermometer Styles */
 .thermometer-container h4 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
@@ -519,6 +551,9 @@ body.dark-mode .thermometer-container h4 {
 
 .thermometer {
   margin: 10px 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
 }
 
 .thermometer rect, .thermometer circle {
@@ -563,31 +598,6 @@ body.dark-mode .thermometer-value {
 }
 
 /* Wave Card Styles */
-.wave-card-container {
-  margin-top: 15px;
-  padding: 12px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  transition: all 0.4s ease;
-  height: 150px; /* Fixed height for wave animation */
-}
-
-body.light-mode .wave-card-container {
-  background: #f9f9f9;
-  border: 1px solid #e0e7ff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-body.dark-mode .wave-card-container {
-  background: linear-gradient(135deg, #1a2a4d, #2d4060);
-  border: 1px solid rgba(45, 65, 90, 0.5);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
 .wave-card-container h4 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
@@ -642,7 +652,8 @@ body.dark-mode .wave-card-value {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 100px; /* Wave height */
+  max-width: 200px; /* Match the card's max-width */
+  height: 70%; /* Scaled to fit within card content */
   z-index: 0;
 }
 
@@ -651,119 +662,65 @@ body.dark-mode .wave-card-value {
 }
 
 /* Card Styles */
-.card-container {
-  margin-top: 15px;
-  padding: 12px;
-  border-radius: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transition: all 0.4s ease;
-}
-
-body.light-mode .card-container {
-  background: #f9f9f9;
-  border: 1px solid #e0e7ff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-body.dark-mode .card-container {
-  background: linear-gradient(135deg, #1a2a4d, #2d4060);
-  border: 1px solid rgba(45, 65, 90, 0.5);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-.card-container h4 {
+.card-container h3 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
 }
 
-body.light-mode .card-container h4 {
+body.light-mode .card-container h3 {
   color: #2d4060;
 }
 
-body.dark-mode .card-container h4 {
+body.dark-mode .card-container h3 {
   color: #a3bffa;
 }
 
-.card-value {
+.card-bar {
+  width: 100%;
+  height: 10px;
+  background: #e0e7ff;
+  border-radius: 5px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+body.light-mode .card-bar {
+  background: #e0e7ff;
+}
+
+body.dark-mode .card-bar {
+  background: #2d4060;
+}
+
+#light-sun {
+  margin: 10px 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+#light-value-display {
   font-size: 0.9em;
   font-weight: 600;
   text-align: center;
 }
 
-body.light-mode .card-value {
+body.light-mode #light-value-display {
   color: #1e293b;
 }
 
-body.dark-mode .card-value {
+body.dark-mode #light-value-display {
   color: #e0e7ff;
 }
 
-.card-bar {
-  width: 0%;
-  height: 10px;
-  border-radius: 5px;
-  margin-top: 5px;
-  transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-body.light-mode .card-bar {
-  background-color: #34d399;
-}
-
-body.dark-mode .card-bar {
-  background-color: #34d399;
-}
-  .sensor-cards {
-      display: flex;
-      flex-direction: row;
-      gap: 20px;
-      flex-wrap: nowrap;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .thermometer-container, .wave-card-container, .card-container {
-      width: 150px;
-      height: 250px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-      box-sizing: border-box;
-      padding: 10px;
-    }
-    .thermometer-container svg {
-      width: 100px;
-      height: 180px;
-    }
-    .wave-card-container svg {
-      width: 100%;
-      height: 80px;
-    }
-    .card-container svg {
-      width: 80px;
-      height: 80px;
-    }
-    .wave-card-content {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-grow: 1;
-    }
-    .card-value, .parameter-value {
-      font-size: 14px;
-      text-align: center;
-    }
-    h4 {
-      margin: 5px 0;
-      font-size: 16px;
-      text-align: center;
-    }
 /* Log Styles */
 .log-line {
   display: block;
+  margin-bottom: 4px;
+}
+
+.log-default {
+  color: inherit;
 }
 
 .log-success {
@@ -775,9 +732,96 @@ body.dark-mode .card-bar {
 }
 
 .log-info {
-  color: #a3bffa;
+  color: #60a5fa;
 }
 
-.log-default {
-  color: inherit;
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .main-container {
+    flex-direction: column;
+  }
+
+  .left-panel, .right-panel {
+    width: 100%;
+    max-height: none;
+  }
+
+  .sensor-cards {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .input-field, .action-button, select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .action-button {
+    min-width: unset;
+  }
+
+  .sensor-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .thermometer-container,
+  .wave-card-container,
+  .card-container {
+    max-width: 100%;
+    width: 100%;
+    min-height: 180px; /* Adjusted for smaller screens */
+  }
+
+  #humidity-wave {
+    max-width: 100%; /* Allow full width on smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  nav {
+    padding: 0 10px;
+  }
+
+  .logo img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .theme-toggle {
+    font-size: 1.2rem;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  h3 {
+    font-size: 1em;
+  }
+
+  .input-field, .action-button, select {
+    padding: 8px;
+    font-size: 0.85em;
+  }
+
+  #output {
+    height: 300px;
+  }
+
+  .thermometer-container,
+  .wave-card-container,
+  .card-container {
+    min-height: 160px; /* Further adjusted for very small screens */
+  }
+
+  #humidity-wave {
+    max-width: 100%; /* Allow full width on very small screens */
+  }
 }
