@@ -9,7 +9,7 @@ let responseBuffer = "";
 let lastSentCommand = ""; // Track the last sent command to filter echoes
 
 /**
- * Send a command to the firmware and wait for a response.
+ * Send a command to the firmware.
  */
 async function sendCommand(message) {
   if (!port || !port.isOpen) {
@@ -30,52 +30,7 @@ async function sendCommand(message) {
       port.write(command, (err) => (err ? reject(err) : resolve()));
     });
 
-    // Wait for firmware response
-    const response = await new Promise((resolve, reject) => {
-      let responseData = "";
-      const timeout = setTimeout(() => {
-        cleanup();
-        reject(new Error(`Timeout waiting for response to "${message}"`));
-      }, 10000); // 10s timeout
-
-      const dataListener = (data) => {
-        const text = data.toString("utf8");
-        responseData += text;
-        mainWindow.webContents.send("serial-data", text);
-
-        // Check for expected responses
-        if (
-          responseData.includes("OK") ||
-          responseData.includes("saved OK") ||
-          responseData.includes("set to") ||
-          responseData.includes("Current interval") ||
-          responseData.includes("MQTT protocol") ||
-          responseData.includes("HTTP protocol") ||
-          responseData.includes("FTP protocol") ||
-          responseData.includes("topic=")
-        ) {
-          cleanup();
-          resolve(`Successfully processed: ${message}. Response: ${responseData.trim()}`);
-        } else if (
-          responseData.includes("Error") ||
-          responseData.includes("invalid") ||
-          responseData.includes("not active") ||
-          responseData.includes("ENOENT")
-        ) {
-          cleanup();
-          reject(new Error(`Firmware error for "${message}": ${responseData.trim()}`));
-        }
-      };
-
-      const cleanup = () => {
-        clearTimeout(timeout);
-        port.removeListener("data", dataListener);
-      };
-
-      port.on("data", dataListener);
-    });
-
-    return response;
+    return `Successfully sent: ${message}`;
   } catch (error) {
     console.error(`Failed to send command "${message}":`, error);
     return { error: `Failed to send data: ${error.message}` };
@@ -262,6 +217,15 @@ ipcMain.handle("connect-port", async (event, portName, baudRate = 115200) => {
       console.error("Serial port error:", err.message);
       mainWindow.webContents.send("serial-data", `Port error: ${err.message}`);
     });
+
+    // Send GET_INTERVAL to initialize data streaming
+    const initResult = await sendCommand("GET_INTERVAL");
+    if (initResult.error) {
+      console.error("Failed to initialize data streaming:", initResult.error);
+      mainWindow.webContents.send("serial-data", `Initialization error: ${initResult.error}`);
+    } else {
+      console.log("Sent GET_INTERVAL to initialize data streaming");
+    }
 
     return `Connected to ${portName} at ${baudRate} baud`;
   } catch (error) {

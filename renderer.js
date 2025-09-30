@@ -210,46 +210,66 @@ function updateSensorUI() {
     pressureBar.style.backgroundColor = "#34d399";
   }
 
-  /* ----------  light sun card  ---------- */
-  if (
-    protocol === "I2C" &&
-    currentLight !== null &&
-    currentLight !== undefined &&
-    currentLight !== "null" &&
-    !isNaN(parseFloat(currentLight))
-  ) {
-    lightCard.style.display = "block";
-    const light = parseFloat(currentLight);
-    const sunColor = light <= 10000 ? "#ffeb3b" : light <= 50000 ? "#ffc13bff" : "#f87171";
-    const glowStd  = light <= 10000 ? 2 : light <= 50000 ? 5 : 8;
-    const brightness = Math.min(Math.max(light / 120000, 0), 1);
+ /* ----------  light sun card  - fixed with ensured value display ---------- */
+  /* ----------  light sun card  - fixed with ensured value display ---------- */
+    if (
+      protocol === "I2C" &&
+      currentLight !== null &&
+      currentLight !== undefined &&
+      currentLight !== "null" &&
+      !isNaN(parseFloat(currentLight))
+    ) {
+      lightCard.style.display = "block";
+      const light = parseFloat(currentLight);
+      const maxLight = 120000; // Adjust based on your sensor's max lux
+      const brightness = Math.min(Math.max(light / maxLight, 0), 1);
 
-    const sunCircle = document.getElementById("sun-circle");
-    const rays      = document.querySelectorAll("#light-sun line");
-    const glowFilter= document.querySelector("#glow feGaussianBlur");
+      // Debug log to verify currentLight
+      console.log("currentLight:", currentLight);
 
-    sunCircle.setAttribute("fill", sunColor);
-    sunCircle.setAttribute("r", 20 + 10 * brightness);
-    rays.forEach((ray) => ray.setAttribute("stroke", sunColor));
-    glowFilter.setAttribute("stdDeviation", glowStd * brightness);
-    document.getElementById("light-sun").setAttribute("filter", "url(#glow)");
+      // Dynamic sun size and glow
+      const baseRadius = 20;
+      const radius = baseRadius + 10 * brightness;
+      sunCircle.setAttribute("r", radius);
+      glowFilter.setAttribute("stdDeviation", 5 + 5 * brightness);
 
-    lightValue.textContent       = `${light.toFixed(1)} lux`;
-    lightValueDisplay.textContent= `${light.toFixed(1)} lux`;
-  } else {
-    lightValue.textContent        = "";
-    lightValueDisplay.textContent = "";
-    const sunCircle = document.getElementById("sun-circle");
-    const rays      = document.querySelectorAll("#light-sun line");
-    const glowFilter= document.querySelector("#glow feGaussianBlur");
-    sunCircle.setAttribute("fill", "#ffeb3b");
-    sunCircle.setAttribute("r", 20);
-    rays.forEach((ray) => ray.setAttribute("stroke", "#ffeb3b"));
-    glowFilter.setAttribute("stdDeviation", 0);
-    document.getElementById("light-sun").removeAttribute("filter");
+      // Gradient color based on light intensity
+      const lowColor = { r: 255, g: 215, b: 0 };  // Gold
+      const highColor = { r: 255, g: 140, b: 0 }; // Dark orange
+      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * brightness);
+      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * brightness);
+      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * brightness);
+
+      const sunColor = `rgb(${r}, ${g}, ${b})`;
+
+sunGradient.children[0].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.9`);
+sunGradient.children[1].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.4`);
+sunGradient.children[2].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0`);
+
+const backgroundBrightness = 0.8 + 0.2 * Math.sin(Date.now() / 300);
+lightCard.querySelector("rect").style.filter = `brightness(${backgroundBrightness})`;
+sparkles.style.opacity = brightness * 0.7;
+
+
+      // Update value with fade effect
+   lightValue.textContent = `${light.toFixed(1)} lux`;
+  
+      // lightValue.style.opacity = 0;
+      // setTimeout(() => {
+      //   lightValue.style.opacity = 1;
+      // }, 50); // Slight delay to ensure visibility
+    } else {
+      lightCard.style.display = "none";
+      lightValue.textContent = "N/A"; // Fallback text if no data
+      sunCircle.setAttribute("r", 20);
+      glowFilter.setAttribute("stdDeviation", 5);
+      sunGradient.children[0].setAttribute("style", "stop-color:#ffd700; stop-opacity:0.9");
+      sunGradient.children[1].setAttribute("style", "stop-color:#ff8c00; stop-opacity:0.4");
+      sunGradient.children[2].setAttribute("style", "stop-color:#ff4500; stop-opacity:0");
+      lightCard.querySelector("rect").style.filter = "brightness(1)";
+      sparkles.style.opacity = 0;
+    }
   }
-}
-
 /* ------------------------------------------------------------------ */
 /*  DATA PARSER                                                       */
 /* ------------------------------------------------------------------ */
@@ -259,6 +279,7 @@ function parseSensorData(data) {
 
   const lines = data.split("\n").map((l) => l.trim()).filter((l) => l);
   lines.forEach((line) => {
+    // Handle JSON format (first app's original format)
     if (line.startsWith("Published to topic 'device/data':")) {
       try {
         const jsonStr = line.split(": ", 2)[1];
@@ -274,19 +295,19 @@ function parseSensorData(data) {
         if (protocol === "I2C") {
           if (currentTemperature !== undefined) {
             sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Temperature"] = `${currentTemperature} °C`;
+            sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
           }
           if (currentHumidity !== undefined) {
             sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Humidity"] = `${currentHumidity} %`;
+            sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
           }
           if (currentPressure !== undefined) {
             sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Pressure"] = `${currentPressure} hPa`;
+            sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
           }
           if (currentLight !== undefined) {
             sensorStatus.I2C.VEML7700 = true;
-            sensorData.I2C["VEML7700 Light Intensity"] = `${currentLight} lux`;
+            sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
           }
         }
 
@@ -294,7 +315,7 @@ function parseSensorData(data) {
         if (protocol === "ADC") {
           if (json.BatteryVoltage !== undefined) {
             sensorStatus.ADC["Battery Voltage"] = true;
-            sensorData.ADC["Battery Voltage"] = `${json.BatteryVoltage} V`;
+            sensorData.ADC["Battery Voltage"] = `${parseFloat(json.BatteryVoltage).toFixed(2)} V`;
           }
           if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
             sensorStatus.ADC["Rain Gauge"] = true;
@@ -310,13 +331,51 @@ function parseSensorData(data) {
       }
     }
 
-    // Keep existing parsing for other formats if needed
+    // Handle new format (from second app, e.g., "SHT40:Temperature:26.5,Humidity:64.11")
+    const sensorMatch = line.match(/^(.+?):(.+?)(?::|,\s*)(.+?)(?:,(.+?))?$/);
+    if (sensorMatch) {
+      const sensorName = sensorMatch[1].trim();
+      const parameter1 = sensorMatch[2].trim();
+      const value1 = sensorMatch[3].trim();
+      const parameter2 = sensorMatch[4] ? sensorMatch[4].split(':')[0].trim() : null;
+      const value2 = sensorMatch[4] ? sensorMatch[4].split(':')[1].trim() : null;
+
+      const sensors = sensorProtocolMap[protocol] || [];
+      if (sensors.includes(sensorName)) {
+        sensorStatus[protocol][sensorName] = true;
+        sensorData[protocol][`${sensorName} ${parameter1}`] = isNaN(parseFloat(value1)) ? value1 : `${parseFloat(value1).toFixed(2)}`;
+        if (parameter2 && value2) {
+          sensorData[protocol][`${sensorName} ${parameter2}`] = isNaN(parseFloat(value2)) ? value2 : `${parseFloat(value2).toFixed(2)}`;
+        }
+
+        if (sensorName === "BME680" || sensorName === "SHT40" || sensorName === "STTS751") {
+          if (parameter1 === "Temperature") {
+            currentTemperature = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
+          } else if (parameter1 === "Humidity") {
+            currentHumidity = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
+          }
+          if (parameter2 === "Humidity") {
+            currentHumidity = isNaN(parseFloat(value2)) ? null : parseFloat(value2);
+          }
+          if (sensorName === "BME680" && parameter1 === "Pressure") {
+            currentPressure = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
+          }
+        }
+        if (sensorName === "VEML7700" && parameter1 === "Light Intensity") {
+          currentLight = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
+        }
+
+        updateSensorUI();
+      }
+    }
+
+    // Keep existing parsing for other formats
     const m = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
     if (m) {
       const sensorName = m[1].trim();
-      const param      = m[2].trim();
-      const value      = m[3].trim();
-      const sensors    = sensorProtocolMap[protocol] || [];
+      const param = m[2].trim();
+      const value = m[3].trim();
+      const sensors = sensorProtocolMap[protocol] || [];
       if (sensors.includes(sensorName)) {
         const ok = !(value === "null" || value === "" || isNaN(parseFloat(value.replace(/[^0-9.-]+/g, ""))));
         sensorStatus[protocol][sensorName] = ok;
@@ -337,7 +396,7 @@ function parseSensorData(data) {
     if (rain && protocol === "ADC") {
       sensorStatus[protocol]["Rain Gauge"] = true;
       sensorData[protocol]["Rain Gauge Hourly"] = `${rain[1]} tips`;
-      sensorData[protocol]["Rain Gauge Daily"]  = `${rain[2]} tips`;
+      sensorData[protocol]["Rain Gauge Daily"] = `${rain[2]} tips`;
       sensorData[protocol]["Rain Gauge Weekly"] = `${rain[3]} tips`;
       updateSensorUI();
     }
