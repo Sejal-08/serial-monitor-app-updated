@@ -228,7 +228,7 @@
             <!-- Temperature -->
             <div id="thermometer-container" class="thermometer-container" style="display: none;">
               <h4>Temperature</h4>
-              <div id="thermometer-value" class="wave-card-value" style="margin-bottom: 8px;"></div>
+              <div id="thermometer-value" class="sensor-value" style="margin-bottom: 8px;"></div>
               <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
                 <rect x="40" y="20" width="20" height="160" rx="10" ry="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
                 <rect id="thermometer-fill" x="42" y="180" width="16" height="0" rx="8" ry="8" fill="#ffeb3b"/>
@@ -248,7 +248,7 @@
               <h4>Humidity</h4>
               <div class="wave-card-content">
                 <i class="fas fa-water-drop-outlined"></i>
-                <span id="humidity-value" class="wave-card-value"></span>
+                <span id="humidity-value" class="sensor-value"></span>
               </div>
               <svg id="humidity-wave" width="100%" height="80" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <defs>
@@ -264,14 +264,14 @@
             <!-- Pressure -->
             <div id="pressure-card" class="card-container" style="display: none;">
               <h3>Pressure</h3>
-              <div id="pressure-value" class="wave-card-value"></div>
+              <div id="pressure-value" class="sensor-value"></div>
               <div id="pressure-bar" class="card-bar"></div>
             </div>
 
                         <!-- Adjusted Light Intensity Card with Dark Mode Support -->
             <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <h3>Light Intensity</h3>
-              <div id="light-value" class="wave-card-value"></div>
+              <div id="light-value" class="sensor-value"></div>
               <svg id="light-sun" width="100" height="100" viewBox="0 0 100 100" style="display: block; margin: 0 auto;">
                 <defs>
                   <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
@@ -308,7 +308,7 @@
 
             <div id="battery-card" class="card-container" style="display: none;">
   <h4>Battery Voltage</h4>
-  <div id="battery-value" class="wave-card-value"></div>
+  <div id="battery-value" class="sensor-value"></div>
   <svg id="battery-icon" width="100" height="80" viewBox="0 0 100 80">
     <rect x="10" y="20" width="70" height="40" rx="5" ry="5" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
     <rect x="80" y="30" width="10" height="20" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
@@ -321,7 +321,7 @@
   <h4>Rain Gauge</h4>
   <div class="wave-card-content">
     <i class="fas fa-cloud-rain"></i>
-    <span id="rain-gauge-value" class="wave-card-value"></span>
+    <span id="rain-gauge-value" class="sensor-value"></span>
   </div>
   <svg id="rain-wave" width="100%" height="80" viewBox="0 0 100 100" preserveAspectRatio="none">
     <defs>

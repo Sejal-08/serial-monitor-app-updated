@@ -499,7 +499,21 @@ body.light-mode .sensor-cards {
 body.dark-mode .sensor-cards {
   background: transparent;
 }
+.sensor-value {
+  font-size: 0.9em; /* Consistent font size for all sensor values */
+  font-weight: 600; /* Consistent font weight */
+  text-align: center; /* Center all values */
+  margin-bottom: 8px; /* Consistent spacing */
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.38); /* Consistent text shadow */
+}
 
+body.light-mode .sensor-value {
+  color: #1e293b;
+}
+
+body.dark-mode .sensor-value {
+  color: #e0e7ff;
+}
 /* Sensor Card Base Styles */
 .thermometer-container,
 .wave-card-container,
@@ -540,6 +554,7 @@ body.dark-mode .card-container {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  text-align: center;
 }
 
 body.light-mode .thermometer-container h4 {
@@ -603,6 +618,7 @@ body.dark-mode .thermometer-value {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  text-align: center;
 }
 
 body.light-mode .wave-card-container h4 {
@@ -617,9 +633,11 @@ body.dark-mode .wave-card-container h4 {
   position: relative;
   z-index: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column; /* Stack icon and value vertically */
+  align-items: center; /* Center content */
   gap: 4px;
   margin-bottom: 10px;
+  width: 100%; /* Ensure full width for centering */
 }
 
 .wave-card-content i {
@@ -668,6 +686,7 @@ body.dark-mode .wave-card-value {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  text-align: center;
 }
 
 body.light-mode .card-container h3 {
@@ -719,6 +738,7 @@ body.dark-mode #light-value-display {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  text-align: center;
 }
 
 body.light-mode .battery-container h4 {
