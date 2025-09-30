@@ -36,32 +36,34 @@ function updateSensorUI() {
   const thermometerContainer = document.getElementById("thermometer-container");
   const humidityCard = document.getElementById("humidity-card");
   const pressureCard = document.getElementById("pressure-card");
-  const lightCard    = document.getElementById("light-card");
+  const lightCard = document.getElementById("light-card");
 
-  const thermometerFill  = document.getElementById("thermometer-fill");
-  const thermometerBulb  = document.getElementById("thermometer-bulb");
+  const thermometerFill = document.getElementById("thermometer-fill");
+  const thermometerBulb = document.getElementById("thermometer-bulb");
   const thermometerValue = document.getElementById("thermometer-value");
 
   const humidityValue = document.getElementById("humidity-value");
-  const humidityWave  = document.getElementById("humidity-wave");
-  const wavePath      = document.getElementById("wavePath");
-  const waveColor1    = document.getElementById("waveColor1");
-  const waveColor2    = document.getElementById("waveColor2");
+  const wavePath = document.getElementById("wavePath");
+  const waveColor1 = document.getElementById("waveColor1");
+  const waveColor2 = document.getElementById("waveColor2");
 
   const pressureValue = document.getElementById("pressure-value");
-  const pressureBar   = document.getElementById("pressure-bar");
+  const pressureBar = document.getElementById("pressure-bar");
 
-  const lightValue       = document.getElementById("light-value");
-  const lightValueDisplay= document.getElementById("light-value");  // Fixed typo, assuming same element
+  const lightValue = document.getElementById("light-value");
+  const sunCircle = document.getElementById("sun-circle");
+  const glowFilter = document.getElementById("glow");
+  const sunGradient = document.getElementById("sunGradient");
+  const sparkles = document.getElementById("sparkles");
 
   sensorListDiv.innerHTML = "";
-  if (sensorDataDiv) sensorDataDiv.innerHTML = "";  // Check if exists
+  if (sensorDataDiv) sensorDataDiv.innerHTML = "";
 
-  /* ----------  hide all cards by default  ---------- */
+  /* ---------- hide all cards by default ---------- */
   thermometerContainer.style.display = "none";
-  humidityCard.style.display    = "none";
-  pressureCard.style.display    = "none";
-  lightCard.style.display       = "none";
+  humidityCard.style.display = "none";
+  pressureCard.style.display = "none";
+  lightCard.style.display = "none";
 
   if (!protocol) {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -69,9 +71,9 @@ function updateSensorUI() {
     return;
   }
 
-  /* ----------  sensor list  ---------- */
+  /* ---------- sensor list ---------- */
   const sensors = sensorProtocolMap[protocol] || [];
-  let listHtml  = "<h4>Sensors</h4><ul>";
+  let listHtml = "<h4>Sensors</h4><ul>";
   sensors.forEach((s) => {
     const ok = sensorStatus[protocol][s];
     listHtml += `<li><i class="fas ${ok ? "fa-check text-success" : "fa-times text-error"}"></i> ${s}</li>`;
@@ -79,10 +81,10 @@ function updateSensorUI() {
   listHtml += "</ul>";
   sensorListDiv.innerHTML = sensors.length ? listHtml : "<p>No sensors available.</p>";
 
-  /* ----------  sensor data  ---------- */
+  /* ---------- sensor data ---------- */
   const data = sensorData[protocol];
   let dataHtml = "<h4>Sensor Data</h4>";
-  let hasData  = false;
+  let hasData = false;
   for (const [k, v] of Object.entries(data)) {
     if (v !== null && v !== undefined && v !== "null" && v !== "") {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
@@ -91,174 +93,105 @@ function updateSensorUI() {
   }
   if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
 
-  /* ================================================================
-     ＴＥＭＰＥＲＡＴＵＲＥ   –   ＮＥＷ   ＡＮＩＭＡＴＥＤ
-     ================================================================ */
-  if (
-    protocol === "I2C" &&
-    currentTemperature !== null &&
-    currentTemperature !== undefined &&
-    currentTemperature !== "null" &&
-    !isNaN(parseFloat(currentTemperature))
-  ) {
-    thermometerContainer.style.display = "block";
-    const temp = parseFloat(currentTemperature);
+  /* ---------- I2C-specific sensor cards ---------- */
+  if (protocol === "I2C") {
+    /* Temperature */
+    if (currentTemperature !== null && !isNaN(parseFloat(currentTemperature))) {
+      thermometerContainer.style.display = "block";
+      const temp = parseFloat(currentTemperature);
+      let color = temp < 18 ? "#3498db" : temp < 26 ? "#2ecc71" : temp < 32 ? "#f39c12" : "#e74c3c";
+      const minT = -10, maxT = 50;
+      const h = Math.min(Math.max((temp - minT) / (maxT - minT), 0), 1) * 160;
 
-    /* ----  colour gradient  ---- */
-    let color;
-    if (temp < 18) color = "#3498db";
-    else if (temp < 26) color = "#2ecc71";
-    else if (temp < 32) color = "#f39c12";
-    else color = "#e74c3c";
+      thermometerFill.style.transition = "height .8s cubic-bezier(0.68,-0.55,0.27,1.55), y .8s cubic-bezier(0.68,-0.55,0.27,1.55)";
+      thermometerBulb.style.transition = "fill .8s ease";
+      thermometerContainer.style.setProperty("--glow", color);
 
-    /* ----  mercury height  ---- */
-    const minT = -10, maxT = 50;
-    const h = Math.min(Math.max((temp - minT) / (maxT - minT), 0), 1) * 160;
+      thermometerFill.setAttribute("y", 180 - h);
+      thermometerFill.setAttribute("height", h);
+      thermometerFill.setAttribute("fill", color);
+      thermometerBulb.setAttribute("fill", color);
 
-    /* ----  animate mercury  ---- */
-    const fill  = document.getElementById("thermometer-fill");
-    const bulb  = document.getElementById("thermometer-bulb");
-    const thermo= document.querySelector(".thermometer");
+      thermometerValue.textContent = `${temp.toFixed(1)}°C`;
+      thermometerContainer.classList.remove("shake");
+      void thermometerContainer.offsetWidth;
+      thermometerContainer.classList.add("shake");
+    }
 
-    fill.style.transition = "height .8s cubic-bezier(0.68,-0.55,0.27,1.55), y .8s cubic-bezier(0.68,-0.55,0.27,1.55)";
-    bulb.style.transition = "fill .8s ease";
-    thermo.style.setProperty("--glow", color);
+    /* Humidity */
+    if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
+      humidityCard.style.display = "block";
+      const humidity = parseFloat(currentHumidity);
+      humidityValue.textContent = `${humidity.toFixed(1)}%`;
 
-    fill.setAttribute("y", 180 - h);
-    fill.setAttribute("height", h);
-    fill.setAttribute("fill", color);
-    bulb.setAttribute("fill", color);
+      const t = Math.min(Math.max(humidity / 100, 0), 1);
+      const lowColor = { r: 61, g: 142, b: 180 };
+      const highColor = { r: 4, g: 116, b: 168 };
+      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+      const primaryColor = `rgb(${r}, ${g}, ${b})`;
+      waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
+      waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
 
-    /* =====  VALUE  ON  TOP  ===== */
-    thermometerValue.style.order = "-1";            // push it above SVG
-    thermometerValue.textContent = `${temp.toFixed(1)}°C`;
+      const waveHeight = 100 - humidity;
+      const waveAnimation = `
+        @keyframes waveAnimation {
+          0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+          50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
+          100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+        }`;
+      const styleSheet = document.styleSheets[0];
+      try {
+        styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+      } catch {}
+      wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
+      wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+    }
 
-    /* ----  tiny shake on quick change  ---- */
-    thermo.classList.remove("shake");
-    void thermo.offsetWidth;
-    thermo.classList.add("shake");
-  } else {
-    thermometerContainer.style.display = "none";
-  }
+    /* Pressure */
+    if (currentPressure !== null && !isNaN(parseFloat(currentPressure))) {
+      pressureCard.style.display = "block";
+      const pressure = parseFloat(currentPressure);
+      const barColor =
+        pressure >= 950 && pressure <= 1050
+          ? "#34d399"
+          : (pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100)
+          ? "#ffeb3b"
+          : "#f87171";
+      const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
+      pressureValue.textContent = `${pressure.toFixed(1)} hPa`;
+      pressureBar.style.width = `${barWidth}%`;
+      pressureBar.style.backgroundColor = barColor;
+    }
 
-  /* ----------  humidity wave card  ---------- */
-  if (
-    protocol === "I2C" &&
-    currentHumidity !== null &&
-    currentHumidity !== undefined &&
-    currentHumidity !== "null" &&
-    !isNaN(parseFloat(currentHumidity))
-  ) {
-    humidityCard.style.display = "block";
-    const humidity = parseFloat(currentHumidity);
-    humidityValue.textContent = `${humidity.toFixed(1)}%`;
-
-    const t        = Math.min(Math.max(humidity / 100, 0), 1);
-    const lowColor = { r: 61, g: 142, b: 180 };
-    const highColor= { r: 4, g: 116, b: 168 };
-    const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
-    const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
-    const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
-    const primaryColor = `rgb(${r}, ${g}, ${b})`;
-    waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
-    waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
-
-    const waveHeight = 100 - humidity;
-    const waveAnimation = `
-      @keyframes waveAnimation {
-        0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-        50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
-        100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-      }`;
-    const styleSheet = document.styleSheets[0];
-    try {
-      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
-    } catch {}
-    wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
-    wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
-  } else {
-    humidityValue.textContent = "";
-    waveColor1.setAttribute("style", "stop-color: #3d8eb4; stop-opacity: 0.5");
-    waveColor2.setAttribute("style", "stop-color: #0474a8; stop-opacity: 1");
-    wavePath.style.animation = "";
-    wavePath.setAttribute("d", "M 0 100 V 100 H 100 V 100 Z");
-  }
-
-  /* ----------  pressure bar card  ---------- */
-  if (
-    protocol === "I2C" &&
-    currentPressure !== null &&
-    currentPressure !== undefined &&
-    currentPressure !== "null" &&
-    !isNaN(parseFloat(currentPressure))
-  ) {
-    pressureCard.style.display = "block";
-    const pressure = parseFloat(currentPressure);
-    const barColor =
-      pressure >= 950 && pressure <= 1050
-        ? "#34d399"
-        : (pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100)
-        ? "#ffeb3b"
-        : "#f87171";
-    const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
-    pressureValue.textContent = `${pressure.toFixed(1)} hPa`;
-    pressureBar.style.width   = `${barWidth}%`;
-    pressureBar.style.backgroundColor = barColor;
-  } else {
-    pressureValue.textContent = "";
-    pressureBar.style.width   = "0%";
-    pressureBar.style.backgroundColor = "#34d399";
-  }
-
- /* ----------  light sun card  - fixed with ensured value display ---------- */
-  /* ----------  light sun card  - fixed with ensured value display ---------- */
-    if (
-      protocol === "I2C" &&
-      currentLight !== null &&
-      currentLight !== undefined &&
-      currentLight !== "null" &&
-      !isNaN(parseFloat(currentLight))
-    ) {
+    /* Light Intensity */
+    if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";
       const light = parseFloat(currentLight);
-      const maxLight = 120000; // Adjust based on your sensor's max lux
+      const maxLight = 120000;
       const brightness = Math.min(Math.max(light / maxLight, 0), 1);
 
-      // Debug log to verify currentLight
-      console.log("currentLight:", currentLight);
-
-      // Dynamic sun size and glow
-      const baseRadius = 20;
-      const radius = baseRadius + 10 * brightness;
-      sunCircle.setAttribute("r", radius);
+      sunCircle.setAttribute("r", 20 + 10 * brightness);
       glowFilter.setAttribute("stdDeviation", 5 + 5 * brightness);
 
-      // Gradient color based on light intensity
-      const lowColor = { r: 255, g: 215, b: 0 };  // Gold
-      const highColor = { r: 255, g: 140, b: 0 }; // Dark orange
+      const lowColor = { r: 255, g: 215, b: 0 };
+      const highColor = { r: 255, g: 140, b: 0 };
       const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * brightness);
       const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * brightness);
       const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * brightness);
-
       const sunColor = `rgb(${r}, ${g}, ${b})`;
 
-sunGradient.children[0].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.9`);
-sunGradient.children[1].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.4`);
-sunGradient.children[2].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0`);
+      sunGradient.children[0].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.9`);
+      sunGradient.children[1].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.4`);
+      sunGradient.children[2].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0`);
 
-const backgroundBrightness = 0.8 + 0.2 * Math.sin(Date.now() / 300);
-lightCard.querySelector("rect").style.filter = `brightness(${backgroundBrightness})`;
-sparkles.style.opacity = brightness * 0.7;
+      const backgroundBrightness = 0.8 + 0.2 * Math.sin(Date.now() / 300);
+      lightCard.querySelector("rect").style.filter = `brightness(${backgroundBrightness})`;
+      sparkles.style.opacity = brightness * 0.7;
 
-
-      // Update value with fade effect
-   lightValue.textContent = `${light.toFixed(1)} lux`;
-  
-      // lightValue.style.opacity = 0;
-      // setTimeout(() => {
-      //   lightValue.style.opacity = 1;
-      // }, 50); // Slight delay to ensure visibility
-    } else {
+      lightValue.textContent = `${light.toFixed(1)} lux`;
+    } }else {
       lightCard.style.display = "none";
       lightValue.textContent = "N/A"; // Fallback text if no data
       sunCircle.setAttribute("r", 20);
@@ -277,104 +210,15 @@ function parseSensorData(data) {
   const protocol = document.getElementById("sensor-select").value;
   if (!protocol) return;
 
-  const lines = data.split("\n").map((l) => l.trim()).filter((l) => l);
+  const lines = data.split("\n").map((line) => line.trim()).filter((line) => line);
   lines.forEach((line) => {
-    // Handle JSON format (first app's original format)
-    if (line.startsWith("Published to topic 'device/data':")) {
-      try {
-        const jsonStr = line.split(": ", 2)[1];
-        const json = JSON.parse(jsonStr);
+    // Handle individual sensor readings (e.g., "BME680 - Temperature: 26.96 °C")
+    const sensorReading = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
+    if (sensorReading) {
+      const sensorName = sensorReading[1].trim();
+      const param = sensorReading[2].trim();
+      const value = sensorReading[3].trim();
 
-        // Set global variables
-        currentTemperature = json.CurrentTemperature;
-        currentHumidity = json.CurrentHumidity;
-        currentPressure = json.AtmPressure;
-        currentLight = json.LightIntensity;
-
-        // Update sensor status and data for I2C
-        if (protocol === "I2C") {
-          if (currentTemperature !== undefined) {
-            sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
-          }
-          if (currentHumidity !== undefined) {
-            sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
-          }
-          if (currentPressure !== undefined) {
-            sensorStatus.I2C.BME680 = true;
-            sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
-          }
-          if (currentLight !== undefined) {
-            sensorStatus.I2C.VEML7700 = true;
-            sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
-          }
-        }
-
-        // Update for ADC if applicable
-        if (protocol === "ADC") {
-          if (json.BatteryVoltage !== undefined) {
-            sensorStatus.ADC["Battery Voltage"] = true;
-            sensorData.ADC["Battery Voltage"] = `${parseFloat(json.BatteryVoltage).toFixed(2)} V`;
-          }
-          if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
-            sensorStatus.ADC["Rain Gauge"] = true;
-            sensorData.ADC["Rain Gauge Hourly"] = json.RainfallHourly;
-            sensorData.ADC["Rain Gauge Daily"] = json.RainfallDaily;
-            sensorData.ADC["Rain Gauge Weekly"] = json.RainfallWeekly;
-          }
-        }
-
-        updateSensorUI();
-      } catch (e) {
-        console.error("Error parsing JSON:", e);
-      }
-    }
-
-    // Handle new format (from second app, e.g., "SHT40:Temperature:26.5,Humidity:64.11")
-    const sensorMatch = line.match(/^(.+?):(.+?)(?::|,\s*)(.+?)(?:,(.+?))?$/);
-    if (sensorMatch) {
-      const sensorName = sensorMatch[1].trim();
-      const parameter1 = sensorMatch[2].trim();
-      const value1 = sensorMatch[3].trim();
-      const parameter2 = sensorMatch[4] ? sensorMatch[4].split(':')[0].trim() : null;
-      const value2 = sensorMatch[4] ? sensorMatch[4].split(':')[1].trim() : null;
-
-      const sensors = sensorProtocolMap[protocol] || [];
-      if (sensors.includes(sensorName)) {
-        sensorStatus[protocol][sensorName] = true;
-        sensorData[protocol][`${sensorName} ${parameter1}`] = isNaN(parseFloat(value1)) ? value1 : `${parseFloat(value1).toFixed(2)}`;
-        if (parameter2 && value2) {
-          sensorData[protocol][`${sensorName} ${parameter2}`] = isNaN(parseFloat(value2)) ? value2 : `${parseFloat(value2).toFixed(2)}`;
-        }
-
-        if (sensorName === "BME680" || sensorName === "SHT40" || sensorName === "STTS751") {
-          if (parameter1 === "Temperature") {
-            currentTemperature = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
-          } else if (parameter1 === "Humidity") {
-            currentHumidity = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
-          }
-          if (parameter2 === "Humidity") {
-            currentHumidity = isNaN(parseFloat(value2)) ? null : parseFloat(value2);
-          }
-          if (sensorName === "BME680" && parameter1 === "Pressure") {
-            currentPressure = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
-          }
-        }
-        if (sensorName === "VEML7700" && parameter1 === "Light Intensity") {
-          currentLight = isNaN(parseFloat(value1)) ? null : parseFloat(value1);
-        }
-
-        updateSensorUI();
-      }
-    }
-
-    // Keep existing parsing for other formats
-    const m = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
-    if (m) {
-      const sensorName = m[1].trim();
-      const param = m[2].trim();
-      const value = m[3].trim();
       const sensors = sensorProtocolMap[protocol] || [];
       if (sensors.includes(sensorName)) {
         const ok = !(value === "null" || value === "" || isNaN(parseFloat(value.replace(/[^0-9.-]+/g, ""))));
@@ -382,22 +226,64 @@ function parseSensorData(data) {
         if (ok) sensorData[protocol][`${sensorName} ${param}`] = value;
 
         if (sensorName === "BME680") {
-          if (param === "Temperature") currentTemperature = ok ? value.replace("°C", "").trim() : null;
-          else if (param === "Humidity") currentHumidity = ok ? value.replace("%", "").trim() : null;
-          else if (param === "Pressure") currentPressure = ok ? value.replace("hPa", "").trim() : null;
+          if (param === "Temperature") currentTemperature = ok ? parseFloat(value.replace("°C", "").trim()) : null;
+          else if (param === "Humidity") currentHumidity = ok ? parseFloat(value.replace("%", "").trim()) : null;
+          else if (param === "Pressure") currentPressure = ok ? parseFloat(value.replace("hPa", "").trim()) : null;
         } else if (sensorName === "VEML7700" && param === "Light Intensity") {
-          currentLight = ok ? value.replace("lux", "").trim() : null;
+          currentLight = ok ? parseFloat(value.replace("lux", "").trim()) : null;
         }
-        updateSensorUI();
       }
+      updateSensorUI();
+      return;
     }
 
-    const rain = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
-    if (rain && protocol === "ADC") {
+    // Handle JSON format (e.g., "Published to topic 'device/data': {...}")
+    if (line.startsWith("Published to topic 'device/data':")) {
+      try {
+        const jsonStr = line.split(": ", 2)[1];
+        const json = JSON.parse(jsonStr);
+
+        if (protocol === "I2C") {
+          currentTemperature = json.CurrentTemperature;
+          currentHumidity = json.CurrentHumidity;
+          currentPressure = json.AtmPressure;
+          currentLight = json.LightIntensity;
+
+          sensorStatus.I2C.BME680 = currentTemperature !== undefined || currentHumidity !== undefined || currentPressure !== undefined;
+          sensorStatus.I2C.VEML7700 = currentLight !== undefined;
+
+          if (currentTemperature !== undefined) sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
+          if (currentHumidity !== undefined) sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
+          if (currentPressure !== undefined) sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
+          if (currentLight !== undefined) sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
+        }
+
+        if (protocol === "ADC") {
+          if (json.BatteryVoltage !== undefined) {
+            sensorStatus.ADC["Battery Voltage"] = true;
+            sensorData.ADC["Battery Voltage"] = `${parseFloat(json.BatteryVoltage).toFixed(2)} V`;
+          }
+          if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
+            sensorStatus.ADC["Rain Gauge"] = true;
+            sensorData.ADC["Rain Gauge Hourly"] = `${json.RainfallHourly} tips`;
+            sensorData.ADC["Rain Gauge Daily"] = `${json.RainfallDaily} tips`;
+            sensorData.ADC["Rain Gauge Weekly"] = `${json.RainfallWeekly} tips`;
+          }
+        }
+        updateSensorUI();
+      } catch (e) {
+        console.error("Error parsing JSON:", e);
+      }
+      return;
+    }
+
+    // Handle rain gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
+    const rainMatch = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
+    if (rainMatch && protocol === "ADC") {
       sensorStatus[protocol]["Rain Gauge"] = true;
-      sensorData[protocol]["Rain Gauge Hourly"] = `${rain[1]} tips`;
-      sensorData[protocol]["Rain Gauge Daily"] = `${rain[2]} tips`;
-      sensorData[protocol]["Rain Gauge Weekly"] = `${rain[3]} tips`;
+      sensorData[protocol]["Rain Gauge Hourly"] = `${rainMatch[1]} tips`;
+      sensorData[protocol]["Rain Gauge Daily"] = `${rainMatch[2]} tips`;
+      sensorData[protocol]["Rain Gauge Weekly"] = `${rainMatch[3]} tips`;
       updateSensorUI();
     }
   });
