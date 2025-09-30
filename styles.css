@@ -638,6 +638,7 @@ body.dark-mode .wave-card-content i {
   font-size: 16px;
   font-weight: bold;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.38);
+   text-align: center;
 }
 
 body.light-mode .wave-card-value {
@@ -701,8 +702,8 @@ body.dark-mode .card-bar {
 }
 
 #light-value-display {
-  font-size: 0.9em;
-  font-weight: 600;
+font-size: 16px;
+  font-weight: bold;
   text-align: center;
 }
 
@@ -1541,6 +1542,7 @@ body.dark-mode .wave-card-content i {
   font-size: 16px;
   font-weight: bold;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.38);
+   text-align: center;
 }
 
 body.light-mode .wave-card-value {
@@ -1570,6 +1572,7 @@ body.dark-mode .wave-card-value {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
+  
 }
 
 body.light-mode .card-container h3 {
@@ -1597,16 +1600,18 @@ body.dark-mode .card-bar {
 }
 
 #light-sun {
-  margin: 10px 0;
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
+  margin: 0 auto; /* Center horizontally */
+  display: block; /* Ensure block-level behavior */
+  align-self: center; /* Center within flex container */
+  width: 100px; /* Consistent size */
+  height: 100px;
 }
 
-#light-value-display {
+#light-value {
   font-size: 0.9em;
   font-weight: 600;
   text-align: center;
+  margin-top: 10px; /* Add space above value */
 }
 
 body.light-mode #light-value-display {
