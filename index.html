@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <title>Serial Monitor</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -34,6 +35,7 @@
     }
   </style>
 </head>
+
 <body class="light-mode">
   <nav>
     <div class="logo">
@@ -41,12 +43,15 @@
     </div>
     <ul class="nav-links">
       <li>
-        <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <i class="fas fa-moon"></i>
+        </button>
       </li>
     </ul>
   </nav>
 
   <div class="main-container">
+    <!-- ========= LEFT PANEL ========= -->
     <div class="left-panel">
       <section class="control-section">
         <h3><i class="fas fa-plug"></i> Serial Port</h3>
@@ -91,8 +96,12 @@
         </div>
       </section>
 
+      <!-- ===== PROTOCOL COLLAPSIBLE ===== -->
       <section class="control-section" id="protocol-section">
-        <button class="collapsible"><span><i class="fas fa-exchange-alt"></i> Protocol Configuration</span><i class="fas fa-chevron-down"></i></button>
+        <button class="collapsible">
+          <span><i class="fas fa-exchange-alt"></i> Protocol Configuration</span>
+          <i class="fas fa-chevron-down"></i>
+        </button>
         <div class="collapsible-content">
           <div class="controls">
             <select id="protocol-select" class="input-field" onchange="updateProtocolUI()">
@@ -103,6 +112,7 @@
             <button class="action-button" onclick="setProtocol()"><i class="fas fa-save"></i> Set Protocol</button>
           </div>
 
+          <!-- FTP -->
           <div id="ftp-section">
             <h3><i class="fas fa-cloud-upload-alt"></i> FTP Configuration</h3>
             <div class="controls">
@@ -124,6 +134,7 @@
             </div>
           </div>
 
+          <!-- MQTT -->
           <div id="mqtt-section" style="display: none;">
             <h3><i class="fas fa-comments"></i> MQTT Configuration</h3>
             <div class="controls">
@@ -137,6 +148,10 @@
             </div>
             <div class="controls">
               <input type="password" id="mqtt-password" class="input-field" placeholder="Password">
+            </div>
+            <div class="controls">
+              <input type="text" id="mqtt-topic" class="input-field" placeholder="Topic (e.g., device/data)">
+              <button class="action-button" onclick="setMQTTTopic()"><i class="fas fa-save"></i> Set Topic</button>
             </div>
             <div class="controls">
               <label for="mqtt-ssl">SSL/TLS Enabled:</label>
@@ -164,10 +179,11 @@
             </div>
           </div>
 
+          <!-- HTTP -->
           <div id="http-section" style="display: none;">
             <h3><i class="fas fa-globe"></i> HTTP Configuration</h3>
             <div class="controls">
-              <input type="text" id="http-url" class="input-field" placeholder="URL (e.g., http://example.com/data)">
+              <input type="text" id="http-url" class="input-field" placeholder="URL (e.g., http://example.com/data )">
             </div>
             <div class="controls">
               <input type="text" id="http-auth-user" class="input-field" placeholder="Auth User">
@@ -182,6 +198,7 @@
       </section>
     </div>
 
+    <!-- ========= RIGHT PANEL ========= -->
     <div class="right-panel">
       <div class="container">
         <section class="control-section" id="sensors-section">
@@ -196,35 +213,32 @@
               <option value="SPI">SPI</option>
             </select>
           </div>
-          <div id="sensor-list" class="sensor-list-container">
-            <!-- Sensor list with presence indicators will be dynamically inserted here -->
-          </div>
-          <div id="sensor-data" class="sensor-data-container">
-            <!-- Sensor data will be dynamically inserted here -->
-          </div>
+
+          <!-- sensor list -->
+          <div id="sensor-list" class="sensor-list-container"></div>
+        
+          <div id="sensor-data" class="sensor-data-container"></div>
+          <!--  SENSOR CARDS  –  ALWAYS VISIBLE  -->
           <div class="sensor-cards">
+            <!-- Temperature -->
             <div id="thermometer-container" class="thermometer-container" style="display: none;">
               <h4>Temperature</h4>
-              <svg width="100" height="180" viewBox="0 0 100 220" class="thermometer">
-                <rect x="45" y="20" width="10" height="160" rx="5" ry="5" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
-                <rect id="thermometer-fill" x="47" y="20" width="6" height="0" rx="3" ry="3" fill="#ffeb3b"/>
-                <circle cx="50" cy="180" r="5" fill="#e0e0e0" stroke="#333" stroke-width="2"/>
-                <circle id="thermometer-bulb" cx="50" cy="180" r="3" fill="#ffeb3b"/>
-                <line x1="60" y1="20" x2="65" y2="20" stroke="#333" stroke-width="2"/>
-                <text x="70" y="25" font-size="10" fill="var(--text-color)">50°C</text>
-                <line x1="60" y1="52" x2="65" y2="52" stroke="#333" stroke-width="1"/>
-                <text x="70" y="57" font-size="10" fill="var(--text-color)">40°C</text>
-                <line x1="60" y1="84" x2="65" y2="84" stroke="#333" stroke-width="1"/>
-                <text x="70" y="89" font-size="10" fill="var(--text-color)">30°C</text>
-                <line x1="60" y1="116" x2="65" y2="116" stroke="#333" stroke-width="1"/>
-                <text x="70" y="121" font-size="10" fill="var(--text-color)">20°C</text>
-                <line x1="60" y1="148" x2="65" y2="148" stroke="#333" stroke-width="1"/>
-                <text x="70" y="153" font-size="10" fill="var(--text-color)">10°C</text>
-                <line x1="60" y1="180" x2="65" y2="180" stroke="#333" stroke-width="2"/>
-                <text x="70" y="185" font-size="10" fill="var(--text-color)">0°C</text>
-                <text x="10" y="210" fill="var(--text-color)" id="thermometer-value" class="wave-card-value"></text>
+              <div id="thermometer-value" class="wave-card-value" style="margin-bottom: 8px;"></div>
+              <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
+                <rect x="40" y="20" width="20" height="160" rx="10" ry="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+                <rect id="thermometer-fill" x="42" y="180" width="16" height="0" rx="8" ry="8" fill="#ffeb3b"/>
+                <circle cx="50" cy="180" r="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+                <circle id="thermometer-bulb" cx="50" cy="180" r="8" fill="#ffeb3b"/>
+                <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/><text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
+                <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/><text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
+                <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/><text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
+                <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/><text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
+                <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/><text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
+                <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/><text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
               </svg>
             </div>
+
+            <!-- Humidity -->
             <div id="humidity-card" class="wave-card-container" style="display: none;">
               <h4>Humidity</h4>
               <div class="wave-card-content">
@@ -241,11 +255,15 @@
                 <path id="wavePath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#waveGradient)"/>
               </svg>
             </div>
+
+            <!-- Pressure -->
             <div id="pressure-card" class="card-container" style="display: none;">
               <h3>Pressure</h3>
               <div id="pressure-value" class="wave-card-value"></div>
               <div id="pressure-bar" class="card-bar"></div>
             </div>
+
+            <!-- Light -->
             <div id="light-card" class="card-container" style="display: none;">
               <h3>Light Intensity</h3>
               <div id="light-value" class="wave-card-value"></div>
@@ -269,7 +287,6 @@
                   </filter>
                 </defs>
               </svg>
-              <!-- <div id="light-value-display" class="wave-card-value"></div> -->
             </div>
           </div>
         </section>

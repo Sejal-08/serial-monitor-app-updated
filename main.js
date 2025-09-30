@@ -51,7 +51,8 @@ async function sendCommand(message) {
           responseData.includes("Current interval") ||
           responseData.includes("MQTT protocol") ||
           responseData.includes("HTTP protocol") ||
-          responseData.includes("FTP protocol")
+          responseData.includes("FTP protocol") ||
+          responseData.includes("topic=")
         ) {
           cleanup();
           resolve(`Successfully processed: ${message}. Response: ${responseData.trim()}`);
@@ -344,6 +345,7 @@ ipcMain.handle("set-mqtt-ssl", async (event, sslEnabled) => {
   }
   return result;
 });
+ipcMain.handle("set-mqtt-topic", (event, topic) => sendCommand(`SET_PUBLISH_TOPIC:${topic}`));
 
 // --- HTTP Config ---
 ipcMain.handle("set-http-url", (event, url) => sendCommand(`SET_HTTP_URL:${url}`));

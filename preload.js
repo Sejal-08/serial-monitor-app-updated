@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld("electronAPI", {
   setMQTTUser: (user) => ipcRenderer.invoke("set-mqtt-user", user),
   setMQTTPassword: (password) => ipcRenderer.invoke("set-mqtt-password", password),
   setMQTTSSL: (sslEnabled) => ipcRenderer.invoke("set-mqtt-ssl", sslEnabled),
+  setMQTTTopic: (topic) => ipcRenderer.invoke("set-mqtt-topic", topic),
   getMQTTConfig: () => ipcRenderer.invoke("get-mqtt-config"),
   setHTTPURL: (url) => ipcRenderer.invoke("set-http-url", url),
   setHTTPAuth: (auth) => ipcRenderer.invoke("set-http-auth", auth),
