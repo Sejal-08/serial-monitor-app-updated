@@ -503,19 +503,20 @@ body.dark-mode .sensor-cards {
 /* Sensor Card Base Styles */
 .thermometer-container,
 .wave-card-container,
-.card-container {
+.card-container,
+.battery-container {
   flex: 1;
   max-width: 200px;
   min-width: 150px;
-  min-height: 200px; /* Consistent minimum height for all cards */
+  min-height: 200px;
   padding: 12px;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   transition: all 0.4s ease;
-  position: relative; /* Ensure absolute positioning of child elements is contained */
-  overflow: hidden; /* Prevent overflow of absolute elements like the wave */
+  position: relative;
+  overflow: hidden;
 }
 
 body.light-mode .thermometer-container,
@@ -712,7 +713,69 @@ body.light-mode #light-value-display {
 body.dark-mode #light-value-display {
   color: #e0e7ff;
 }
+/* Battery Card Styles */
+.battery-container h4 {
+  margin: 0 0 10px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
 
+body.light-mode .battery-container h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .battery-container h4 {
+  color: #a3bffa;
+}
+
+#battery-icon {
+  margin: 10px 0;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+body.light-mode #battery-icon rect:not(#battery-fill) {
+  stroke: #2d4060;
+  fill: #e0e7ff;
+}
+
+body.dark-mode #battery-icon rect:not(#battery-fill) {
+  stroke: #a3bffa;
+  fill: #2d4060;
+}
+
+/* Rain Gauge Card Styles */
+#rain-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  max-width: 200px; /* Match the card's max-width */
+  height: 70%; /* Scaled to fit within card content */
+  z-index: 0;
+}
+
+#rain-wave path {
+  transition: d 1.2s ease-in-out;
+}
+
+/* Animation for Battery Card */
+@keyframes batteryGlow {
+  0%   { filter: drop-shadow(0 0 2px var(--glow)) brightness(1); }
+  50%  { filter: drop-shadow(0 0 8px var(--glow)) brightness(1.15); }
+  100% { filter: drop-shadow(0 0 2px var(--glow)) brightness(1); }
+}
+
+.battery-container {
+  transition: none;
+  --glow: #34d399; /* Default glow color */
+  animation: batteryGlow 2s ease-in-out infinite;
+}
+
+.battery-container.shake {
+  animation: batteryGlow 2s ease-in-out infinite, thermoShake 0.18s ease-in-out;
+}
 /* Log Styles */
 .log-line {
   display: block;
@@ -778,7 +841,20 @@ body.dark-mode #light-value-display {
     width: 100%;
     min-height: 180px; /* Adjusted for smaller screens */
   }
-
+.battery-container {
+  flex: 1;
+  max-width: 200px;
+  min-width: 150px;
+  min-height: 200px;
+  padding: 12px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
   #humidity-wave {
     max-width: 100%; /* Allow full width on smaller screens */
   }
@@ -1346,7 +1422,8 @@ body.dark-mode .sensor-cards {
 
 body.light-mode .thermometer-container,
 body.light-mode .wave-card-container,
-body.light-mode .card-container {
+body.light-mode .card-container,
+body.light-mode .battery-container {
   background: #f9f9f9;
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -1354,7 +1431,8 @@ body.light-mode .card-container {
 
 body.dark-mode .thermometer-container,
 body.dark-mode .wave-card-container,
-body.dark-mode .card-container {
+body.dark-mode .card-container,
+body.dark-mode .battery-container {
   background: linear-gradient(135deg, #1a2a4d, #2d4060);
   border: 1px solid rgba(45, 65, 90, 0.5);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
