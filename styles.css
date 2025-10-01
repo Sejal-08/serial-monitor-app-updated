@@ -638,18 +638,18 @@ body.dark-mode .wave-card-content i {
 }
 
 /* Card Styles */
-.card-container h3 {
+.card-container h4 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
   font-weight: 600;
   text-align: center;
 }
 
-body.light-mode .card-container h3 {
+body.light-mode .card-container h4 {
   color: #2d4060;
 }
 
-body.dark-mode .card-container h3 {
+body.dark-mode .card-container h4 {
   color: #a3bffa;
 }
 
