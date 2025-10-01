@@ -98,7 +98,7 @@ let dataHtml = "<h4>Sensor Data</h4>";
 let hasData = false;
 for (const [k, v] of Object.entries(data)) {
   if (v !== null && v !== undefined && v !== "null" && v !== "") {
-    if (k === "Battery Voltage" || k === "Rainfall Hourly") {
+    if (k === "Battery Voltage" || k === "Rainfall Daily") {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
       hasData = true;
     }
@@ -254,9 +254,9 @@ if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorD
 
    
   /* Rain Gauge */
-if (sensorData.ADC["Rainfall Hourly"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rainfall Hourly"].replace(" mm", "")))) {
+if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", "")))) {
   rainGaugeCard.style.display = "block";
-  const rainMm = parseFloat(sensorData.ADC["Rainfall Hourly"].replace(" mm", ""));
+  const rainMm = parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", ""));
   rainGaugeValue.textContent = `${rainMm.toFixed(1)} mm`;
 
   const maxMm = 25; // Assuming max 50 tips = 25 mm
@@ -378,7 +378,7 @@ if (rainMatch && protocol === "ADC") {
   const dailyTips = parseInt(rainMatch[2]);
   const weeklyTips = parseInt(rainMatch[3]);
   sensorData[protocol]["Rainfall Hourly"] = `${(hourlyTips * 0.5).toFixed(1)} mm`;
-  sensorData[protocol]["Rain Gauge Daily"] = `${dailyTips} tips`; // Keep for reference if needed
+ sensorData[protocol]["Rainfall Daily"] = `${(dailyTips * 0.5).toFixed(1)} mm`; // Store as mm
   sensorData[protocol]["Rain Gauge Weekly"] = `${weeklyTips} tips`; // Keep for reference if needed
   updateSensorUI();
 }
