@@ -92,17 +92,19 @@ function updateSensorUI() {
   listHtml += "</ul>";
   sensorListDiv.innerHTML = sensors.length ? listHtml : "<p>No sensors available.</p>";
 
-  /* ---------- sensor data ---------- */
-  const data = sensorData[protocol];
-  let dataHtml = "<h4>Sensor Data</h4>";
-  let hasData = false;
-  for (const [k, v] of Object.entries(data)) {
-    if (v !== null && v !== undefined && v !== "null" && v !== "") {
+/* ---------- sensor data ---------- */
+const data = sensorData[protocol];
+let dataHtml = "<h4>Sensor Data</h4>";
+let hasData = false;
+for (const [k, v] of Object.entries(data)) {
+  if (v !== null && v !== undefined && v !== "null" && v !== "") {
+    if (k === "Battery Voltage" || k === "Rainfall Hourly") {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
       hasData = true;
     }
   }
-  if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
+}
+if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
 
   /* ---------- I2C-specific sensor cards ---------- */
   if (protocol === "I2C") {
@@ -204,85 +206,84 @@ function updateSensorUI() {
       lightValue.textContent = `${light.toFixed(1)} lux`;
     }
   } else if (protocol === "ADC") {
-    /* Battery Voltage */
-    if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"]))) {
-      batteryCard.style.display = "block";
-      const voltage = parseFloat(sensorData.ADC["Battery Voltage"]);
-      const maxVoltage = 4.2; // 100%
-      const minVoltage = 3.0; // 0%
 
-      // Convert voltage to percentage (based on provided C++ logic)
-      let percentage;
-      if (voltage >= maxVoltage) {
-        percentage = 100.0;
-      } else if (voltage <= minVoltage) {
-        percentage = 0.0;
-      } else {
-        percentage = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
-      }
+  /* Battery Voltage */
+if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"]))) {
+  batteryCard.style.display = "block";
+  const voltage = parseFloat(sensorData.ADC["Battery Voltage"].replace(" V", ""));
+  const maxVoltage = 4.2; // 100%
+  const minVoltage = 3.0; // 0%
 
-      const fillWidth = (percentage / 100) * 66; // Max width of fill is 66 (out of 70)
+  let percentage;
+  if (voltage >= maxVoltage) {
+    percentage = 100.0;
+  } else if (voltage <= minVoltage) {
+    percentage = 0.0;
+  } else {
+    percentage = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+  }
 
-      batteryFill.style.transition = "width 0.8s ease, fill 0.8s ease";
-      batteryFill.setAttribute("width", fillWidth);
+  const fillHeight = (percentage / 100) * 66; // Max height of fill is 66 (out of 70)
 
-      // Interpolate color from red (0%) to yellow (50%) to green (100%)
-      let fillColor;
-      if (percentage <= 50) {
-        // Red (#f87171) to Yellow (#ffeb3b)
-        const t = percentage / 50;
-        const r = Math.round(248 + (255 - 248) * t); // 248 -> 255
-        const g = Math.round(113 + (235 - 113) * t); // 113 -> 235
-        const b = Math.round(113 + (59 - 113) * t);  // 113 -> 59
-        fillColor = `rgb(${r}, ${g}, ${b})`;
-      } else {
-        // Yellow (#ffeb3b) to Green (#34d399)
-        const t = (percentage - 50) / 50;
-        const r = Math.round(255 + (52 - 255) * t);  // 255 -> 52
-        const g = Math.round(235 + (211 - 235) * t); // 235 -> 211
-        const b = Math.round(59 + (153 - 59) * t);   // 59 -> 153
-        fillColor = `rgb(${r}, ${g}, ${b})`;
-      }
-      batteryFill.setAttribute("fill", fillColor);
-      batteryCard.style.setProperty("--glow", fillColor); // Update glow color
+  batteryFill.style.transition = "height 0.8s ease, fill 0.8s ease";
+  batteryFill.setAttribute("height", fillHeight);
+  batteryFill.setAttribute("y", 20 + (66 - fillHeight)); // Start from top and grow downward
 
-      batteryValue.textContent = `${voltage.toFixed(2)} V (${percentage.toFixed(0)}%)`;
-      batteryCard.classList.remove("shake");
-      void batteryCard.offsetWidth;
-      batteryCard.classList.add("shake");
-    }
+  let fillColor;
+  if (percentage <= 50) {
+    const t = percentage / 50;
+    const r = Math.round(248 + (255 - 248) * t);
+    const g = Math.round(113 + (235 - 113) * t);
+    const b = Math.round(113 + (59 - 113) * t);
+    fillColor = `rgb(${r}, ${g}, ${b})`;
+  } else {
+    const t = (percentage - 50) / 50;
+    const r = Math.round(255 + (52 - 255) * t);
+    const g = Math.round(235 + (211 - 235) * t);
+    const b = Math.round(59 + (153 - 59) * t);
+    fillColor = `rgb(${r}, ${g}, ${b})`;
+  }
+  batteryFill.setAttribute("fill", fillColor);
+  batteryCard.style.setProperty("--glow", fillColor);
 
-    /* Rain Gauge */
-    if (sensorData.ADC["Rain Gauge Hourly"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rain Gauge Hourly"]))) {
-      rainGaugeCard.style.display = "block";
-      const rainTips = parseFloat(sensorData.ADC["Rain Gauge Hourly"]);
-      rainGaugeValue.textContent = `${rainTips.toFixed(0)} tips`;
+  batteryValue.textContent = `${voltage.toFixed(2)} V (${percentage.toFixed(0)}%)`;
+  batteryCard.classList.remove("shake");
+  void batteryCard.offsetWidth;
+  batteryCard.classList.add("shake");
+}
 
-      const maxTips = 50;
-      const t = Math.min(Math.max(rainTips / maxTips, 0), 1);
-      const lowColor = { r: 30, g: 144, b: 255 };
-      const highColor = { r: 0, g: 0, b: 139 };
-      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
-      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
-      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
-      const primaryColor = `rgb(${r}, ${g}, ${b})`;
-      rainColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
-      rainColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+   
+  /* Rain Gauge */
+if (sensorData.ADC["Rainfall Hourly"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rainfall Hourly"].replace(" mm", "")))) {
+  rainGaugeCard.style.display = "block";
+  const rainMm = parseFloat(sensorData.ADC["Rainfall Hourly"].replace(" mm", ""));
+  rainGaugeValue.textContent = `${rainMm.toFixed(1)} mm`;
 
-      const waveHeight = 100 - (t * 80);
-      const rainWaveAnimation = `
-        @keyframes rainWaveAnimation {
-          0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-          50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
-          100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-        }`;
-      const styleSheet = document.styleSheets[0];
-      try {
-        styleSheet.insertRule(rainWaveAnimation, styleSheet.cssRules.length);
-      } catch {}
-      rainPath.style.animation = "rainWaveAnimation 8s ease-in-out infinite";
-      rainPath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
-    }
+  const maxMm = 25; // Assuming max 50 tips = 25 mm
+  const t = Math.min(Math.max(rainMm / maxMm, 0), 1);
+  const lowColor = { r: 30, g: 144, b: 255 };
+  const highColor = { r: 0, g: 0, b: 139 };
+  const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+  const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+  const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+  const primaryColor = `rgb(${r}, ${g}, ${b})`;
+  rainColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
+  rainColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+
+  const waveHeight = 100 - (t * 80);
+  const rainWaveAnimation = `
+    @keyframes rainWaveAnimation {
+      0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+      50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
+      100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
+    }`;
+  const styleSheet = document.styleSheets[0];
+  try {
+    styleSheet.insertRule(rainWaveAnimation, styleSheet.cssRules.length);
+  } catch {}
+  rainPath.style.animation = "rainWaveAnimation 8s ease-in-out infinite";
+  rainPath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+}
   } else {
     lightCard.style.display = "none";
     lightValue.textContent = "N/A";
@@ -369,13 +370,24 @@ function parseSensorData(data) {
       return;
     }
 
-    // Handle rain gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
-    const rainMatch = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
-    if (rainMatch && protocol === "ADC") {
-      sensorStatus[protocol]["Rain Gauge"] = true;
-      sensorData[protocol]["Rain Gauge Hourly"] = `${rainMatch[1]} tips`;
-      sensorData[protocol]["Rain Gauge Daily"] = `${rainMatch[2]} tips`;
-      sensorData[protocol]["Rain Gauge Weekly"] = `${rainMatch[3]} tips`;
+  // Handle rain gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
+const rainMatch = line.match(/^Rain Tip Detected!\s*Hourly:\s*(\d+)\s*Daily:\s*(\d+)\s*Weekly:\s*(\d+)/);
+if (rainMatch && protocol === "ADC") {
+  sensorStatus[protocol]["Rain Gauge"] = true;
+  const hourlyTips = parseInt(rainMatch[1]);
+  const dailyTips = parseInt(rainMatch[2]);
+  const weeklyTips = parseInt(rainMatch[3]);
+  sensorData[protocol]["Rainfall Hourly"] = `${(hourlyTips * 0.5).toFixed(1)} mm`;
+  sensorData[protocol]["Rain Gauge Daily"] = `${dailyTips} tips`; // Keep for reference if needed
+  sensorData[protocol]["Rain Gauge Weekly"] = `${weeklyTips} tips`; // Keep for reference if needed
+  updateSensorUI();
+}
+    // Handle simple key-value format (e.g., "Battery Voltage: 3.79 V")
+    const batteryMatch = line.match(/^Battery Voltage:\s*([\d.]+)\s*V$/);
+    if (batteryMatch && protocol === "ADC") {
+      const voltage = parseFloat(batteryMatch[1]);
+      sensorStatus[protocol]["Battery Voltage"] = true;
+      sensorData[protocol]["Battery Voltage"] = `${voltage.toFixed(2)} V`;
       updateSensorUI();
     }
   });
