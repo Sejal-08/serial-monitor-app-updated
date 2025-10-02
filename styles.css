@@ -234,12 +234,13 @@ body.dark-mode .input-field {
   gap: 6px;
   justify-content: center;
   transition: all 0.4s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  
 }
 
 body.light-mode .action-button {
-  background: #4b6cb7;
-  color: #ffffff;
+  background:#92aae2;
+  color: #0b0b0b;
+   box-shadow: 0 2px 6px rgba(6, 0, 0, 0.5);
 }
 
 body.dark-mode .action-button {
@@ -247,6 +248,7 @@ body.dark-mode .action-button {
   background-size: 200% 200%;
   color: #e0e7ff;
   animation: gradientPulse 8s ease infinite;
+   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .action-button:hover {
