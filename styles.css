@@ -11,7 +11,7 @@
 /* Light Mode (Default) */
 body.light-mode {
   font-family: 'Poppins', sans-serif;
-  background: #f7f9fc;
+  background:linear-gradient(135deg, #f3f4f6 0%, #e4e8f2 50%, #d3d4d5 100%);
   color: #1e293b;
   min-height: 100vh;
   display: flex;
@@ -118,7 +118,7 @@ body.dark-mode .theme-toggle:hover {
 
 body.light-mode .left-panel,
 body.light-mode .right-panel {
-  background: #ffffff;
+  background:linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #f9f9f9 100%);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e7ff;
 }
