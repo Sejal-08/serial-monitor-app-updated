@@ -644,7 +644,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (isConnected) {
       const oldBaud = currentBaud;
       await disconnectPort();
-      log(`Disconnected from port at ${oldBaud}`, "info");
+         log(`Disconnected from port at ${oldBaud} baud. Please reconnect with the new baud rate.`, "info");
     }
   });
 });
