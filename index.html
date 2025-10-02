@@ -356,15 +356,21 @@
   <script>
     let isLedOn = false;
 
-    function restartDevice() {
-      sendCommand('RESTART');
-      document.getElementById('output').innerHTML += 'Sent RESTART command to device.<br>';
-      const button = document.getElementById('restart-button');
-      button.disabled = true;
-      setTimeout(() => {
-        button.disabled = false;
-      }, 5000);
-    }
+    async function restartDevice() {
+  const res = await window.electronAPI.sendData('RESTART');
+  const output = document.getElementById('output');
+  if (res.error) {
+    output.innerHTML += `<span class="log-line log-error">Failed to send RESTART command: ${res.error}</span><br>`;
+  } else {
+    output.innerHTML += `<span class="log-line log-success">Sent RESTART command to device.</span><br>`;
+  }
+  output.scrollTop = output.scrollHeight;
+  const button = document.getElementById('restart-button');
+  button.disabled = true;
+  setTimeout(() => {
+    button.disabled = false;
+  }, 5000);
+}
 
     function toggleTheme() {
       document.body.classList.toggle('dark-mode');
