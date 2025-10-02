@@ -465,11 +465,17 @@ async function connectPort() {
 }
 async function disconnectPort() {
   const res = await window.electronAPI.disconnectPort();
-  res.error ? log(res.error, "error") : log(res, "success");
+  if (res.error) {
+    log(res.error, "error");
+  } else {
+    log(res, "success");
+    isConnected = false;
+    clearSensorData();
+  }
 }
 async function setDeviceID() {
   const id = document.getElementById("device-id").value.trim();
-  if (!id || !/^[a-zA-Z0-9-_]+$/.test(id)) return log("Please enter a valid alphanumeric Device ID.", "error");
+  if (!id || !/^[a-zAZ0-9-_]+$/.test(id)) return log("Please enter a valid alphanumeric Device ID.", "error");
   const res = await window.electronAPI.setDeviceID(id);
   res.error ? log(res.error, "error") : log(res, "success");
 }
@@ -588,7 +594,6 @@ function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
 /*  SERIAL DATA HANDLER                                               */
 /* ------------------------------------------------------------------ */
 window.electronAPI.onSerialData((data) => {
-
   if (data.includes("DISCONNECTED:")) {
     isConnected = false;
     clearSensorData();
@@ -644,7 +649,18 @@ window.addEventListener("DOMContentLoaded", () => {
     if (isConnected) {
       const oldBaud = currentBaud;
       await disconnectPort();
-         log(`Disconnected from port at ${oldBaud} baud. Please reconnect with the new baud rate.`, "info");
+      log(`Disconnected from port at ${oldBaud} baud. Please reconnect with the new baud rate.`, "info");
+    }
+  });
+  document.getElementById("ports").addEventListener("focus", async () => {
+    await listPorts();
+  });
+  document.getElementById("ports").addEventListener("change", async () => {
+    if (isConnected) {
+      const oldPort = currentPort;
+      const oldBaud = currentBaud;
+      await disconnectPort();
+      log(`Disconnected from port ${oldPort} at ${oldBaud} baud. Please reconnect with the new port.`, "info");
     }
   });
 });
