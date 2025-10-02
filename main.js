@@ -185,7 +185,11 @@ ipcMain.handle("connect-port", async (event, portName, baudRate = 115200) => {
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    port.on("data", (data) => {
+   port.on("data", (data) => {
+    port.on("close", () => {
+      console.log("Serial port closed");
+      mainWindow.webContents.send("serial-data", "DISCONNECTED: Port closed (possibly unplugged)");
+    });
       try {
         const incomingText = data.toString("utf8");
         console.log(`Raw data received: "${incomingText}"`);
@@ -212,11 +216,14 @@ ipcMain.handle("connect-port", async (event, portName, baudRate = 115200) => {
         mainWindow.webContents.send("serial-data", `Error: ${err.message}`);
       }
     });
-
-    port.on("error", (err) => {
-      console.error("Serial port error:", err.message);
-      mainWindow.webContents.send("serial-data", `Port error: ${err.message}`);
-    });
+port.on("error", (err) => {
+  console.error("Serial port error:", err.message);
+  mainWindow.webContents.send("serial-data", `Port error: ${err.message}`);
+  mainWindow.webContents.send("serial-data", `DISCONNECTED: due to error - ${err.message}`);
+  if (port.isOpen) {
+    port.close();
+  }
+});
 
     // Send GET_INTERVAL to initialize data streaming
     const initResult = await sendCommand("GET_INTERVAL");

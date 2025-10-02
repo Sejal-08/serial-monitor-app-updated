@@ -24,6 +24,9 @@ let currentTemperature = null;
 let currentHumidity   = null;
 let currentPressure   = null;
 let currentLight      = null;
+let isConnected = false;
+let currentBaud = 115200;
+let currentPort = "";
 
 /* ------------------------------------------------------------------ */
 /*  MAIN UI UPDATE                                                    */
@@ -451,7 +454,14 @@ async function connectPort() {
   if (!port) return log("Please select a port.", "error");
   if (!baud || isNaN(baud) || baud <= 0) return log("Please select a valid baud rate.", "error");
   const res = await window.electronAPI.connectPort(port, baud);
-  res.error ? log(res.error, "error") : log(res, "success");
+  if (res.error) {
+    log(res.error, "error");
+  } else {
+    log(res, "success");
+    isConnected = true;
+    currentBaud = baud;
+    currentPort = port;
+  }
 }
 async function disconnectPort() {
   const res = await window.electronAPI.disconnectPort();
@@ -578,6 +588,11 @@ function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
 /*  SERIAL DATA HANDLER                                               */
 /* ------------------------------------------------------------------ */
 window.electronAPI.onSerialData((data) => {
+
+  if (data.includes("DISCONNECTED:")) {
+    isConnected = false;
+    clearSensorData();
+  }
   if (!data) return;
   const sanitized = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   parseSensorData(sanitized);
@@ -625,6 +640,13 @@ window.addEventListener("DOMContentLoaded", () => {
   updateProtocolUI();
   listPorts();
   updateSensorUI();
+  document.getElementById("baud-rate").addEventListener("change", async () => {
+    if (isConnected) {
+      const oldBaud = currentBaud;
+      await disconnectPort();
+      log(`Disconnected from port at ${oldBaud}`, "info");
+    }
+  });
 });
 
 /* tiny helper */
@@ -632,4 +654,19 @@ function log(msg, type = "default") {
   const out = document.getElementById("output");
   out.innerHTML += `<span class="log-line log-${type}">${msg}</span><br>`;
   out.scrollTop = out.scrollHeight;
+}
+function clearSensorData() {
+  sensorStatus = {
+    I2C: { BME680: false, VEML7700: false },
+    ADC: { "Battery Voltage": false, "Rain Gauge": false },
+    RS232: { "Ultrasonic Sensor": false },
+    RS485: {},
+    SPI: {},
+  };
+  sensorData = { I2C: {}, ADC: {}, RS232: {}, RS485: {}, SPI: {} };
+  currentTemperature = null;
+  currentHumidity = null;
+  currentPressure = null;
+  currentLight = null;
+  updateSensorUI();
 }
