@@ -167,19 +167,40 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
 
     /* Pressure */
     if (currentPressure !== null && !isNaN(parseFloat(currentPressure))) {
-      pressureCard.style.display = "block";
-      const pressure = parseFloat(currentPressure);
-      const barColor =
-        pressure >= 950 && pressure <= 1050
-          ? "#34d399"
-          : (pressure >= 900 && pressure < 950) || (pressure > 1050 && pressure <= 1100)
-          ? "#ffeb3b"
-          : "#f87171";
-      const barWidth = Math.min(Math.max((pressure - 300) / (1100 - 300) * 100, 0), 100);
-      pressureValue.textContent = `${pressure.toFixed(1)} hPa`;
-      pressureBar.style.width = `${barWidth}%`;
-      pressureBar.style.backgroundColor = barColor;
+      updatePressureCard(parseFloat(currentPressure));
     }
+
+            /* ----------  show / update pressure card  ---------- */
+      function updatePressureCard(hpa) {
+        const card   = document.getElementById('pressure-card');
+        const value  = document.getElementById('pressure-value');
+        const needle = document.getElementById('pressureNeedle');
+
+        if (hpa === null || isNaN(hpa)) {          // no data → hide
+          card.style.display = 'none';
+          return;
+        }
+
+        card.style.display = 'flex';               // show card
+       value.textContent = `${Number(hpa).toFixed(1)} hPa`;
+
+        /* 300 hPa → 0° (left)   1100 hPa → 180° (right) */
+        const minP = 300, maxP = 1100;
+        const t    = Math.min(Math.max((hpa - minP) / (maxP - minP), 0), 1);
+        /* 300 hPa → ‑90° (left)   1100 hPa → +90° (right) */
+        const angle = (t * 180) - 90;          // ‑90° … +90°
+      needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+
+        // optional tiny pulse on update (kept from your last code)
+        needle.classList.remove('needle-update');
+        void needle.offsetWidth;
+        needle.classList.add('needle-update');
+      }
+          
+
+/* example usage when serial data arrives
+   updatePressureCard(983.5);   // hpa value from UART
+*/
  /* Light Intensity */
     if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";

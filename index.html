@@ -233,12 +233,20 @@
               </svg>
             </div>
 
-            <!-- Pressure -->
-            <div id="pressure-card" class="card-container" style="display: none;">
-              <h4>Pressure</h4>
-              <div id="pressure-value" class="sensor-value"></div>
-              <div id="pressure-bar" class="card-bar"></div>
-            </div>
+          <!-- PRESSURE – HALF-CIRCLE GAUGE -->
+        <div id="pressure-card" class="card-container">  <!-- No display:none -->
+          <h4>Pressure</h4>
+          <div id="pressure-value" class="sensor-value"></div>
+          <div class="pressure-gauge">
+            <span class="scale-label scale-300">300</span>
+            <span class="scale-label scale-500">500</span>
+            <span class="scale-label scale-700">700</span>
+            <span class="scale-label scale-900">900</span>
+            <span class="scale-label scale-1100">1100</span>
+            <div class="needle" id="pressureNeedle"></div>
+            <div class="center-hub"></div>
+          </div>
+        </div>
    <!-- Light Intensity Card with Sun/Moon Toggle -->
             <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <h4>Light Intensity</h4>
