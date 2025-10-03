@@ -180,31 +180,70 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
       pressureBar.style.width = `${barWidth}%`;
       pressureBar.style.backgroundColor = barColor;
     }
-
-    /* Light Intensity */
+ /* Light Intensity */
     if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";
       const light = parseFloat(currentLight);
       const maxLight = 120000;
       const brightness = Math.min(Math.max(light / maxLight, 0), 1);
 
-      sunCircle.setAttribute("r", 20 + 10 * brightness);
-      glowFilter.setAttribute("stdDeviation", 5 + 5 * brightness);
+      const sunSvg = document.getElementById("light-sun");
+      const moonSvg = document.getElementById("light-moon");
+      const sunCircle = document.getElementById("sun-circle");
+      const sunGradient = document.getElementById("sunGradient");
+      const sunGlow = document.getElementById("sunGlow");
+      const moonShape = document.getElementById("moon-shape");
+      const moonGradient = document.getElementById("moonGradient");
+      const moonGlow = document.getElementById("moonGlow");
+      const moonSparkles = document.getElementById("moon-sparkles");
+      const sunRays = document.getElementById("sun-rays");
 
-      const lowColor = { r: 255, g: 215, b: 0 };
-      const highColor = { r: 255, g: 140, b: 0 };
-      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * brightness);
-      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * brightness);
-      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * brightness);
-      const sunColor = `rgb(${r}, ${g}, ${b})`;
-
-      sunGradient.children[0].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.9`);
-      sunGradient.children[1].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.4`);
-      sunGradient.children[2].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0`);
-
-      const backgroundBrightness = 0.8 + 0.2 * Math.sin(Date.now() / 300);
-      lightCard.querySelector("rect").style.filter = `brightness(${backgroundBrightness})`;
-      sparkles.style.opacity = brightness * 0.7;
+      // Toggle Sun/Moon based on light value
+      if (light < 100) {
+        // Show Moon
+        sunSvg.style.display = "none";
+        moonSvg.style.display = "block";
+        // Moon color interpolation (dim to bright moonlight)
+        const lowColor = { r: 230, g: 230, b: 250 }; // Lavender
+        const highColor = { r: 70, g: 130, b: 180 }; // Steel Blue
+        const t = light / 100; // Scale from 0 to 100 lux
+        const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+        const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+        const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+        const moonColor = `rgb(${r}, ${g}, ${b})`;
+        moonGradient.children[0].setAttribute("style", `stop-color:${moonColor}; stop-opacity:0.9`);
+        moonGradient.children[1].setAttribute("style", `stop-color:${moonColor}; stop-opacity:0.6`);
+        moonGradient.children[2].setAttribute("style", `stop-color:${moonColor}; stop-opacity:0.3`);
+        moonGlow.setAttribute("stdDeviation", 4 + 2 * t); // Glow increases slightly with light
+        moonSparkles.style.opacity = 0.5 + 0.5 * t; // Sparkles more visible at higher lux
+      } else {
+        // Show Sun
+        sunSvg.style.display = "block";
+        moonSvg.style.display = "none";
+        // Sun color interpolation (yellow to orange-red)
+        const lowColor = { r: 255, g: 235, b: 59 }; // Bright Yellow
+        const highColor = { r: 255, g: 69, b: 0 }; // Orange-Red
+        const t = Math.min((light - 100) / (maxLight - 100), 1); // Scale from 100 to maxLight
+        const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+        const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+        const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+        const sunColor = `rgb(${r}, ${g}, ${b})`;
+        sunGradient.children[0].setAttribute("style", `stop-color:${sunColor}; stop-opacity:1`);
+        sunGradient.children[1].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.8`);
+        sunGradient.children[2].setAttribute("style", `stop-color:${sunColor}; stop-opacity:0.4`);
+        sunGlow.setAttribute("stdDeviation", 3 + 3 * brightness); // Glow increases with brightness
+        sunCircle.setAttribute("r", 24 + 9 * brightness); // Sun size increases with brightness
+        sunRays.style.opacity = 0.6 + 0.4 * brightness; // Rays more visible at higher brightness
+        // Update ray color to darker shade based on sun color
+        const rayR = Math.max(r - 50, 0); // Darken red component
+        const rayG = Math.max(g - 50, 0); // Darken green component
+        const rayB = Math.max(b - 50, 0); // Darken blue component
+        const rayColor = `rgb(${rayR}, ${rayG}, ${rayB})`;
+        const rays = sunRays.getElementsByClassName("sun-ray");
+        for (let ray of rays) {
+          ray.setAttribute("stroke", rayColor);
+        }
+      }
 
       lightValue.textContent = `${light.toFixed(1)} lux`;
     }

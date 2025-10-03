@@ -239,40 +239,104 @@
               <div id="pressure-value" class="sensor-value"></div>
               <div id="pressure-bar" class="card-bar"></div>
             </div>
-
-                        <!-- Adjusted Light Intensity Card with Dark Mode Support -->
+   <!-- Light Intensity Card with Sun/Moon Toggle -->
             <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <h4>Light Intensity</h4>
               <div id="light-value" class="sensor-value"></div>
-              <svg id="light-sun" width="100" height="100" viewBox="0 0 100 100" style="display: block; margin: 0 auto;">
+              <!-- Sun SVG -->
+              <svg id="light-sun" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
                 <defs>
-                  <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-                    <stop offset="0%" style="stop-color:#ffd700; stop-opacity:0.9"/>
-                    <stop offset="70%" style="stop-color:#ff8c00; stop-opacity:0.4"/>
-                    <stop offset="100%" style="stop-color:#ff4500; stop-opacity:0"/>
+                  <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#ffeb3b; stop-opacity:1"/>
+                    <stop offset="60%" style="stop-color:#ff9800; stop-opacity:0.8"/>
+                    <stop offset="100%" style="stop-color:#ff6b00; stop-opacity:0.4"/>
                   </radialGradient>
-                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                  <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
                     <feMerge>
                       <feMergeNode in="coloredBlur"/>
                       <feMergeNode in="SourceGraphic"/>
                     </feMerge>
                   </filter>
                 </defs>
-                <rect x="0" y="0" width="100" height="100" fill="url(#sunGradient)" style="filter: brightness(1); transition: filter 0.5s ease;"/>
-                <circle id="sun-circle" cx="50" cy="50" r="20" fill="url(#sunGradient)" filter="url(#glow)"/>
-                <g id="sparkles">
-                  <circle cx="30" cy="30" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="1.5s" repeatCount="indefinite"/>
+                <!-- Animated rays container -->
+                <g id="sun-rays" transform="translate(60, 60)">
+                  <line class="sun-ray" x1="0" y1="0" x2="0" y2="-40" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="-35;-50;-35" dur="4s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="28" y2="-28" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="40" y2="0" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="35;50;35" dur="4s" begin="1s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="28" y2="28" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="0" y2="40" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="35;50;35" dur="4s" begin="2s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="-28" y2="28" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="-40" y2="0" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="-35;-50;-35" dur="4s" begin="3s" repeatCount="indefinite"/>
+                  </line>
+                  <line class="sun-ray" x1="0" y1="0" x2="-28" y2="-28" stroke="#4b2e00" stroke-width="4" opacity="0">
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3.5s" repeatCount="indefinite"/>
+                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite"/>
+                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite"/>
+                  </line>
+                </g>
+                <!-- Central sun circle -->
+                <circle id="sun-circle" cx="60" cy="60" r="24" fill="url(#sunGradient)" filter="url(#sunGlow)"/>
+                <!-- Inner glow circle -->
+                <circle cx="60" cy="60" r="24" fill="none" stroke="#fff" stroke-width="1" opacity="0.3">
+                  <animate attributeName="r" values="24;28;24" dur="4s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+              <!-- Moon SVG -->
+              <svg id="light-moon" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
+                <defs>
+                  <radialGradient id="moonGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#e6e6fa; stop-opacity:0.9"/>
+                    <stop offset="70%" style="stop-color:#b0c4de; stop-opacity:0.6"/>
+                    <stop offset="100%" style="stop-color:#4682b4; stop-opacity:0.3"/>
+                  </radialGradient>
+                  <filter id="moonGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <!-- Moon shape with crescent effect -->
+                <path id="moon-shape" d="M60 20 A40 40 0 0 1 60 100 A40 40 0 0 1 60 20 C80 30 80 90 60 100" fill="url(#moonGradient)" filter="url(#moonGlow)"/>
+                <!-- Sparkles for moon -->
+                <g id="moon-sparkles">
+                  <circle cx="40" cy="40" r="2" fill="#fff" opacity="0">
+                    <animate attributeName="opacity" values="0;0.7;0" dur="2s" repeatCount="indefinite"/>
+                    <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
                   </circle>
-                  <circle cx="70" cy="70" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;1;0" dur="1.8s" begin="0.5s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="1.8s" begin="0.5s" repeatCount="indefinite"/>
+                  <circle cx="80" cy="80" r="2" fill="#fff" opacity="0">
+                    <animate attributeName="opacity" values="0;0.7;0" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+                    <animate attributeName="r" values="2;3;2" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
                   </circle>
-                  <circle cx="40" cy="60" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;1;0" dur="2s" begin="1s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="2s" begin="1s" repeatCount="indefinite"/>
+                  <circle cx="50" cy="70" r="2" fill="#fff" opacity="0">
+                    <animate attributeName="opacity" values="0;0.7;0" dur="3s" begin="1s" repeatCount="indefinite"/>
+                    <animate attributeName="r" values="2;3;2" dur="3s" begin="1s" repeatCount="indefinite"/>
                   </circle>
                 </g>
               </svg>

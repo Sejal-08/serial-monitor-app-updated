@@ -537,7 +537,7 @@ body.dark-mode .sensor-value {
 body.light-mode .thermometer-container,
 body.light-mode .wave-card-container,
 body.light-mode .card-container {
-  background:#d4d1d1;
+  background:#f3f0f0;
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
