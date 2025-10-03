@@ -196,11 +196,7 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
         void needle.offsetWidth;
         needle.classList.add('needle-update');
       }
-          
-
-/* example usage when serial data arrives
-   updatePressureCard(983.5);   // hpa value from UART
-*/
+        
  /* Light Intensity */
     if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";
