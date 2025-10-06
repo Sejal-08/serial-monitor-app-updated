@@ -185,33 +185,34 @@ ipcMain.handle("connect-port", async (event, portName, baudRate = 115200) => {
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    port.on("data", (data) => {
-      try {
-        const incomingText = data.toString("utf8");
-        console.log(`Raw data received: "${incomingText}"`);
+   port.on("data", (data) => {
+  try {
+    const incomingText = data.toString("utf8");
+    console.log(`Raw data received: "${incomingText}"`);
 
-        // Skip echoed commands
-        if (incomingText.includes(lastSentCommand) || incomingText.includes("RX Received")) {
-          console.log(`Skipping echoed command: "${incomingText}"`);
-          return;
-        }
+    // Always add to buffer (remove outer skip)
+    responseBuffer += incomingText;
 
-        responseBuffer += incomingText;
-        let lines = responseBuffer.split(/\r?\n/);
-        responseBuffer = lines.pop(); // Keep incomplete line
+    let lines = responseBuffer.split(/\r?\n/);
+    responseBuffer = lines.pop(); // Keep incomplete line
 
-        for (const line of lines) {
-          const message = line.trim();
-          if (message && !message.includes(lastSentCommand)) {
-            console.log(`Processed line: "${message}"`);
-            mainWindow.webContents.send("serial-data", message);
-          }
-        }
-      } catch (err) {
-        console.error("Error processing serial data:", err);
-        mainWindow.webContents.send("serial-data", `Error: ${err.message}`);
+    for (const line of lines) {
+      const message = line.trim();
+      // Skip firmware echoes: startsWith for precision
+      if (message &&
+          !message.startsWith("RX Received") &&
+          !message.startsWith("Text: ")) {  // Covers "Text: 'COMMAND'"
+        console.log(`Processed line: "${message}"`);
+        mainWindow.webContents.send("serial-data", message);
+      } else {
+        console.log(`Skipping echo line: "${message}"`);
       }
-    });
+    }
+  } catch (err) {
+    console.error("Error processing serial data:", err);
+    mainWindow.webContents.send("serial-data", `Error: ${err.message}`);
+  }
+});
 
     port.on("close", () => {
       console.log("Serial port closed");
