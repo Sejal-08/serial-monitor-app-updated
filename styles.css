@@ -146,14 +146,14 @@ body.dark-mode .theme-toggle:hover {
 
 body.light-mode .left-panel,
 body.light-mode .right-panel {
-  background:linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #f9f9f9 100%);
+  background:linear-gradient(135deg,  #e6ebf7 20%, #e0e7ff 50%,  #c3cef2 50%);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e7ff;
 }
 
 body.dark-mode .left-panel,
 body.dark-mode .right-panel {
-  background: linear-gradient(135deg, #1a2a4d, #2d4060, #4b6cb7);
+  background: linear-gradient(135deg, #1a2a4d, #2d4060 50%, #152342 50%);
   backdrop-filter: blur(10px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
   border: 1px solid rgba(45, 65, 90, 0.5);
@@ -203,7 +203,7 @@ body.dark-mode h3 {
 
 body.light-mode .input-field {
   border: 1px solid #ccc;
-  background:#f3f0f0;
+  background:#d9dff3;
   color: #1e293b;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -329,7 +329,7 @@ select:focus {
 }
 
 body.light-mode #output {
-  background:#f3f0f0;
+  background:linear-gradient(135deg, #e0e7ff,#d9dff3);
   color: #1e293b;
   border-color: #ccc;
 }
@@ -368,7 +368,7 @@ body.light-mode footer {
 }
 
 body.light-mode .sensor-list-container {
-  background: #f3f0f0;
+  background:#d9dff3;
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -438,7 +438,7 @@ body.dark-mode .sensor-list-container li {
 }
 
 body.light-mode .sensor-data-container {
-  background: #f3f0f0;
+  background:  linear-gradient(135deg, #c3cef2, #e0e7ff);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -537,7 +537,7 @@ body.dark-mode .sensor-value {
 body.light-mode .thermometer-container,
 body.light-mode .wave-card-container,
 body.light-mode .card-container {
-  background:#f3f0f0;
+  background: linear-gradient(135deg, #c3cef2, #e0e7ff);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -880,7 +880,7 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
   transition: all .4s;
 }
 body.light-mode #pressure-card {
-  background: #f9f9f9;
+  background:  linear-gradient(135deg, #c3cef2, #e0e7ff);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
 }
