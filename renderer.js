@@ -529,6 +529,23 @@ async function disconnectPort() {
     clearSensorData();
   }
 }
+
+async function getInterval() {
+  if (!isConnected) {
+    log("Cannot get interval: No serial port connected", "error");
+    return;
+  }
+  try {
+    const res = await window.electronAPI.getInterval();
+    if (res.error) {
+      log(`Failed to get interval: ${res.error}`, "error");
+    } else {
+      log(`Command sent: GET_INTERVAL`, "info");
+    }
+  } catch (err) {
+    log(`Error getting interval: ${err.message}`, "error");
+  }
+}
 async function setDeviceID() {
   const id = document.getElementById("device-id").value.trim();
   if (!id || !/^[a-zAZ0-9-_]+$/.test(id)) return log("Please enter a valid alphanumeric Device ID.", "error");

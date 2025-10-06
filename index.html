@@ -374,7 +374,14 @@
         <stop offset="0%" id="rainColor1" style="stop-color:#1e90ff;stop-opacity:0.5"/>
         <stop offset="100%" id="rainColor2" style="stop-color:#1e90ff;stop-opacity:1"/>
       </linearGradient>
+      <style>
+        @keyframes fall {
+          0% { transform: translateY(-10); opacity: 1; }
+          100% { transform: translateY(110); opacity: 0; }
+        }
+      </style>
     </defs>
+    <g id="rainDrops"></g>
     <path id="rainPath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#rainGradient)"/>
   </svg>
 </div>
