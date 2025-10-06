@@ -326,6 +326,8 @@ if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorDa
   const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
   const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
   const primaryColor = `rgb(${r}, ${g}, ${b})`;
+   const lightBlue = `rgb(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)})`;
+
   rainColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
   rainColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
 
@@ -347,28 +349,137 @@ if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorDa
   const rainDropsGroup = document.getElementById('rainDrops');
   rainDropsGroup.innerHTML = '';
 
-  // Generate raindrops based on intensity
-  const numDrops = Math.max(3, Math.floor(3 + t * 20)); // 3-23 drops
-  const dropDuration = Math.max(0.5, 2 - t * 1.5); // 0.5-2s duration (faster for heavy)
-  const dropLength = 3 + t * 4; // 3-7px length (longer for heavy)
-  const dropOpacity = 0.6 + t * 0.4; // 0.6-1 opacity (stronger for heavy)
+   // Generate realistic raindrops - FEWER DROPS
+  const numDrops = Math.max(3, Math.floor(3 + t * 12)); // Reduced from 8-40 to 3-15 drops
+  const dropDuration = Math.max(1.2, 3 - t * 1.8); // Slower falling
+  const dropOpacity = 0.7 + t * 0.3; // Better visibility
 
-  for (let i = 0; i < numDrops; i++) {
-    const drop = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    const x = Math.random() * 100; // Random x position
-    const delay = Math.random() * 2; // Staggered start
-    drop.setAttribute('x1', x);
-    drop.setAttribute('y1', 0);
-    drop.setAttribute('x2', x);
-    drop.setAttribute('y2', dropLength);
-    drop.setAttribute('stroke', primaryColor);
-    drop.setAttribute('stroke-width', 1 + t * 0.5); // Slightly thicker for heavy
-    drop.setAttribute('opacity', dropOpacity);
-    drop.style.transformOrigin = 'center';
-    drop.style.animation = `fall ${dropDuration}s linear infinite`;
-    drop.style.animationDelay = `${delay}s`;
-    rainDropsGroup.appendChild(drop);
+// Add CSS for realistic raindrop animations
+  if (!document.getElementById('raindrop-styles')) {
+    const style = document.createElement('style');
+    style.id = 'raindrop-styles';
+    style.textContent = `
+      @keyframes realRaindropFall {
+        0% {
+          transform: translateY(-15px) scale(0.3);
+          opacity: 0;
+        }
+        10% {
+          transform: translateY(0) scale(0.6);
+          opacity: ${dropOpacity};
+        }
+        20% {
+          transform: translateY(8px) scale(0.8);
+        }
+        80% {
+          transform: translateY(65px) scale(0.8);
+          opacity: ${dropOpacity};
+        }
+        90% {
+          transform: translateY(75px) scale(0.7);
+        }
+        100% {
+          transform: translateY(85px) scale(0.3);
+          opacity: 0;
+        }
+      }
+      @keyframes realSplash {
+        0% {
+          transform: scale(0);
+          opacity: 0.5;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.2;
+        }
+        100% {
+          transform: scale(1.5);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   }
+
+
+ // Create realistic teardrop-shaped raindrops - SMALLER SIZE
+  for (let i = 0; i < numDrops; i++) {
+    const dropGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    
+    // Create main raindrop body (teardrop shape) - SMALLER
+    const raindrop = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    const x = 12 + Math.random() * 76; // Keep within bounds
+    const delay = Math.random() * 2.5;
+    const size = 1 + t * 1.5; // Reduced size: 1-2.5px instead of 2-5px
+    
+    // Smaller teardrop shape
+    const teardropPath = `
+      M ${x} ${4} 
+      Q ${x - size * 0.3} ${5.5} ${x - size * 0.4} ${8 + size}
+      Q ${x} ${10 + size * 1.2} ${x + size * 0.4} ${8 + size}
+      Q ${x + size * 0.3} ${5.5} ${x} ${4}
+      Z
+    `;
+    
+    raindrop.setAttribute('d', teardropPath);
+    raindrop.setAttribute('fill', lightBlue);
+    raindrop.setAttribute('stroke', primaryColor);
+    raindrop.setAttribute('stroke-width', '0.3'); // Thinner stroke
+    raindrop.setAttribute('opacity', dropOpacity);
+    
+    // Falling animation
+    raindrop.style.animation = `realRaindropFall ${dropDuration}s ease-in infinite`;
+    raindrop.style.animationDelay = `${delay}s`;
+    raindrop.style.transformOrigin = 'center';
+    
+    // Create highlight for 3D effect - SMALLER
+    const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+    highlight.setAttribute('cx', x - size * 0.15);
+    highlight.setAttribute('cy', 5 + size * 0.4);
+    highlight.setAttribute('rx', size * 0.1);
+    highlight.setAttribute('ry', size * 0.2);
+    highlight.setAttribute('fill', 'white');
+    highlight.setAttribute('opacity', '0.4');
+    highlight.style.animation = `realRaindropFall ${dropDuration}s ease-in infinite`;
+    highlight.style.animationDelay = `${delay}s`;
+    
+    // Create splash effect - SMALLER
+    const splash = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    splash.setAttribute('cx', x);
+    splash.setAttribute('cy', '88');
+    splash.setAttribute('r', '0');
+    splash.setAttribute('fill', lightBlue);
+    splash.setAttribute('opacity', '0');
+    splash.style.animation = `realSplash ${dropDuration * 0.25}s ease-out infinite`;
+    splash.style.animationDelay = `${delay + dropDuration * 0.75}s`;
+    
+    dropGroup.appendChild(raindrop);
+    dropGroup.appendChild(highlight);
+    dropGroup.appendChild(splash);
+    rainDropsGroup.appendChild(dropGroup);
+  }
+
+  // Add very few mist droplets only for heavy rain
+  if (t > 0.6) {
+    const mistDrops = Math.floor(2 + t * 3); // Only 2-5 mist drops
+    for (let i = 0; i < mistDrops; i++) {
+      const mistDrop = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const x = 8 + Math.random() * 84;
+      const delay = Math.random() * 1.5;
+      const mistSize = 0.3 + Math.random() * 0.4; // Very small
+      
+      mistDrop.setAttribute('cx', x);
+      mistDrop.setAttribute('cy', '0');
+      mistDrop.setAttribute('r', mistSize);
+      mistDrop.setAttribute('fill', lightBlue);
+      mistDrop.setAttribute('opacity', dropOpacity * 0.3);
+      
+      mistDrop.style.animation = `realRaindropFall ${dropDuration * 0.7}s linear infinite`;
+      mistDrop.style.animationDelay = `${delay}s`;
+      
+      rainDropsGroup.appendChild(mistDrop);
+    }
+
 } else {
   rainGaugeCard.style.display = "none";
 }
@@ -383,7 +494,7 @@ if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorDa
     lightCard.querySelector("rect").style.filter = "brightness(1)";
     sparkles.style.opacity = 0;
   }
-}
+}}
 /* ------------------------------------------------------------------ */
 /*  DATA PARSER                                                       */
 /* ------------------------------------------------------------------ */
