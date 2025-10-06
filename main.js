@@ -229,13 +229,13 @@ ipcMain.handle("connect-port", async (event, portName, baudRate = 115200) => {
     });
 
     // Send GET_INTERVAL to initialize data streaming
-    const initResult = await sendCommand("GET_INTERVAL");
-    if (initResult.error) {
-      console.error("Failed to initialize data streaming:", initResult.error);
-      mainWindow.webContents.send("serial-data", `Initialization error: ${initResult.error}`);
-    } else {
-      console.log("Sent GET_INTERVAL to initialize data streaming");
-    }
+    // const initResult = await sendCommand("GET_INTERVAL");
+    // if (initResult.error) {
+    //   console.error("Failed to initialize data streaming:", initResult.error);
+    //   mainWindow.webContents.send("serial-data", `Initialization error: ${initResult.error}`);
+    // } else {
+    //   console.log("Sent GET_INTERVAL to initialize data streaming");
+    // }
 
     return `Connected to ${portName} at ${baudRate} baud`;
   } catch (error) {
@@ -274,7 +274,7 @@ ipcMain.handle("set-interval", async (event, interval) => {
   if (isNaN(i) || i <= 0) return { error: "Invalid interval" };
   const result = await sendCommand(`SET_INTERVAL:${i}`);
   if (!result.error) {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     await sendCommand("GET_INTERVAL"); // Verify
   }
   return result;
