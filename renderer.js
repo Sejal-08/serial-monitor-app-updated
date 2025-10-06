@@ -101,7 +101,7 @@ let dataHtml = "<h4>Sensor Data</h4>";
 let hasData = false;
 for (const [k, v] of Object.entries(data)) {
   if (v !== null && v !== undefined && v !== "null" && v !== "") {
-    if (k === "Battery Voltage" || k === "Rainfall Daily") {
+    if (k.includes("Battery Voltage") || k === "Rainfall Daily") {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
       hasData = true;
     }
@@ -170,34 +170,34 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
       updatePressureCard(parseFloat(currentPressure));
     }
 
-            /* ----------  show / update pressure card  ---------- */
-      function updatePressureCard(hpa) {
-        const card   = document.getElementById('pressure-card');
-        const value  = document.getElementById('pressure-value');
-        const needle = document.getElementById('pressureNeedle');
+    /* ----------  show / update pressure card  ---------- */
+    function updatePressureCard(hpa) {
+      const card   = document.getElementById('pressure-card');
+      const value  = document.getElementById('pressure-value');
+      const needle = document.getElementById('pressureNeedle');
 
-        if (hpa === null || isNaN(hpa)) {          // no data → hide
-          card.style.display = 'none';
-          return;
-        }
+      if (hpa === null || isNaN(hpa)) {          // no data → hide
+        card.style.display = 'none';
+        return;
+      }
 
-        card.style.display = 'flex';               // show card
-       value.textContent = `${Number(hpa).toFixed(1)} hPa`;
+      card.style.display = 'flex';               // show card
+      value.textContent  = `${Number(hpa).toFixed(1)} hPa`;
 
-        /* 300 hPa → 0° (left)   1100 hPa → 180° (right) */
-        const minP = 300, maxP = 1100;
-        const t    = Math.min(Math.max((hpa - minP) / (maxP - minP), 0), 1);
-        /* 300 hPa → ‑90° (left)   1100 hPa → +90° (right) */
-        const angle = (t * 180) - 90;          // ‑90° … +90°
+      /* 300 hPa → 0° (left)   1100 hPa → 180° (right) */
+      const minP = 300, maxP = 1100;
+      const t    = Math.min(Math.max((hpa - minP) / (maxP - minP), 0), 1);
+      /* 300 hPa → ‑90° (left)   1100 hPa → +90° (right) */
+      const angle = (t * 180) - 90;          // ‑90° … +90°
       needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
 
-        // optional tiny pulse on update (kept from your last code)
-        needle.classList.remove('needle-update');
-        void needle.offsetWidth;
-        needle.classList.add('needle-update');
-      }
-        
- /* Light Intensity */
+      // optional tiny pulse on update (kept from your last code)
+      needle.classList.remove('needle-update');
+      void needle.offsetWidth;
+      needle.classList.add('needle-update');
+    }
+
+    /* Light Intensity */
     if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";
       const light = parseFloat(currentLight);
@@ -267,7 +267,7 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
   } else if (protocol === "ADC") {
 
   /* Battery Voltage */
-if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"]))) {
+if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"].replace(" V", "")))) {
   batteryCard.style.display = "block";
   const voltage = parseFloat(sensorData.ADC["Battery Voltage"].replace(" V", ""));
   const maxVoltage = 4.2; // 100%
@@ -312,7 +312,7 @@ if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorD
 }
 
    
-  /* Rain Gauge */
+ /* Rain Gauge - Display only Rainfall Daily */
 if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", "")))) {
   rainGaugeCard.style.display = "block";
   const rainMm = parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", ""));
@@ -342,6 +342,35 @@ if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorDa
   } catch {}
   rainPath.style.animation = "rainWaveAnimation 8s ease-in-out infinite";
   rainPath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+
+  // Clear previous raindrops
+  const rainDropsGroup = document.getElementById('rainDrops');
+  rainDropsGroup.innerHTML = '';
+
+  // Generate raindrops based on intensity
+  const numDrops = Math.max(3, Math.floor(3 + t * 20)); // 3-23 drops
+  const dropDuration = Math.max(0.5, 2 - t * 1.5); // 0.5-2s duration (faster for heavy)
+  const dropLength = 3 + t * 4; // 3-7px length (longer for heavy)
+  const dropOpacity = 0.6 + t * 0.4; // 0.6-1 opacity (stronger for heavy)
+
+  for (let i = 0; i < numDrops; i++) {
+    const drop = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    const x = Math.random() * 100; // Random x position
+    const delay = Math.random() * 2; // Staggered start
+    drop.setAttribute('x1', x);
+    drop.setAttribute('y1', 0);
+    drop.setAttribute('x2', x);
+    drop.setAttribute('y2', dropLength);
+    drop.setAttribute('stroke', primaryColor);
+    drop.setAttribute('stroke-width', 1 + t * 0.5); // Slightly thicker for heavy
+    drop.setAttribute('opacity', dropOpacity);
+    drop.style.transformOrigin = 'center';
+    drop.style.animation = `fall ${dropDuration}s linear infinite`;
+    drop.style.animationDelay = `${delay}s`;
+    rainDropsGroup.appendChild(drop);
+  }
+} else {
+  rainGaugeCard.style.display = "none";
 }
   } else {
     lightCard.style.display = "none";
@@ -390,43 +419,95 @@ function parseSensorData(data) {
     }
 
     // Handle JSON format (e.g., "Published to topic 'device/data': {...}")
-    if (line.startsWith("Published to topic 'device/data':")) {
-      try {
-        const jsonStr = line.split(": ", 2)[1];
-        const json = JSON.parse(jsonStr);
+    if (line.includes("Published to topic 'device/data'")) {
+      // Robust extraction: find the position after the colon and take the rest as JSON string
+      const colonIndex = line.indexOf(':');
+      const jsonStr = colonIndex !== -1 ? line.substring(colonIndex + 1).trim() : '';
+      if (jsonStr.startsWith('{')) {
+        try {
+          const json = JSON.parse(jsonStr);
 
-        if (protocol === "I2C") {
-          currentTemperature = json.CurrentTemperature;
-          currentHumidity = json.CurrentHumidity;
-          currentPressure = json.AtmPressure;
-          currentLight = json.LightIntensity;
+          if (protocol === "I2C") {
+            currentTemperature = json.CurrentTemperature;
+            currentHumidity = json.CurrentHumidity;
+            currentPressure = json.AtmPressure;
+            currentLight = json.LightIntensity;
 
-          sensorStatus.I2C.BME680 = currentTemperature !== undefined || currentHumidity !== undefined || currentPressure !== undefined;
-          sensorStatus.I2C.VEML7700 = currentLight !== undefined;
+            sensorStatus.I2C.BME680 = currentTemperature !== undefined || currentHumidity !== undefined || currentPressure !== undefined;
+            sensorStatus.I2C.VEML7700 = currentLight !== undefined;
 
-          if (currentTemperature !== undefined) sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
-          if (currentHumidity !== undefined) sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
-          if (currentPressure !== undefined) sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
-          if (currentLight !== undefined) sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
-        }
-
-        if (protocol === "ADC") {
-          if (json.BatteryVoltage !== undefined) {
-            sensorStatus.ADC["Battery Voltage"] = true;
-            sensorData.ADC["Battery Voltage"] = `${parseFloat(json.BatteryVoltage).toFixed(2)} V`;
+            if (currentTemperature !== undefined) sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
+            if (currentHumidity !== undefined) sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
+            if (currentPressure !== undefined) sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
+            if (currentLight !== undefined) sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
           }
-          if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
-            sensorStatus.ADC["Rain Gauge"] = true;
-            sensorData.ADC["Rain Gauge Hourly"] = `${json.RainfallHourly} tips`;
-            sensorData.ADC["Rain Gauge Daily"] = `${json.RainfallDaily} tips`;
-            sensorData.ADC["Rain Gauge Weekly"] = `${json.RainfallWeekly} tips`;
+
+          if (protocol === "ADC") {
+            if (json.BatteryVoltage !== undefined) {
+              sensorStatus.ADC["Battery Voltage"] = true;
+              sensorData.ADC["Battery Voltage"] = `${parseFloat(json.BatteryVoltage).toFixed(2)} V`;
+            }
+            if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
+              sensorStatus.ADC["Rain Gauge"] = true;
+              if (json.RainfallHourly !== undefined) sensorData.ADC["Rainfall Hourly"] = `${(parseFloat(json.RainfallHourly) * 0.5).toFixed(1)} mm`;
+              if (json.RainfallDaily !== undefined) sensorData.ADC["Rainfall Daily"] = `${(parseFloat(json.RainfallDaily) * 0.5).toFixed(1)} mm`;
+              if (json.RainfallWeekly !== undefined) sensorData.ADC["Rainfall Weekly"] = `${(parseFloat(json.RainfallWeekly) * 0.5).toFixed(1)} mm`;
+            }
           }
+          updateSensorUI();
+        } catch (e) {
+          // Fallback: Use regex to extract values from malformed JSON string
+          console.log("JSON parse failed, using regex fallback:", e);
+          if (protocol === "ADC") {
+            // Extract BatteryVoltage
+            const batteryMatch = jsonStr.match(/"BatteryVoltage"\s*:\s*([\d.-]+)/);
+            if (batteryMatch) {
+              const voltage = parseFloat(batteryMatch[1]);
+              if (!isNaN(voltage)) {
+                sensorStatus.ADC["Battery Voltage"] = true;
+                sensorData.ADC["Battery Voltage"] = `${voltage.toFixed(2)} V`;
+              }
+            }
+            // Extract Rainfall values
+            const rainfallMatches = jsonStr.match(/"Rainfall(?:Hourly|Daily|Weekly)"\s*:\s*([\d.-]+)/g);
+            if (rainfallMatches && rainfallMatches.length > 0) {
+              sensorStatus.ADC["Rain Gauge"] = true;
+              // Parse each match to set Hourly, Daily, Weekly
+              rainfallMatches.forEach(match => {
+                const keyMatch = match.match(/"Rainfall(.?)"\s:\s*([\d.-]+)/);
+                if (keyMatch) {
+                  const period = keyMatch[1];
+                  const value = parseFloat(keyMatch[2]);
+                  if (!isNaN(value)) {
+                    const key = `Rainfall ${period}`;
+                    sensorData.ADC[key] = `${(value * 0.5).toFixed(1)} mm`;
+                  }
+                }
+              });
+            }
+          } else if (protocol === "I2C") {
+            // Extract I2C values with regex if needed
+            const tempMatch = jsonStr.match(/"CurrentTemperature"\s*:\s*([\d.-]+)/);
+            if (tempMatch) currentTemperature = parseFloat(tempMatch[1]);
+            const humMatch = jsonStr.match(/"CurrentHumidity"\s*:\s*([\d.-]+)/);
+            if (humMatch) currentHumidity = parseFloat(humMatch[1]);
+            const pressMatch = jsonStr.match(/"AtmPressure"\s*:\s*([\d.-]+)/);
+            if (pressMatch) currentPressure = parseFloat(pressMatch[1]);
+            const lightMatch = jsonStr.match(/"LightIntensity"\s*:\s*([\d.-]+)/);
+            if (lightMatch) currentLight = parseFloat(lightMatch[1]);
+
+            sensorStatus.I2C.BME680 = currentTemperature !== undefined || currentHumidity !== undefined || currentPressure !== undefined;
+            sensorStatus.I2C.VEML7700 = currentLight !== undefined;
+
+            if (currentTemperature !== undefined) sensorData.I2C["BME680 Temperature"] = `${parseFloat(currentTemperature).toFixed(2)} °C`;
+            if (currentHumidity !== undefined) sensorData.I2C["BME680 Humidity"] = `${parseFloat(currentHumidity).toFixed(2)} %`;
+            if (currentPressure !== undefined) sensorData.I2C["BME680 Pressure"] = `${parseFloat(currentPressure).toFixed(2)} hPa`;
+            if (currentLight !== undefined) sensorData.I2C["VEML7700 Light Intensity"] = `${parseFloat(currentLight).toFixed(2)} lux`;
+          }
+          updateSensorUI();
         }
-        updateSensorUI();
-      } catch (e) {
-        console.error("Error parsing JSON:", e);
+        return;
       }
-      return;
     }
 
   // Handle rain gauge data (e.g., "Rain Tip Detected! Hourly: 1 Daily: 2 Weekly: 3")
@@ -438,7 +519,7 @@ if (rainMatch && protocol === "ADC") {
   const weeklyTips = parseInt(rainMatch[3]);
   sensorData[protocol]["Rainfall Hourly"] = `${(hourlyTips * 0.5).toFixed(1)} mm`;
  sensorData[protocol]["Rainfall Daily"] = `${(dailyTips * 0.5).toFixed(1)} mm`; // Store as mm
-  sensorData[protocol]["Rain Gauge Weekly"] = `${weeklyTips} tips`; // Keep for reference if needed
+  sensorData[protocol]["Rainfall Weekly"] = `${(weeklyTips * 0.5).toFixed(1)} mm`;
   updateSensorUI();
 }
     // Handle simple key-value format (e.g., "Battery Voltage: 3.79 V")
@@ -527,23 +608,6 @@ async function disconnectPort() {
     log(res, "success");
     isConnected = false;
     clearSensorData();
-  }
-}
-
-async function getInterval() {
-  if (!isConnected) {
-    log("Cannot get interval: No serial port connected", "error");
-    return;
-  }
-  try {
-    const res = await window.electronAPI.getInterval();
-    if (res.error) {
-      log(`Failed to get interval: ${res.error}`, "error");
-    } else {
-      log(`Command sent: GET_INTERVAL`, "info");
-    }
-  } catch (err) {
-    log(`Error getting interval: ${err.message}`, "error");
   }
 }
 async function setDeviceID() {
