@@ -78,7 +78,7 @@ nav {
 }
 
 body.light-mode nav {
-  background: linear-gradient(90deg,  #a9b7e5,  #c3cef2, #a3bffa);
+  background: linear-gradient(135deg, #2a2a70, #5252cd, #3a357d);
   box-shadow: 0 4px 12px rgba(75, 108, 183, 0.3);
   border-bottom: 1px solid rgba(75, 108, 183, 0.3);
 }
@@ -120,11 +120,11 @@ ul.nav-links {
 }
 
 body.light-mode .theme-toggle {
-  color: #2d4060;
+  color: #f5f7ff;
 }
 
 body.light-mode .theme-toggle:hover {
-  color: #4b6cb7;
+  color: #6b8af7;
 }
 
 body.dark-mode .theme-toggle {
@@ -152,7 +152,7 @@ body.dark-mode .theme-toggle:hover {
 
 body.light-mode .left-panel,
 body.light-mode .right-panel {
-  background:linear-gradient(135deg,  #e6ebf7 20%, #e0e7ff 50%,  #c3cef2 50%);
+  background:linear-gradient(135deg,  #e6ebf7 20%, #e0e7ff 50%,  #89a1f0 50%);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   border: 1px solid #e0e7ff;
 }
@@ -244,8 +244,8 @@ body.dark-mode .input-field {
 }
 
 body.light-mode .action-button {
-  background:#92aae2;
-  color: #0b0b0b;
+  background:linear-gradient(135deg, #43379e, #4b6cb7, #6b8af7);
+  color: #e0e7ff;
    box-shadow: 0 2px 6px rgba(6, 0, 0, 0.5);
 }
 
@@ -360,14 +360,14 @@ footer {
 }
 
 body.light-mode footer {
-  background: linear-gradient(90deg,  #a9b7e5,  #c3cef2, #a3bffa);
-  color: #1e293b;
+  background: linear-gradient(135deg, #2a2a70, #5252cd, #3a357d);
+  color:#e3e6eb;
   box-shadow: 0 -2px 6px rgba(75, 108, 183, 0.2);
 }
 
 body.dark-mode footer {
   background:linear-gradient(90deg, #1d2849, #2a4370, #2b3d67);
-  color: #1e293b;
+  color: #e3e6eb;
   box-shadow: 0 -2px 6px rgba(75, 108, 183, 0.2);
 }
 
