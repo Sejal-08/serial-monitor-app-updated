@@ -110,7 +110,6 @@ for (const [k, v] of Object.entries(data)) {
 if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
 
   /* ---------- I2C-specific sensor cards ---------- */
-  /* ---------- I2C-specific sensor cards ---------- */
   if (protocol === "I2C") {
 
     /* Temperature */
@@ -135,88 +134,93 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
       void thermometerContainer.offsetWidth;
       thermometerContainer.classList.add("shake");
     }
-   // Update humidity wave (for I2C BME680 or SHT40)
-    if (protocol === "I2C" && (selectedSensor === "BME680" || selectedSensor === "SHT40")) {
-      // Define continuous wave animation
-      const waveAnimation = `
-        @keyframes waveAnimation {
-          0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-          25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
-          50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-          75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
-          100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-        }
-      `;
-      // Insert or update the animation in the stylesheet
-      let styleSheet = document.styleSheets[0];
-      let existingRuleIndex = -1;
-      for (let i = 0; i < styleSheet.cssRules.length; i++) {
-        if (styleSheet.cssRules[i].name === "waveAnimation") {
-          existingRuleIndex = i;
-          break;
-        }
-      }
-      if (existingRuleIndex !== -1) {
-        styleSheet.deleteRule(existingRuleIndex);
-      }
-      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
 
-      if (currentHumidity !== null) {
-        const humidity = parseFloat(currentHumidity);
-        humidityValue.textContent = `${humidity.toFixed(2)}%`;
-        const t = Math.min(Math.max(humidity / 100, 0), 1);
-        const lowColor = { r: 61, g: 142, b: 180 };
-        const highColor = { r: 4, g: 116, b: 168 };
-        const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
-        const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
-        const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
-        const primaryColor = `rgb(${r}, ${g}, ${b})`;
-        waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
-        waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
-        const waveHeight = 100 - (humidity * 100 / 100);
-        wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
-      } else {
-        humidityValue.textContent = "";
-        waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
-        waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
-        wavePath.setAttribute("d", "M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z");
-      }
-      // Apply and restart animation
-      wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
-      wavePath.style.animationPlayState = "running";
-      wavePath.getBoundingClientRect(); // Force reflow to restart animation
-    } else {
-      humidityValue.textContent = "";
-      waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
-      waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
-      wavePath.setAttribute("d", "M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z");
-      // Apply continuous animation even when no data
-      const waveAnimation = `
-        @keyframes waveAnimation {
-          0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-          25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
-          50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-          75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
-          100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
-        }
-      `;
-      let styleSheet = document.styleSheets[0];
-      let existingRuleIndex = -1;
-      for (let i = 0; i < styleSheet.cssRules.length; i++) {
-        if (styleSheet.cssRules[i].name === "waveAnimation") {
-          existingRuleIndex = i;
-          break;
-        }
-      }
-      if (existingRuleIndex !== -1) {
-        styleSheet.deleteRule(existingRuleIndex);
-      }
-      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
-      wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
-      wavePath.style.animationPlayState = "running";
-      wavePath.getBoundingClientRect(); // Force reflow to restart animation
+   /* Humidity */
+if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
+  humidityCard.style.display = "block";
+  const humidity = parseFloat(currentHumidity);
+  humidityValue.textContent = `${humidity.toFixed(1)}%`;
+
+  // Color interpolation based on humidity
+  const t = Math.min(Math.max(humidity / 100, 0), 1);
+  const lowColor = { r: 61, g: 142, b: 180 };
+  const highColor = { r: 4, g: 116, b: 168 };
+  const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+  const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+  const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+  const primaryColor = `rgb(${r}, ${g}, ${b})`;
+
+  waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
+  waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+
+  // Define continuous wave animation
+  const waveAnimation = `
+    @keyframes waveAnimation {
+      0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+      25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+      50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+      75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+      100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
     }
+  `;
 
+  // Insert or update the animation in the stylesheet
+  let styleSheet = document.styleSheets[0];
+  let existingRuleIndex = -1;
+  for (let i = 0; i < styleSheet.cssRules.length; i++) {
+    if (styleSheet.cssRules[i].name === "waveAnimation") {
+      existingRuleIndex = i;
+      break;
+    }
+  }
+  if (existingRuleIndex !== -1) {
+    styleSheet.deleteRule(existingRuleIndex);
+  }
+  styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+
+  // Set wave height based on humidity
+  const waveHeight = 100 - humidity;
+  wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+
+  // Apply and restart animation
+  wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
+  wavePath.style.animationPlayState = "running";
+  wavePath.getBoundingClientRect(); // Force reflow to restart animation
+} else {
+  humidityCard.style.display = "none";
+  humidityValue.textContent = "";
+  waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
+  waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
+  wavePath.setAttribute("d", "M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z");
+
+  // Apply continuous animation even when no data
+  const waveAnimation = `
+    @keyframes waveAnimation {
+      0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+      25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+      50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+      75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+      100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+    }
+  `;
+
+  let styleSheet = document.styleSheets[0];
+  let existingRuleIndex = -1;
+  for (let i = 0; i < styleSheet.cssRules.length; i++) {
+    if (styleSheet.cssRules[i].name === "waveAnimation") {
+      existingRuleIndex = i;
+      break;
+    }
+  }
+  if (existingRuleIndex !== -1) {
+    styleSheet.deleteRule(existingRuleIndex);
+  }
+  styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+
+  wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
+  wavePath.style.animationPlayState = "running";
+  wavePath.getBoundingClientRect(); // Force reflow to restart animation
+}
 
     /* Pressure */
     if (currentPressure !== null && !isNaN(parseFloat(currentPressure))) {
@@ -364,8 +368,7 @@ if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorD
   batteryCard.classList.add("shake");
 }
 
-   
- /* 🌧️ Rain Gauge - Display only Rainfall Daily */
+/* 🌧️ Rain Gauge - Display only Rainfall Daily */
 if (
   sensorData.ADC["Rainfall Daily"] !== undefined &&
   !isNaN(parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", "")))
