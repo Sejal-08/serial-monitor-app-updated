@@ -110,7 +110,9 @@ for (const [k, v] of Object.entries(data)) {
 if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
 
   /* ---------- I2C-specific sensor cards ---------- */
+  /* ---------- I2C-specific sensor cards ---------- */
   if (protocol === "I2C") {
+
     /* Temperature */
     if (currentTemperature !== null && !isNaN(parseFloat(currentTemperature))) {
       thermometerContainer.style.display = "block";
@@ -133,37 +135,88 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
       void thermometerContainer.offsetWidth;
       thermometerContainer.classList.add("shake");
     }
-
-    /* Humidity */
-    if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
-      humidityCard.style.display = "block";
-      const humidity = parseFloat(currentHumidity);
-      humidityValue.textContent = `${humidity.toFixed(1)}%`;
-
-      const t = Math.min(Math.max(humidity / 100, 0), 1);
-      const lowColor = { r: 61, g: 142, b: 180 };
-      const highColor = { r: 4, g: 116, b: 168 };
-      const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
-      const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
-      const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
-      const primaryColor = `rgb(${r}, ${g}, ${b})`;
-      waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
-      waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
-
-      const waveHeight = 100 - humidity;
+   // Update humidity wave (for I2C BME680 or SHT40)
+    if (protocol === "I2C" && (selectedSensor === "BME680" || selectedSensor === "SHT40")) {
+      // Define continuous wave animation
       const waveAnimation = `
         @keyframes waveAnimation {
-          0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-          50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
-          100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-        }`;
-      const styleSheet = document.styleSheets[0];
-      try {
-        styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
-      } catch {}
-      wavePath.style.animation = "waveAnimation 8s ease-in-out infinite";
-      wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+          0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+          25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+          50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+          75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+          100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+        }
+      `;
+      // Insert or update the animation in the stylesheet
+      let styleSheet = document.styleSheets[0];
+      let existingRuleIndex = -1;
+      for (let i = 0; i < styleSheet.cssRules.length; i++) {
+        if (styleSheet.cssRules[i].name === "waveAnimation") {
+          existingRuleIndex = i;
+          break;
+        }
+      }
+      if (existingRuleIndex !== -1) {
+        styleSheet.deleteRule(existingRuleIndex);
+      }
+      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+
+      if (currentHumidity !== null) {
+        const humidity = parseFloat(currentHumidity);
+        humidityValue.textContent = `${humidity.toFixed(2)}%`;
+        const t = Math.min(Math.max(humidity / 100, 0), 1);
+        const lowColor = { r: 61, g: 142, b: 180 };
+        const highColor = { r: 4, g: 116, b: 168 };
+        const r = Math.round(lowColor.r + (highColor.r - lowColor.r) * t);
+        const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
+        const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
+        const primaryColor = `rgb(${r}, ${g}, ${b})`;
+        waveColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
+        waveColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+        const waveHeight = 100 - (humidity * 100 / 100);
+        wavePath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+      } else {
+        humidityValue.textContent = "";
+        waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
+        waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
+        wavePath.setAttribute("d", "M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z");
+      }
+      // Apply and restart animation
+      wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
+      wavePath.style.animationPlayState = "running";
+      wavePath.getBoundingClientRect(); // Force reflow to restart animation
+    } else {
+      humidityValue.textContent = "";
+      waveColor1.setAttribute("style", `stop-color: #3d8eb4; stop-opacity: 0.5`);
+      waveColor2.setAttribute("style", `stop-color: #0474a8; stop-opacity: 1`);
+      wavePath.setAttribute("d", "M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z");
+      // Apply continuous animation even when no data
+      const waveAnimation = `
+        @keyframes waveAnimation {
+          0% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+          25% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+          50% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+          75% { d: path("M 0 50 Q 25 55 50 50 T 100 50 V 100 H 0 Z"); }
+          100% { d: path("M 0 50 Q 25 45 50 50 T 100 50 V 100 H 0 Z"); }
+        }
+      `;
+      let styleSheet = document.styleSheets[0];
+      let existingRuleIndex = -1;
+      for (let i = 0; i < styleSheet.cssRules.length; i++) {
+        if (styleSheet.cssRules[i].name === "waveAnimation") {
+          existingRuleIndex = i;
+          break;
+        }
+      }
+      if (existingRuleIndex !== -1) {
+        styleSheet.deleteRule(existingRuleIndex);
+      }
+      styleSheet.insertRule(waveAnimation, styleSheet.cssRules.length);
+      wavePath.style.animation = "waveAnimation 3s ease-in-out infinite";
+      wavePath.style.animationPlayState = "running";
+      wavePath.getBoundingClientRect(); // Force reflow to restart animation
     }
+
 
     /* Pressure */
     if (currentPressure !== null && !isNaN(parseFloat(currentPressure))) {
@@ -312,13 +365,17 @@ if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorD
 }
 
    
- /* Rain Gauge - Display only Rainfall Daily */
-if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", "")))) {
+ /* 🌧️ Rain Gauge - Display only Rainfall Daily */
+if (
+  sensorData.ADC["Rainfall Daily"] !== undefined &&
+  !isNaN(parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", "")))
+) {
   rainGaugeCard.style.display = "block";
   const rainMm = parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", ""));
   rainGaugeValue.textContent = `${rainMm.toFixed(1)} mm`;
 
-  const maxMm = 25; // Assuming max 50 tips = 25 mm
+  // Dynamic color transition (light blue → deep blue)
+  const maxMm = 25;
   const t = Math.min(Math.max(rainMm / maxMm, 0), 1);
   const lowColor = { r: 30, g: 144, b: 255 };
   const highColor = { r: 0, g: 0, b: 139 };
@@ -326,175 +383,93 @@ if (sensorData.ADC["Rainfall Daily"] !== undefined && !isNaN(parseFloat(sensorDa
   const g = Math.round(lowColor.g + (highColor.g - lowColor.g) * t);
   const b = Math.round(lowColor.b + (highColor.b - lowColor.b) * t);
   const primaryColor = `rgb(${r}, ${g}, ${b})`;
-   const lightBlue = `rgb(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)})`;
+  const lightBlue = `rgb(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)})`;
 
-  rainColor1.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 0.5`);
-  rainColor2.setAttribute("style", `stop-color: ${primaryColor}; stop-opacity: 1`);
+  // ✅ Use an overlay div for raindrops instead of SVG
+  let rainOverlay = document.getElementById("rainOverlay");
+  if (!rainOverlay) {
+    rainOverlay = document.createElement("div");
+    rainOverlay.id = "rainOverlay";
+    rainOverlay.style.position = "absolute";
+    rainOverlay.style.inset = "0";
+    rainOverlay.style.overflow = "hidden";
+    rainOverlay.style.pointerEvents = "none";
+    rainOverlay.style.zIndex = "1";
+    rainGaugeCard.style.position = "relative";
+    rainGaugeCard.appendChild(rainOverlay);
+  }
+  rainOverlay.innerHTML = "";
 
-  const waveHeight = 100 - (t * 80);
-  const rainWaveAnimation = `
-    @keyframes rainWaveAnimation {
-      0%  { d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-      50% { d: "M 0 ${waveHeight + 2} Q 25 ${waveHeight + 7} 50 ${waveHeight + 2} T 100 ${waveHeight + 2} V 100 H 0 Z"; }
-      100%{ d: "M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z"; }
-    }`;
-  const styleSheet = document.styleSheets[0];
-  try {
-    styleSheet.insertRule(rainWaveAnimation, styleSheet.cssRules.length);
-  } catch {}
-  rainPath.style.animation = "rainWaveAnimation 8s ease-in-out infinite";
-  rainPath.setAttribute("d", `M 0 ${waveHeight} Q 25 ${waveHeight + 5} 50 ${waveHeight} T 100 ${waveHeight} V 100 H 0 Z`);
+  // 🔹 Configure raindrop appearance based on rainfall intensity
+  const baseDrops = 12;
+  const extraDrops = Math.min(Math.floor(rainMm / 2), 40);
+  const numDrops = baseDrops + extraDrops;
 
-  // Clear previous raindrops
-  const rainDropsGroup = document.getElementById('rainDrops');
-  rainDropsGroup.innerHTML = '';
+  const dropDuration = 2.5; // seconds
+  const cardRect = rainGaugeCard.getBoundingClientRect();
+  const width = cardRect.width;
+  const height = cardRect.height;
 
-   // Generate realistic raindrops - FEWER DROPS
-  const numDrops = Math.max(3, Math.floor(3 + t * 12)); // Reduced from 8-40 to 3-15 drops
-  const dropDuration = Math.max(1.2, 3 - t * 1.8); // Slower falling
-  const dropOpacity = 0.7 + t * 0.3; // Better visibility
-
-// Add CSS for realistic raindrop animations
-  if (!document.getElementById('raindrop-styles')) {
-    const style = document.createElement('style');
-    style.id = 'raindrop-styles';
+  // Add CSS for animation if not already
+  if (!document.getElementById("rainfall-style")) {
+    const style = document.createElement("style");
+    style.id = "rainfall-style";
     style.textContent = `
-      @keyframes realRaindropFall {
-        0% {
-          transform: translateY(-15px) scale(0.3);
-          opacity: 0;
-        }
-        10% {
-          transform: translateY(0) scale(0.6);
-          opacity: ${dropOpacity};
-        }
-        20% {
-          transform: translateY(8px) scale(0.8);
-        }
-        80% {
-          transform: translateY(65px) scale(0.8);
-          opacity: ${dropOpacity};
-        }
-        90% {
-          transform: translateY(75px) scale(0.7);
-        }
-        100% {
-          transform: translateY(85px) scale(0.3);
-          opacity: 0;
-        }
-      }
-      @keyframes realSplash {
-        0% {
-          transform: scale(0);
-          opacity: 0.5;
-        }
-        50% {
-          transform: scale(1.2);
-          opacity: 0.2;
-        }
-        100% {
-          transform: scale(1.5);
-          opacity: 0;
-        }
+      @keyframes raindropFall {
+        0% { transform: translateY(0); opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translateY(var(--fallDistance)); opacity: 0; }
       }
     `;
     document.head.appendChild(style);
   }
 
-
- // Create realistic teardrop-shaped raindrops - SMALLER SIZE
+  // 🔹 Create raindrops across the whole card
   for (let i = 0; i < numDrops; i++) {
-    const dropGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    
-    // Create main raindrop body (teardrop shape) - SMALLER
-    const raindrop = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    const x = 12 + Math.random() * 76; // Keep within bounds
-    const delay = Math.random() * 2.5;
-    const size = 1 + t * 1.5; // Reduced size: 1-2.5px instead of 2-5px
-    
-    // Smaller teardrop shape
-    const teardropPath = `
-      M ${x} ${4} 
-      Q ${x - size * 0.3} ${5.5} ${x - size * 0.4} ${8 + size}
-      Q ${x} ${10 + size * 1.2} ${x + size * 0.4} ${8 + size}
-      Q ${x + size * 0.3} ${5.5} ${x} ${4}
-      Z
-    `;
-    
-    raindrop.setAttribute('d', teardropPath);
-    raindrop.setAttribute('fill', lightBlue);
-    raindrop.setAttribute('stroke', primaryColor);
-    raindrop.setAttribute('stroke-width', '0.3'); // Thinner stroke
-    raindrop.setAttribute('opacity', dropOpacity);
-    
-    // Falling animation
-    raindrop.style.animation = `realRaindropFall ${dropDuration}s ease-in infinite`;
-    raindrop.style.animationDelay = `${delay}s`;
-    raindrop.style.transformOrigin = 'center';
-    
-    // Create highlight for 3D effect - SMALLER
-    const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-    highlight.setAttribute('cx', x - size * 0.15);
-    highlight.setAttribute('cy', 5 + size * 0.4);
-    highlight.setAttribute('rx', size * 0.1);
-    highlight.setAttribute('ry', size * 0.2);
-    highlight.setAttribute('fill', 'white');
-    highlight.setAttribute('opacity', '0.4');
-    highlight.style.animation = `realRaindropFall ${dropDuration}s ease-in infinite`;
-    highlight.style.animationDelay = `${delay}s`;
-    
-    // Create splash effect - SMALLER
-    const splash = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    splash.setAttribute('cx', x);
-    splash.setAttribute('cy', '88');
-    splash.setAttribute('r', '0');
-    splash.setAttribute('fill', lightBlue);
-    splash.setAttribute('opacity', '0');
-    splash.style.animation = `realSplash ${dropDuration * 0.25}s ease-out infinite`;
-    splash.style.animationDelay = `${delay + dropDuration * 0.75}s`;
-    
-    dropGroup.appendChild(raindrop);
-    dropGroup.appendChild(highlight);
-    dropGroup.appendChild(splash);
-    rainDropsGroup.appendChild(dropGroup);
-  }
+    const drop = document.createElement("div");
+    drop.className = "raindrop";
+    const size = 4 + Math.random() * 2;
+    drop.style.width = `${size}px`;
+    drop.style.height = `${size * 1.6}px`;
+    drop.style.background = `linear-gradient(${lightBlue}, ${primaryColor})`;
+    drop.style.opacity = "0.8";
+    drop.style.borderRadius = "50% / 60% 60% 40% 40%";
+    drop.style.position = "absolute";
 
-  // Add very few mist droplets only for heavy rain
-  if (t > 0.6) {
-    const mistDrops = Math.floor(2 + t * 3); // Only 2-5 mist drops
-    for (let i = 0; i < mistDrops; i++) {
-      const mistDrop = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      const x = 8 + Math.random() * 84;
-      const delay = Math.random() * 1.5;
-      const mistSize = 0.3 + Math.random() * 0.4; // Very small
-      
-      mistDrop.setAttribute('cx', x);
-      mistDrop.setAttribute('cy', '0');
-      mistDrop.setAttribute('r', mistSize);
-      mistDrop.setAttribute('fill', lightBlue);
-      mistDrop.setAttribute('opacity', dropOpacity * 0.3);
-      
-      mistDrop.style.animation = `realRaindropFall ${dropDuration * 0.7}s linear infinite`;
-      mistDrop.style.animationDelay = `${delay}s`;
-      
-      rainDropsGroup.appendChild(mistDrop);
-    }
+    const left = Math.random() * width;
+    const startY = -Math.random() * height * 0.3;
+    const fallDistance = `${height + 30}px`;
+    const duration = (1.2 + Math.random() * 2).toFixed(2) + "s";
+    const delay = (Math.random() * 2).toFixed(2) + "s";
+
+    drop.style.left = `${left}px`;
+    drop.style.top = `${startY}px`;
+    drop.style.animation = `raindropFall ${duration} linear infinite`;
+    drop.style.animationDelay = delay;
+    drop.style.setProperty("--fallDistance", fallDistance);
+
+    rainOverlay.appendChild(drop);
+  }
 
 } else {
+  // Hide rain card if data missing or invalid
   rainGaugeCard.style.display = "none";
 }
-  } else {
-    lightCard.style.display = "none";
-    lightValue.textContent = "N/A";
-    sunCircle.setAttribute("r", 20);
-    glowFilter.setAttribute("stdDeviation", 5);
-    sunGradient.children[0].setAttribute("style", "stop-color:#ffd700; stop-opacity:0.9");
-    sunGradient.children[1].setAttribute("style", "stop-color:#ff8c00; stop-opacity:0.4");
-    sunGradient.children[2].setAttribute("style", "stop-color:#ff4500; stop-opacity:0");
-    lightCard.querySelector("rect").style.filter = "brightness(1)";
-    sparkles.style.opacity = 0;
-  }
-}}
+
+  
+/* ☀️ Light Card Reset (unchanged) */
+if (sensorData.ADC["Light Intensity"] === undefined) {
+  lightCard.style.display = "none";
+  lightValue.textContent = "N/A";
+  sunCircle.setAttribute("r", 20);
+  glowFilter.setAttribute("stdDeviation", 5);
+  sunGradient.children[0].setAttribute("style", "stop-color:#ffd700; stop-opacity:0.9");
+  sunGradient.children[1].setAttribute("style", "stop-color:#ff8c00; stop-opacity:0.4");
+  sunGradient.children[2].setAttribute("style", "stop-color:#ff4500; stop-opacity:0");
+  lightCard.querySelector("rect").style.filter = "brightness(1)";
+  sparkles.style.opacity = 0;
+}
+  }}
 /* ------------------------------------------------------------------ */
 /*  DATA PARSER                                                       */
 /* ------------------------------------------------------------------ */

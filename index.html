@@ -196,26 +196,59 @@
           </div>
 
           <!--  SENSOR CARDS  –  ALWAYS VISIBLE  -->
-          <div class="sensor-cards">
-            <!-- Temperature -->
-            <div id="thermometer-container" class="thermometer-container" style="display: none;">
-              <h4>Temperature</h4>
-              <div id="thermometer-value" class="sensor-value" style="margin-bottom: 8px;"></div>
-              <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
-                <rect x="40" y="20" width="20" height="160" rx="10" ry="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                <rect id="thermometer-fill" x="42" y="180" width="16" height="0" rx="8" ry="8" fill="#ffeb3b"/>
-                <circle cx="50" cy="180" r="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                <circle id="thermometer-bulb" cx="50" cy="180" r="8" fill="#ffeb3b"/>
-                <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/><text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
-                <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/><text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
-                <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/><text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
-                <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/><text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
-                <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/><text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
-                <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/><text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
-              </svg>
-            </div>
+            <div class="sensor-cards">
+                    <!-- Temperature -->
+          <div id="thermometer-container" class="thermometer-container" style="display: none;">
+            <h4>Temperature</h4>
+            <div id="thermometer-value" class="sensor-value" style="margin-bottom: 8px;"></div>
+            <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
 
-            <!-- Humidity -->
+              <defs>
+                <radialGradient id="liquidGlow" cx="50%" cy="50%" r="60%">
+                  <stop offset="0%" stop-color="#FFFFC8" />   <!-- very bright core -->
+                  <stop offset="60%" stop-color="#FFF078" />  <!-- warm golden mid -->
+                  <stop offset="100%" stop-color="#FFD23C" /> <!-- soft fade edge -->
+                </radialGradient>
+              </defs>
+
+              <!-- Thermometer body -->
+              <rect x="40" y="20" width="20" height="160" rx="10" ry="10"
+                    fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+
+              <!-- Liquid fill (uses gradient) -->
+              <rect id="thermometer-fill" x="42" y="180" width="16" height="0"
+                    rx="8" ry="8" fill="url(#liquidGlow)"/>
+
+              <!-- Bulb (uses same glow gradient) -->
+              <circle cx="50" cy="180" r="10"
+                      fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+              <circle id="thermometer-bulb" cx="50" cy="180" r="8"
+                      fill="url(#liquidGlow)"/>
+
+              <!-- Temperature marks -->
+              <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/>
+              <text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
+
+              <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/>
+              <text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
+
+              <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/>
+              <text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
+
+              <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/>
+              <text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
+
+              <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/>
+              <text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
+
+              <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/>
+              <text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
+
+            </svg>
+          </div>
+
+
+         <!-- Humidity -->
             <div id="humidity-card" class="wave-card-container" style="display: none;">
               <h4>Humidity</h4>
               <div class="wave-card-content">
@@ -229,7 +262,7 @@
                     <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1"/>
                   </linearGradient>
                 </defs>
-                <path id="wavePath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#waveGradient)"/>
+                <path id="wavePath" d="M 0 100 V 100 H 0 Z" fill="url(#waveGradient)"/>
               </svg>
             </div>
 
@@ -361,32 +394,38 @@
     </svg>
   </div>
 </div>
-<!-- Rain Gauge Card -->
-<div id="rain-gauge-card" class="wave-card-container" style="display: none;">
-  <h4>Total Rainfall</h4>
-  <div class="wave-card-content">
-    <i class="fas fa-cloud-rain"></i>
-    <span id="rain-gauge-value" class="sensor-value"></span>
-  </div>
-  <svg id="rain-wave" width="100%" height="80" viewBox="0 0 100 100" preserveAspectRatio="none">
-    <defs>
-      <linearGradient id="rainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" id="rainColor1" style="stop-color:#1e90ff;stop-opacity:0.5"/>
-        <stop offset="100%" id="rainColor2" style="stop-color:#1e90ff;stop-opacity:1"/>
-      </linearGradient>
-      <style>
-        @keyframes fall {
-          0% { transform: translateY(-10); opacity: 1; }
-          100% { transform: translateY(110); opacity: 0; }
-        }
-      </style>
-    </defs>
-    <g id="rainDrops"></g>
-    <path id="rainPath" d="M 0 100 V 100 H 100 V 100 Z" fill="url(#rainGradient)"/>
-  </svg>
-</div>
+   <!-- Rain Gauge Card -->
+      <div id="rain-gauge-card" class="wave-card-container" style="display: none;">
+        <svg id="rainDrops" width="100%" height="100%" viewBox="0 0 200 200"
+       style="position:absolute;top:0;left:0;overflow:visible;"></svg>
+      <div id="rainOverlay" class="rain-overlay" aria-hidden="true"></div>
+      <div class="rain-info" style="z-index:2; position:relative;">
+        <div id="rain-gauge-value">70.5 mm</div>
+        <h4>Total Rainfall</h4>
+        <div class="wave-card-content">
+          <i class="fas fa-cloud-rain"></i>
+          <span id="rain-gauge-value" class="sensor-value"></span>
+        </div>
+
+        <svg id="rain-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+          <defs>
+            <style>
+              @keyframes realRaindropFall {
+                0% { transform: translateY(-20px); opacity: 0; }
+                10% { opacity: 1; }
+                90% { opacity: 1; }
+                100% { transform: translateY(120px); opacity: 0; }
+              }
+            </style>
+          </defs>
+          <g id="rainDrops"></g>
+        </svg>
+      </div>
+
           </div>
         </section>
+
+
 
         <section class="control-section">
           <h3><i class="fas fa-file-alt"></i> UART Logs</h3>
