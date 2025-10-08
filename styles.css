@@ -549,7 +549,7 @@ body.dark-mode .sensor-value {
 body.light-mode .thermometer-container,
 body.light-mode .wave-card-container,
 body.light-mode .card-container {
-  background: linear-gradient(135deg, #c3cef2, #e0e7ff);
+  background: linear-gradient(135deg, #7690e5 , #b0bde3);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
@@ -906,7 +906,7 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
   transition: all .4s;
 }
 body.light-mode #pressure-card {
-  background:  linear-gradient(135deg, #c3cef2, #e0e7ff);
+  background:  linear-gradient(135deg, #7690e5 , #8ba4ed);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
 }
