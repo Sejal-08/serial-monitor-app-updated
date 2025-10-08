@@ -906,7 +906,7 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
   transition: all .4s;
 }
 body.light-mode #pressure-card {
-  background:  linear-gradient(135deg, #7690e5 , #8ba4ed);
+  background: linear-gradient(135deg, #7690e5 , #b0bde3);
   border: 1px solid #e0e7ff;
   box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
 }
