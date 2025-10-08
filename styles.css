@@ -63,19 +63,19 @@ body.dark-mode {
 
 /* Navbar */
 nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, #0a0e1a, #2a4370, #4b6cb7);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4.5rem;
-    padding: 0 2vw;
-    z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-    border-bottom: 1px solid rgba(45, 65, 90, 0.3);
+  display: flex;
+  justify-content: flex-end; /* Aligns content (nav-links) to the right */
+  align-items: center;
+  background: var(--nav-bg);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.5rem;
+  padding: 0 2vw;
+  z-index: 10;
+  box-shadow: var(--nav-shadow);
+  border-bottom: 1px solid var(--nav-border);
 }
 
 body.light-mode nav {
@@ -99,11 +99,13 @@ body.dark-mode nav {
     display: block; /* Ensures proper alignment */
 }
 
+
 ul.nav-links {
-    list-style: none;
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0; /* Ensure no extra margin pushes it away */
 }
 
 /* Theme Toggle */
