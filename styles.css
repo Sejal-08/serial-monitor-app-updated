@@ -209,13 +209,25 @@ body.dark-mode h3 {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Ensure battery card has no outer glow */
-#battery-card {
-    box-shadow: none !important;
+/* Light mode */
+body.light-mode #battery-card {
+    background: linear-gradient(135deg, #7690e5, #b0bde3);
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* Dark mode */
+body.dark-mode #battery-card {
+    background: linear-gradient(135deg, #1a2a4d, #2d4060);
+    border: 1px solid rgba(45, 65, 90, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Stop animation when .shake class is applied */
 #battery-card.shake {
     animation: none;
 }
+
 
 body.light-mode .input-field {
     border: 1px solid #ccc;
