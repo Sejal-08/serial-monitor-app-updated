@@ -90,12 +90,13 @@ body.dark-mode nav {
     border-bottom: 1px solid rgba(75, 108, 183, 0.3);
 }
 
+/* Existing styles assumed to be in styles.css, only adding/modifying logo-related styles */
 .logo img {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 4px rgba(107, 138, 247, 0.4));
-    transition: filter 0.3s ease;
+    width: 50px; /* Adjust size as needed */
+    height: 50px; /* Ensure equal width and height for a perfect circle */
+    object-fit: cover; /* Ensure the image fits within the circular bounds */
+    border-radius: 50%; /* Makes the image circular */
+    display: block; /* Ensures proper alignment */
 }
 
 ul.nav-links {
