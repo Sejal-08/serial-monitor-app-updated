@@ -102,7 +102,7 @@ let hasData = false;
 for (const [k, v] of Object.entries(data)) {
   if (v !== null && v !== undefined && v !== "null" && v !== "") {
     // Include all valid sensor data for I2C, and specific data for ADC
-    if (protocol === "I2C" || k.includes("Battery Voltage") || k.includes("Rainfall Daily")) {
+    if (protocol === "I2C" || k.includes("Battery Voltage") || k.includes("Rainfall")) {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
       hasData = true;
     }
