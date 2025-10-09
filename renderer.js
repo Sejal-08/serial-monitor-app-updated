@@ -101,14 +101,14 @@ let dataHtml = "<h4>Sensor Data</h4>";
 let hasData = false;
 for (const [k, v] of Object.entries(data)) {
   if (v !== null && v !== undefined && v !== "null" && v !== "") {
-    if (k.includes("Battery Voltage") || k === "Rainfall Daily") {
+    // Include all valid sensor data for I2C, and specific data for ADC
+    if (protocol === "I2C" || k.includes("Battery Voltage") || k.includes("Rainfall Daily")) {
       dataHtml += `<div class="sensor-data-item"><strong>${k}:</strong> ${v}</div>`;
       hasData = true;
     }
   }
 }
 if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
-
   /* ---------- I2C-specific sensor cards ---------- */
   if (protocol === "I2C") {
 
@@ -129,7 +129,7 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
       thermometerFill.setAttribute("fill", color);
       thermometerBulb.setAttribute("fill", color);
 
-      thermometerValue.textContent = `${temp.toFixed(1)}°C`;
+      thermometerValue.textContent = `${temp.toFixed(2)}°C`;
       thermometerContainer.classList.remove("shake");
       void thermometerContainer.offsetWidth;
       thermometerContainer.classList.add("shake");
@@ -139,7 +139,7 @@ if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor 
 if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
   humidityCard.style.display = "block";
   const humidity = parseFloat(currentHumidity);
-  humidityValue.textContent = `${humidity.toFixed(1)}%`;
+  humidityValue.textContent = `${humidity.toFixed(2)}%`;
 
   // Color interpolation based on humidity
   const t = Math.min(Math.max(humidity / 100, 0), 1);
@@ -239,7 +239,7 @@ if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
       }
 
       card.style.display = 'flex';               // show card
-      value.textContent  = `${Number(hpa).toFixed(1)} hPa`;
+      value.textContent  = `${Number(hpa).toFixed(2)} hPa`;
 
       /* 300 hPa → 0° (left)   1100 hPa → 180° (right) */
       const minP = 300, maxP = 1100;
@@ -319,7 +319,7 @@ if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
         }
       }
 
-      lightValue.textContent = `${light.toFixed(1)} lux`;
+      lightValue.textContent = `${light.toFixed(2)} lux`;
     }
   } else if (protocol === "ADC") {
 
@@ -375,7 +375,7 @@ if (
 ) {
   rainGaugeCard.style.display = "block";
   const rainMm = parseFloat(sensorData.ADC["Rainfall Daily"].replace(" mm", ""));
-  rainGaugeValue.textContent = `${rainMm.toFixed(1)} mm`;
+  rainGaugeValue.textContent = `${rainMm.toFixed(2)} mm`;
 
   // Dynamic color transition (light blue → deep blue)
   const maxMm = 25;
@@ -538,9 +538,9 @@ function parseSensorData(data) {
             }
             if (json.RainfallHourly !== undefined || json.RainfallDaily !== undefined || json.RainfallWeekly !== undefined) {
               sensorStatus.ADC["Rain Gauge"] = true;
-              if (json.RainfallHourly !== undefined) sensorData.ADC["Rainfall Hourly"] = `${(parseFloat(json.RainfallHourly) * 0.5).toFixed(1)} mm`;
-              if (json.RainfallDaily !== undefined) sensorData.ADC["Rainfall Daily"] = `${(parseFloat(json.RainfallDaily) * 0.5).toFixed(1)} mm`;
-              if (json.RainfallWeekly !== undefined) sensorData.ADC["Rainfall Weekly"] = `${(parseFloat(json.RainfallWeekly) * 0.5).toFixed(1)} mm`;
+              if (json.RainfallHourly !== undefined) sensorData.ADC["Rainfall Hourly"] = `${(parseFloat(json.RainfallHourly) * 0.5).toFixed(2)} mm`;
+              if (json.RainfallDaily !== undefined) sensorData.ADC["Rainfall Daily"] = `${(parseFloat(json.RainfallDaily) * 0.5).toFixed(2)} mm`;
+              if (json.RainfallWeekly !== undefined) sensorData.ADC["Rainfall Weekly"] = `${(parseFloat(json.RainfallWeekly) * 0.5).toFixed(2)} mm`;
             }
           }
           updateSensorUI();
@@ -569,7 +569,7 @@ function parseSensorData(data) {
                   const value = parseFloat(keyMatch[2]);
                   if (!isNaN(value)) {
                     const key = `Rainfall ${period}`;
-                    sensorData.ADC[key] = `${(value * 0.5).toFixed(1)} mm`;
+                    sensorData.ADC[key] = `${(value * 0.5).toFixed(2)} mm`;
                   }
                 }
               });
@@ -606,9 +606,9 @@ if (rainMatch && protocol === "ADC") {
   const hourlyTips = parseInt(rainMatch[1]);
   const dailyTips = parseInt(rainMatch[2]);
   const weeklyTips = parseInt(rainMatch[3]);
-  sensorData[protocol]["Rainfall Hourly"] = `${(hourlyTips * 0.5).toFixed(1)} mm`;
- sensorData[protocol]["Rainfall Daily"] = `${(dailyTips * 0.5).toFixed(1)} mm`; // Store as mm
-  sensorData[protocol]["Rainfall Weekly"] = `${(weeklyTips * 0.5).toFixed(1)} mm`;
+  sensorData[protocol]["Rainfall Hourly"] = `${(hourlyTips * 0.5).toFixed(2)} mm`;
+ sensorData[protocol]["Rainfall Daily"] = `${(dailyTips * 0.5).toFixed(2)} mm`; // Store as mm
+  sensorData[protocol]["Rainfall Weekly"] = `${(weeklyTips * 0.5).toFixed(2)} mm`;
   updateSensorUI();
 }
     // Handle simple key-value format (e.g., "Battery Voltage: 3.79 V")
