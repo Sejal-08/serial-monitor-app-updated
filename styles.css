@@ -37,6 +37,8 @@
 .collapsible-content .controls {
     margin-top: 15px; /* Added to create space between the title and text field */
 }
+
+
 /* Light Mode (Default) */
 body.light-mode {
     font-family: 'Poppins', sans-serif;

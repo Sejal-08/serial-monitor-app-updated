@@ -44,6 +44,7 @@ function updateSensorUI() {
   const rainGaugeHourlyCard = document.getElementById("rain-gauge-hourly-card");
   const rainGaugeDailyCard = document.getElementById("rain-gauge-daily-card");
   const rainGaugeWeeklyCard = document.getElementById("rain-gauge-weekly-card");
+  const calibrationSection = document.getElementById("calibration-section");
 
   const thermometerFill = document.getElementById("thermometer-fill");
   const thermometerBulb = document.getElementById("thermometer-bulb");
@@ -81,6 +82,7 @@ function updateSensorUI() {
   rainGaugeHourlyCard.style.display = "none";
   rainGaugeDailyCard.style.display = "none";
   rainGaugeWeeklyCard.style.display = "none";
+  calibrationSection.style.display = "none";
 
   if (!protocol) {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -114,6 +116,8 @@ for (const [k, v] of Object.entries(data)) {
 if (sensorDataDiv) sensorDataDiv.innerHTML = hasData ? dataHtml : "<p>No sensor data available.</p>";
   /* ---------- I2C-specific sensor cards ---------- */
   if (protocol === "I2C") {
+
+    calibrationSection.style.display = "block";
 
     /* Temperature */
     if (currentTemperature !== null && !isNaN(parseFloat(currentTemperature))) {
@@ -637,6 +641,32 @@ function parseSensorData(data) {
 
   const lines = data.split("\n").map((line) => line.trim()).filter((line) => line);
   lines.forEach((line) => {
+    // Handle calibration responses (only for I2C)
+    if (protocol === "I2C") {
+      if (line.startsWith("TEMP_CALIBRATION:")) {
+        const val = parseFloat(line.split(":")[1].trim());
+        if (!isNaN(val)) {
+          document.getElementById("temp-offset").value = val;
+          log(`Temperature calibration offset: ${val} °C`, "info");
+        }
+        return;
+      } else if (line.startsWith("HUM_CALIBRATION:")) {
+        const val = parseFloat(line.split(":")[1].trim());
+        if (!isNaN(val)) {
+          document.getElementById("hum-offset").value = val;
+          log(`Humidity calibration offset: ${val} %`, "info");
+        }
+        return;
+      } else if (line.startsWith("PRESS_CALIBRATION:")) {
+        const val = parseFloat(line.split(":")[1].trim());
+        if (!isNaN(val)) {
+          document.getElementById("press-offset").value = val;
+          log(`Pressure calibration offset: ${val} hPa`, "info");
+        }
+        return;
+      }
+    }
+
     // Handle individual sensor readings (e.g., "BME680 - Temperature: 26.96 °C")
     const sensorReading = line.match(/^(.+?)\s*-\s*(.+?):\s*(.+)$/);
     if (sensorReading) {
@@ -1035,6 +1065,41 @@ window.electronAPI.onSerialData((data) => {
     if (u) document.getElementById("http-url").value = u[1];
   }
 });
+
+/* ------------------------------------------------------------------ */
+/*  Calibration Functions                                             */
+/* ------------------------------------------------------------------ */
+
+
+async function setTempCalibration() {
+  const val = document.getElementById("temp-offset").value;
+  if (isNaN(val) || val < -2 || val > 2) return log("Invalid temperature offset (-2 to 2)", "error");
+  const res = await window.electronAPI.sendData(`TEMP_CALIBRATION:${val}`);
+  res.error ? log(res.error, "error") : log(`Set temperature calibration to ${val} °C`, "success");
+}
+
+async function setHumCalibration() {
+  const val = document.getElementById("hum-offset").value;
+  if (isNaN(val) || val < -10 || val > 10) return log("Invalid humidity offset (-10 to 10)", "error");
+  const res = await window.electronAPI.sendData(`HUM_CALIBRATION:${val}`);
+  res.error ? log(res.error, "error") : log(`Set humidity calibration to ${val} %`, "success");
+}
+
+async function setPressCalibration() {
+  const val = document.getElementById("press-offset").value;
+  if (isNaN(val) || val < -10 || val > 10) return log("Invalid pressure offset (-10 to 10)", "error");
+  const res = await window.electronAPI.sendData(`PRESS_CALIBRATION:${val}`);
+  res.error ? log(res.error, "error") : log(`Set pressure calibration to ${val} hPa`, "success");
+}
+
+async function resetCalibration() {
+  const res = await window.electronAPI.sendData("CALIBRATION_RESET");
+  res.error ? log(res.error, "error") : log("Calibration reset sent", "success");
+  // Reset UI inputs to 0
+  document.getElementById("temp-offset").value = 0;
+  document.getElementById("hum-offset").value = 0;
+  document.getElementById("press-offset").value = 0;
+}
 
 /* ------------------------------------------------------------------ */
 /*  INIT                                                              */
