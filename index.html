@@ -389,33 +389,81 @@
     </svg>
   </div>
 </div>
-   <!-- Rain Gauge Card -->
-      <div id="rain-gauge-card" class="wave-card-container" style="display: none;">
-        <svg id="rainDrops" width="100%" height="100%" viewBox="0 0 200 200"
-       style="position:absolute;top:0;left:0;overflow:visible;"></svg>
-      <div id="rainOverlay" class="rain-overlay" aria-hidden="true"></div>
-      <div class="rain-info" style="z-index:2; position:relative;">
-        <div id="rain-gauge-value">70.5 mm</div>
-        <h4>Total Rainfall</h4>
-        <div class="wave-card-content">
-          <i class="fas fa-cloud-rain"></i>
-          <span id="rain-gauge-value" class="sensor-value"></span>
-        </div>
 
-        <svg id="rain-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
-          <defs>
-            <style>
-              @keyframes realRaindropFall {
-                0% { transform: translateY(-20px); opacity: 0; }
-                10% { opacity: 1; }
-                90% { opacity: 1; }
-                100% { transform: translateY(120px); opacity: 0; }
-              }
-            </style>
-          </defs>
-          <g id="rainDrops"></g>
-        </svg>
-      </div>
+<!-- Hourly Rain Gauge Card -->
+<div id="rain-gauge-hourly-card" class="wave-card-container" style="display: none;">
+  <div id="rain-hourly-overlay" class="rain-overlay" aria-hidden="true"></div>
+  <div class="rain-info" style="z-index:2; position:relative;">
+    <h4>Hourly Rainfall</h4>
+    <div class="wave-card-content">
+      <i class="fas fa-cloud-rain"></i>
+      <span id="rain-gauge-hourly-value" class="sensor-value"></span>
+    </div>
+    <svg id="rain-hourly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+      <defs>
+        <style>
+          @keyframes realRaindropFall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120px); opacity: 0; }
+          }
+        </style>
+      </defs>
+      <g id="rainDrops"></g>
+    </svg>
+  </div>
+</div>
+
+<!-- Daily Rain Gauge Card -->
+<div id="rain-gauge-daily-card" class="wave-card-container" style="display: none;">
+  <div id="rain-daily-overlay" class="rain-overlay" aria-hidden="true"></div>
+  <div class="rain-info" style="z-index:2; position:relative;">
+    <h4>Daily Rainfall</h4>
+    <div class="wave-card-content">
+      <i class="fas fa-cloud-rain"></i>
+      <span id="rain-gauge-daily-value" class="sensor-value"></span>
+    </div>
+    <svg id="rain-daily-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+      <defs>
+        <style>
+          @keyframes realRaindropFall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120px); opacity: 0; }
+          }
+        </style>
+      </defs>
+      <g id="rainDrops"></g>
+    </svg>
+  </div>
+</div>
+
+<!-- Weekly Rain Gauge Card -->
+<div id="rain-gauge-weekly-card" class="wave-card-container" style="display: none;">
+  <div id="rain-weekly-overlay" class="rain-overlay" aria-hidden="true"></div>
+  <div class="rain-info" style="z-index:2; position:relative;">
+    <h4>Weekly Rainfall</h4>
+    <div class="wave-card-content">
+      <i class="fas fa-cloud-rain"></i>
+      <span id="rain-gauge-weekly-value" class="sensor-value"></span>
+    </div>
+    <svg id="rain-weekly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+      <defs>
+        <style>
+          @keyframes realRaindropFall {
+            0% { transform: translateY(-20px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(120px); opacity: 0; }
+          }
+        </style>
+      </defs>
+      <g id="rainDrops"></g>
+    </svg>
+  </div>
+</div>
 
           </div>
         </section>
