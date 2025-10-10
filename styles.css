@@ -2,11 +2,80 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css');
 
+/* Global Reset */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scrollbar-width: thin; /* Thin scrollbar for Firefox */
 }
+
+/* Global Scrollbar Styles for WebKit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px; /* Slightly thinner for subtlety */
+    height: 8px; /* For horizontal scrollbars if needed */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Blend with background */
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(107, 138, 247, 0.2), rgba(75, 108, 183, 0.2)); /* Faint gradient, low opacity */
+    border-radius: 4px;
+    transition: background 0.3s ease, opacity 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgba(107, 138, 247, 0.4), rgba(75, 108, 183, 0.4)); /* Slightly more visible on hover */
+}
+
+/* Light Mode Scrollbar Adjustments */
+body.light-mode ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(137, 161, 240, 0.2), rgba(118, 144, 229, 0.2)); /* Lighter muted tones */
+}
+
+body.light-mode ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgba(137, 161, 240, 0.4), rgba(118, 144, 229, 0.4));
+}
+
+body.light-mode * {
+    scrollbar-color: rgba(137, 161, 240, 0.2) transparent; /* Firefox */
+}
+
+/* Dark Mode Scrollbar Adjustments */
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(42, 67, 112, 0.2), rgba(26, 42, 77, 0.2)); /* Darker muted tones */
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgba(42, 67, 112, 0.4), rgba(26, 42, 77, 0.4));
+}
+
+body.dark-mode * {
+    scrollbar-color: rgba(42, 67, 112, 0.2) transparent; /* Firefox */
+}
+
+/* Ensure specific scrollable elements inherit these styles */
+.left-panel,
+.right-panel,
+#output,
+.sensor-list-container,
+.sensor-data-container {
+    overflow-y: auto; /* Ensure scrollability */
+}
+
+.left-panel::-webkit-scrollbar,
+.right-panel::-webkit-scrollbar,
+#output::-webkit-scrollbar,
+.sensor-list-container::-webkit-scrollbar,
+.sensor-data-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* Collapsible Styles */
 .collapsible {
     cursor: pointer;
     display: flex;
@@ -20,24 +89,28 @@
     font-weight: bold;
     color: var(--text-color);
 }
+
 .collapsible i {
     transition: transform 0.3s ease;
 }
+
 .collapsible.active i {
     transform: rotate(180deg);
 }
+
 .collapsible-content {
     display: none;
     overflow: hidden;
     transition: max-height 0.3s ease-out;
 }
+
 .collapsible-content.active {
     display: block;
 }
+
 .collapsible-content .controls {
     margin-top: 15px; /* Added to create space between the title and text field */
 }
-
 
 /* Light Mode (Default) */
 body.light-mode {
@@ -65,19 +138,19 @@ body.dark-mode {
 
 /* Navbar */
 nav {
-  display: flex;
-  justify-content: flex-end; /* Aligns content (nav-links) to the right */
-  align-items: center;
-  background: var(--nav-bg);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4.5rem;
-  padding: 0 2vw;
-  z-index: 10;
-  box-shadow: var(--nav-shadow);
-  border-bottom: 1px solid var(--nav-border);
+    display: flex;
+    justify-content: flex-end; /* Aligns content (nav-links) to the right */
+    align-items: center;
+    background: var(--nav-bg);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4.5rem;
+    padding: 0 2vw;
+    z-index: 10;
+    box-shadow: var(--nav-shadow);
+    border-bottom: 1px solid var(--nav-border);
 }
 
 body.light-mode nav {
@@ -92,7 +165,7 @@ body.dark-mode nav {
     border-bottom: 1px solid rgba(75, 108, 183, 0.3);
 }
 
-/* Existing styles assumed to be in styles.css, only adding/modifying logo-related styles */
+/* Logo */
 .logo img {
     width: 50px; /* Adjust size as needed */
     height: 50px; /* Ensure equal width and height for a perfect circle */
@@ -101,13 +174,12 @@ body.dark-mode nav {
     display: block; /* Ensures proper alignment */
 }
 
-
 ul.nav-links {
-  list-style: none;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin: 0; /* Ensure no extra margin pushes it away */
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0; /* Ensure no extra margin pushes it away */
 }
 
 /* Theme Toggle */
@@ -173,13 +245,11 @@ body.dark-mode .right-panel {
 
 .left-panel {
     width: 32%;
-    overflow-y: auto;
     max-height: calc(100vh - 4.5rem - 40px - 40px);
 }
 
 .right-panel {
     flex: 1;
-    overflow-y: auto;
     max-height: calc(100vh - 4.5rem - 40px - 40px);
 }
 
@@ -201,8 +271,26 @@ body.dark-mode h3 {
     color: #a3bffa;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
+/* Style for Sensor Calibration title to match h3 */
+.section-title {
+  font-size: 1.0em;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Matches the gap between icon and text in h3 */
+}
 
-/* Input fields */
+/* Light mode styling */
+body.light-mode .section-title {
+  color: #2d4060;
+}
+
+/* Dark mode styling */
+body.dark-mode .section-title {
+  color: #a3bffa;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+/* Input Fields */
 .input-field {
     flex: 1;
     min-width: 200px;
@@ -212,26 +300,6 @@ body.dark-mode h3 {
     outline: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
-/* Light mode */
-body.light-mode #battery-card {
-    background: linear-gradient(135deg, #7690e5, #b0bde3);
-    border: 1px solid #e0e7ff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Dark mode */
-body.dark-mode #battery-card {
-    background: linear-gradient(135deg, #1a2a4d, #2d4060);
-    border: 1px solid rgba(45, 65, 90, 0.5);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-/* Stop animation when .shake class is applied */
-#battery-card.shake {
-    animation: none;
-}
-
 
 body.light-mode .input-field {
     border: 1px solid #ccc;
@@ -252,7 +320,7 @@ body.dark-mode .input-field {
     box-shadow: 0 0 5px rgba(107, 138, 247, 0.6);
 }
 
-/* Action buttons */
+/* Action Buttons */
 .action-button {
     padding: 10px 14px;
     min-width: 150px;
@@ -310,7 +378,7 @@ body.dark-mode .action-button:hover {
     100% { background-position: 0% 0%; }
 }
 
-/* Controls layout */
+/* Controls Layout */
 .controls {
     display: flex;
     gap: 10px;
@@ -744,6 +812,18 @@ body.dark-mode .card-bar {
 }
 
 /* Battery Card Styles */
+body.light-mode #battery-card {
+    background: linear-gradient(135deg, #7690e5, #b0bde3);
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode #battery-card {
+    background: linear-gradient(135deg, #1a2a4d, #2d4060);
+    border: 1px solid rgba(45, 65, 90, 0.5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
 #battery-icon {
     margin: 10px 0;
     flex-grow: 1;
@@ -759,6 +839,10 @@ body.light-mode #battery-icon rect:not(#battery-fill) {
 body.dark-mode #battery-icon rect:not(#battery-fill) {
     stroke: #a3bffa;
     fill: #2d4060;
+}
+
+#battery-card.shake {
+    animation: none;
 }
 
 /* Animations */
@@ -780,6 +864,7 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
     animation: none; /* remove outer glow animation */
     filter: none; /* remove the drop-shadow outer glow */
 }
+
 #thermometer-fill {
     fill: url(#liquidGlow);
     animation: innerGlowPulse 2s ease-in-out infinite;
@@ -830,6 +915,244 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
     color: #60a5fa;
 }
 
+/* Pressure Card Shell */
+#pressure-card {
+    flex: 0 0 200px;
+    max-width: 200px;
+    min-height: 220px;
+    padding: 12px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: all .4s;
+}
+
+body.light-mode #pressure-card {
+    background: linear-gradient(135deg, #7690e5, #b0bde3);
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+}
+
+body.dark-mode #pressure-card {
+    background: linear-gradient(135deg, #1a2a4d, #2d4060);
+    border: 1px solid rgba(45, 65, 90, .5);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
+}
+
+#pressure-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-align: center;
+}
+
+body.light-mode #pressure-card h4 { color: #2d4060; }
+body.dark-mode #pressure-card h4 { color: #a3bffa; }
+
+#pressure-value {
+    margin-bottom: 8px;
+    font-size: .9em;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Gauge Artwork */
+.pressure-gauge {
+    position: relative;
+    width: 140px;
+    height: 70px;
+    margin: 12px auto 0;
+    margin-top: 50px;
+    background: conic-gradient(
+        from 180deg at 50% 100%,
+        #ef4444  0deg,
+        #f97316  36deg,
+        #22c55e  72deg,
+        #3b82f6  108deg,
+        #6366f1  144deg,
+        #6366f1  180deg
+    );
+    border-radius: 140px 140px 0 0;
+    border: 4px solid #1f2937;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .35);
+    overflow: visible;
+    z-index: 1;
+}
+
+/* Needle + Hub */
+#pressureNeedle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    height: 35px;
+    background: linear-gradient(to top, #fff 0%, #f3f4f6 100%);
+    border-radius: 1px;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform .8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 
+        0 0 4px rgba(255, 255, 255, 0.8),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+    z-index: 4;
+}
+
+#pressureNeedle.needle-update {
+    animation: needlePulse 0.5s ease-out;
+}
+
+@keyframes needlePulse {
+    0% { box-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 2px 4px rgba(0, 0, 0, 0.3); }
+    100% { box-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3); }
+}
+
+#pressure-card .center-hub {
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, #fff 0%, #e5e7eb 70%, #d1d5db 100%);
+    border: 2px solid #1f2937;
+    border-radius: 50%;
+    z-index: 3;
+}
+
+/* Scale Labels */
+.scale-label {
+    position: absolute;
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
+    z-index: 2;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.scale-300   { left: 0px;   top: 70px; }
+.scale-500   { left: 15px;  top: 10px; }
+.scale-700   { left: 75px;  top: -10px; }
+.scale-900   { left: 97px;  top: 23px; }
+.scale-1100  { left: 138px; top: 70px; }
+
+/* Raindrop Animations */
+@keyframes raindropFall {
+    0% {
+        transform: translateY(-20px) scale(0.8);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+@keyframes mistFall {
+    0% {
+        transform: translateY(-5px);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(70px);
+        opacity: 0;
+    }
+}
+
+.rain-gauge-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.rain-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.raindrop {
+    position: absolute;
+    width: 3px;
+    height: 10px;
+    border-radius: 50% / 60% 60% 40% 40%;
+    transform: translateY(0);
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.15));
+    opacity: 0.9;
+    filter: drop-shadow(0 1px 0 rgba(0,0,0,0.15));
+    animation-name: raindropFall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.raindrop::after {
+    content: "";
+    display: block;
+    width: 0.6px;
+    height: 4px;
+    margin: 0 auto;
+    background: rgba(255,255,255,0.6);
+    transform: translateY(-1px) rotate(10deg);
+    opacity: 0.5;
+}
+
+body.light-mode .raindrop {
+    fill: rgba(48, 121, 194, 0.9);
+    stroke: rgba(0, 123, 255, 0.8);
+}
+
+body.dark-mode .raindrop {
+    fill: rgba(100, 149, 237, 0.9);
+    stroke: rgba(65, 105, 225, 0.8);
+}
+
+.mist-drop {
+    transition: transform 0.1s ease, opacity 0.1s ease;
+}
+
+body.light-mode .mist-drop {
+    fill: rgba(135, 206, 250, 0.6);
+}
+
+body.dark-mode .mist-drop {
+    fill: rgba(176, 224, 230, 0.6);
+}
+
+.wave-card-container {
+    position: relative;
+    background: linear-gradient(180deg, #1c2340, #0a1535);
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+.wave-card-content {
+    position: relative;
+    z-index: 2;
+}
+
+#rain-gauge-card h4 {
+    color: #cbd5ff;
+    margin-bottom: 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .main-container {
@@ -877,6 +1200,42 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
     #humidity-wave, #rain-wave {
         max-width: 100%;
     }
+
+    .pressure-gauge {
+        width: 120px;
+        height: 60px;
+    }
+
+    #pressureNeedle {
+        height: 30px;
+    }
+
+    #pressureNeedle.needle-update {
+        animation: needlePulse 0.3s ease-out;
+    }
+
+    @keyframes needlePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .scale-label {
+        font-size: 8px;
+    }
+
+    .scale-300   { left: 2px;  top: 60px; }
+    .scale-500   { left: 37px; top: 20px; }
+    .scale-700   { left: 60px; top: 2px; }
+    .scale-900   { left: 50px; top: 25px; }
+    .scale-1100  { left: 118px; top: 60px; }
+
+    @keyframes raindropFall {
+        100% { transform: translateY(80px) scale(0.8); }
+    }
+
+    @keyframes mistFall {
+        100% { transform: translateY(50px); }
+    }
 }
 
 @media (max-width: 480px) {
@@ -914,291 +1273,5 @@ body.dark-mode #battery-icon rect:not(#battery-fill) {
 
     #humidity-wave, #rain-wave {
         max-width: 100%;
-    }
-}
-
-/* ----------  Pressure Card Shell  ---------- */
-#pressure-card {
-    flex: 0 0 200px;          /* fixed width – keeps inline */
-    max-width: 200px;
-    min-height: 220px;
-    padding: 12px;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    transition: all .4s;
-}
-body.light-mode #pressure-card {
-    background: linear-gradient(135deg, #7690e5, #b0bde3);
-    border: 1px solid #e0e7ff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
-}
-body.dark-mode #pressure-card {
-    background: linear-gradient(135deg, #1a2a4d, #2d4060);
-    border: 1px solid rgba(45, 65, 90, .5);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .5);
-}
-#pressure-card h4 {
-    margin: 0 0 10px 0;
-    font-size: 1.1em;
-    font-weight: 600;
-    text-align: center;
-}
-body.light-mode #pressure-card h4 { color: #2d4060; }
-body.dark-mode #pressure-card h4 { color: #a3bffa; }
-#pressure-value {
-    margin-bottom: 8px;
-    font-size: .9em;
-    font-weight: 600;
-    text-align: center;
-}
-
-/* ----------  Gauge Artwork  ---------- */
-.pressure-gauge {
-    position: relative;
-    width: 140px;
-    height: 70px;             /* Half-circle height */
-    margin: 12px auto 0;
-    margin-top: 50px;
-    background: conic-gradient(
-        from 180deg at 50% 100%,
-        #ef4444  0deg,      /* 300 hPa  (0°)   */
-        #f97316  36deg,     /* ~500 hPa (36°)  */
-        #22c55e  72deg,     /* ~700 hPa (72°)  */
-        #3b82f6  108deg,    /* ~900 hPa (108°) */
-        #6366f1  144deg,    /* ~1100 hPa(144°) */
-        #6366f1  180deg     /* ADD this last stop → 180° */
-    );
-    border-radius: 140px 140px 0 0;  /* Perfect half-circle */
-    border: 4px solid #1f2937;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, .35);
-    overflow: visible;
-    z-index: 1;
-}
-
-/* ----------  Needle + Hub  ---------- */
-#pressureNeedle {
-    position: absolute;
-    bottom: 0;                /* Align precisely to center */
-    left: 50%;
-    width: 2px;
-    height: 35px;             /* Exact length to reach arc circumference (radius - border) */
-    background: linear-gradient(to top, #fff 0%, #f3f4f6 100%);
-    border-radius: 1px;
-    transform-origin: bottom center;
-    transform: translateX(-50%) rotate(0deg);
-    transition: transform .8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 
-        0 0 4px rgba(255, 255, 255, 0.8),
-        0 2px 4px rgba(0, 0, 0, 0.3);
-    z-index: 4;
-}
-#pressureNeedle.needle-update {
-    /* Optional: Subtle pulse on update for feedback */
-    animation: needlePulse 0.5s ease-out;
-}
-@keyframes needlePulse {
-    0% { box-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3); }
-    50% { box-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 2px 4px rgba(0, 0, 0, 0.3); }
-    100% { box-shadow: 0 0 4px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.3); }
-}
-#pressure-card .center-hub {
-    position: absolute;
-    bottom: -4px;   /* ← was 0px  (moves hub down) */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 8px;
-    height: 8px;
-    background: radial-gradient(circle, #fff 0%, #e5e7eb 70%, #d1d5db 100%);
-    border: 2px solid #1f2937;
-    border-radius: 50%;
-    z-index: 3;
-}
-
-/* ----------  Scale Labels: EXACTLY ON HALF-CIRCLE CIRCUMFERENCE ---------- */
-/* Radius = 68px (140px width / 2 - 4px border), Center: left=70px, top=70px */
-/* Positions calculated: left = 70 + 68 * cos(θ), top = 70 - 68 * sin(θ) */
-/* θ: 180°(300), 135°(900), 90°(700), 45°(500), 0°(1100) */
-.scale-label {
-    position: absolute;
-    font-size: 9px;
-    font-weight: 600;
-    color: #64748b;
-    z-index: 2;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    transform: translate(-50%, -50%);  /* Center text on exact point */
-    white-space: nowrap;               /* Prevent wrapping */
-}
-/* Pixel-perfect positions for exact arc border placement */
-.scale-300   { left: 0px;   top: 70px; }   /* 180°: cos=-1, sin=0 → left=70-68=2, top=70-0=70 */
-.scale-500   { left: 15px;  top: 10px; }   /* 45°:  cos=0.707, sin=0.707 → left=70+48, top=70-48=22 (adj. to 23) */
-.scale-700   { left: 75px;  top: -10px; }    /* 90°: cos=0, sin=1 → left=70+0=70, top=70-68=2 */
-.scale-900   { left: 110px;  top: 10px; }   /* 135°: cos=-0.707, sin=0.707 → left=70-48=22? Wait, cos(135°)=-0.707 → left=70 + 68*(-0.707)=70-48=22? No:
-    Wait, for 135° from positive x (but our arc is from 180 to 0, decreasing).
-    Correct: θ=135° from right: cos(135°)=-0.707, sin(135°)=0.707 → x=70 + 68*(-0.707)=70-48=22? Wait, error in prev.
-    Actually for arc from left (180°) to right (0°), θ decreases.
-    Recalc: For 135° position (from 180° start, 45° clockwise): effective θ=180-45=135, cos(135)=-0.707, sin(135)=0.707
-    x = 70 + 68 * cos(135) = 70 - 48 = 22px? Wait, that's left side.
-    Mistake: For half-circle bottom-up, angles are from left (θ=180°) to right (θ=0°), so for labels:
-    - 300: θ=180°, cos=-1, sin=0 → x=70 + 68*(-1)=2px, y=70 - 68*0=70px (bottom-aligned, but using top for precision)
-    To fix, use 'top' property for all labels, assuming gauge top=0.
-    Adjusted values below are tested pixel-perfect on arc border.
-.scale-900   { left: 97px;  top: 23px; }   /* 45° from left: symmetric to 500 */
-.scale-1100  { left: 138px; top: 70px; }   /* 0°: cos=1, sin=0 → left=70+68=138, top=70-0=70 */
-
-/* Responsive: Proportional scaling on small screens */
-@media (max-width: 768px) {
-    .pressure-gauge {
-        width: 120px;
-        height: 60px;
-    }
-    #pressureNeedle {
-        height: 30px;  /* Scaled length */
-    }
-    #pressureNeedle.needle-update {
-        animation: needlePulse 0.3s ease-out;  /* Short pulse on rotation */
-    }
-    @keyframes needlePulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.8; transform: scale(1.05); }
-    }
-    .scale-label {
-        font-size: 8px;
-    }
-    .scale-300   { left: 2px;  top: 60px; }
-    .scale-500   { left: 37px; top: 20px; }
-    .scale-700   { left: 60px; top: 2px; }
-    .scale-900   { left: 50px; top: 25px; }
-    .scale-1100  { left: 118px; top: 60px; }
-}
-
-/* Raindrop Animations - Aligned to JS Fix (Smaller Scale for Card) */
-@keyframes raindropFall {
-    0% {
-        transform: translateY(-20px) scale(0.8);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    90% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100px) scale(0.8);  /* Matches ~80px height + buffer */
-        opacity: 0;
-    }
-}
-
-@keyframes mistFall {
-    0% {
-        transform: translateY(-5px);
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        transform: translateY(70px);  /* Matches card height */
-        opacity: 0;
-    }
-}
-
-/* Rain Gauge Card Layout */
-.rain-gauge-card { position: relative; overflow: hidden; }
-.rain-overlay {
-    position: absolute;
-    inset: 0;             /* top:0; right:0; bottom:0; left:0 */
-    pointer-events: none; /* so clicks pass through */
-    z-index: 1;
-    overflow: hidden;
-}
-
-/* raindrop style - tweak size to taste */
-.raindrop {
-    position: absolute;
-    width: 3px;
-    height: 10px;
-    border-radius: 50% / 60% 60% 40% 40%;
-    transform: translateY(0);
-    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.15));
-    opacity: 0.9;
-    filter: drop-shadow(0 1px 0 rgba(0,0,0,0.15));
-    animation-name: raindropFall;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-}
-
-/* gentle wobble (optional) */
-.raindrop::after {
-    content: "";
-    display: block;
-    width: 0.6px;
-    height: 4px;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.6);
-    transform: translateY(-1px) rotate(10deg);
-    opacity: 0.5;
-}
-
-/* main fall animation - final translateY will be set when inserted via JS (uses CSS variable) */
-@keyframes raindropFall {
-    0%   { transform: translateY(0); opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(var(--fallDistance)); opacity: 0; }
-}
-
-body.light-mode .raindrop {
-    fill: rgba(48, 121, 194, 0.9);  /* Light blue tint */
-    stroke: rgba(0, 123, 255, 0.8);
-}
-
-body.dark-mode .raindrop {
-    fill: rgba(100, 149, 237, 0.9);  /* Cornflower blue for dark */
-    stroke: rgba(65, 105, 225, 0.8);
-}
-
-.mist-drop {
-    transition: transform 0.1s ease, opacity 0.1s ease;
-}
-
-body.light-mode .mist-drop {
-    fill: rgba(135, 206, 250, 0.6);  /* Sky blue mist */
-}
-
-body.dark-mode .mist-drop {
-    fill: rgba(176, 224, 230, 0.6);  /* Powder blue mist */
-}
-
-.wave-card-container {
-    position: relative;
-    background: linear-gradient(180deg, #1c2340, #0a1535);
-    border-radius: 12px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    overflow: hidden;
-}
-
-.wave-card-content {
-    position: relative;
-    z-index: 2;
-}
-
-#rain-gauge-card h4 {
-    color: #cbd5ff;
-    margin-bottom: 5px;
-}
-
-/* Responsive for Rain Animations */
-@media (max-width: 768px) {
-    @keyframes raindropFall {
-        100% { transform: translateY(80px) scale(0.8); }  /* Shorter fall on mobile */
-    }
-    @keyframes mistFall {
-        100% { transform: translateY(50px); }
     }
 }

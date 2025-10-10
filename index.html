@@ -5,7 +5,6 @@
   <title>Serial Monitor</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
- 
 </head>
 
 <body class="light-mode">
@@ -37,14 +36,6 @@
           <button class="action-button" onclick="disconnectPort()"><i class="fas fa-stop"></i> Disconnect</button>
         </div>
       </section>
-
-      <!-- <section class="control-section">
-        <h3><i class="fas fa-id-card"></i> Device ID Configuration</h3>
-        <div class="controls">
-          <input type="text" id="device-id" class="input-field" placeholder="Device ID (e.g., device-123)">
-          <button class="action-button" onclick="setDeviceID()"><i class="fas fa-save"></i> Set Device ID</button>
-        </div>
-      </section> -->
 
       <section class="control-section">
         <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
@@ -95,10 +86,6 @@
               <button class="action-button" onclick="setFTPConfig()"><i class="fas fa-save"></i> Set Config</button>
               <button class="action-button" onclick="getFTPConfig()"><i class="fas fa-eye"></i> Get FTP Config</button>
             </div>
-            <!-- <div class="controls">
-              <input type="text" id="upload-filename" class="input-field" placeholder="Filename (e.g., data1.json)">
-              <button class="action-button" onclick="uploadFile()"><i class="fas fa-file-upload"></i> Upload File</button>
-            </div> -->
           </div>
 
           <!-- MQTT -->
@@ -184,66 +171,46 @@
           <!-- sensor list -->
           <div id="sensor-list" class="sensor-list-container"></div>
         
-          <div id="sensor-data" class="sensor-data-container"></div>  <!-- Add this line -->
-          <!--  SENSOR CARDS  –  ALWAYS VISIBLE  -->
-          <div class="sensor-cards">
-            <!-- ... existing cards ... -->
-          </div>
+          <div id="sensor-data" class="sensor-data-container"></div>
 
-          <!--  SENSOR CARDS  –  ALWAYS VISIBLE  -->
-            <div class="sensor-cards">
-                    <!-- Temperature -->
-          <div id="thermometer-container" class="thermometer-container" style="display: none;">
-            <h4>Temperature</h4>
-            <div id="thermometer-value" class="sensor-value" style="margin-bottom: 8px;"></div>
-            <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
-
-              <defs>
-                <radialGradient id="liquidGlow" cx="50%" cy="50%" r="60%">
-                  <stop offset="0%" stop-color="#FFFFC8" />   <!-- very bright core -->
-                  <stop offset="60%" stop-color="#FFF078" />  <!-- warm golden mid -->
-                  <stop offset="100%" stop-color="#FFD23C" /> <!-- soft fade edge -->
-                </radialGradient>
-              </defs>
-
-              <!-- Thermometer body -->
-              <rect x="40" y="20" width="20" height="160" rx="10" ry="10"
-                    fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-
-              <!-- Liquid fill (uses gradient) -->
-              <rect id="thermometer-fill" x="42" y="180" width="16" height="0"
-                    rx="8" ry="8" fill="url(#liquidGlow)"/>
-
-              <!-- Bulb (uses same glow gradient) -->
-              <circle cx="50" cy="180" r="10"
+          <!-- SENSOR CARDS -->
+          <div class="sensor-cards" style="margin-bottom: 20px;">
+            <!-- Temperature -->
+            <div id="thermometer-container" class="thermometer-container" style="display: none;">
+              <h4>Temperature</h4>
+              <div id="thermometer-value" class="sensor-value" style="margin-bottom: 8px;"></div>
+              <svg width="100" height="220" viewBox="0 0 100 220" class="thermometer">
+                <defs>
+                  <radialGradient id="liquidGlow" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#FFFFC8" />
+                    <stop offset="60%" stop-color="#FFF078" />
+                    <stop offset="100%" stop-color="#FFD23C" />
+                  </radialGradient>
+                </defs>
+                <rect x="40" y="20" width="20" height="160" rx="10" ry="10"
                       fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-              <circle id="thermometer-bulb" cx="50" cy="180" r="8"
-                      fill="url(#liquidGlow)"/>
+                <rect id="thermometer-fill" x="42" y="180" width="16" height="0"
+                      rx="8" ry="8" fill="url(#liquidGlow)"/>
+                <circle cx="50" cy="180" r="10"
+                        fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+                <circle id="thermometer-bulb" cx="50" cy="180" r="8"
+                        fill="url(#liquidGlow)"/>
+                <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/>
+                <text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
+                <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/>
+                <text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
+                <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/>
+                <text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
+                <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/>
+                <text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
+                <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/>
+                <text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
+                <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/>
+                <text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
+              </svg>
+            </div>
 
-              <!-- Temperature marks -->
-              <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/>
-              <text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
-
-              <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/>
-              <text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
-
-              <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/>
-              <text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
-
-              <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/>
-              <text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
-
-              <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/>
-              <text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
-
-              <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/>
-              <text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
-
-            </svg>
-          </div>
-
-
-          <!-- Humidity -->
+            <!-- Humidity -->
             <div id="humidity-card" class="wave-card-container" style="display: none;">
               <h4>Humidity</h4>
               <div class="wave-card-content">
@@ -261,25 +228,25 @@
               </svg>
             </div>
 
-          <!-- PRESSURE – HALF-CIRCLE GAUGE -->
-        <div id="pressure-card" class="card-container">  <!-- No display:none -->
-          <h4>Pressure</h4>
-          <div id="pressure-value" class="sensor-value"></div>
-          <div class="pressure-gauge">
-            <span class="scale-label scale-300">300</span>
-            <span class="scale-label scale-500">500</span>
-            <span class="scale-label scale-700">700</span>
-            <span class="scale-label scale-900">900</span>
-            <span class="scale-label scale-1100">1100</span>
-            <div class="needle" id="pressureNeedle"></div>
-            <div class="center-hub"></div>
-          </div>
-        </div>
-   <!-- Light Intensity Card with Sun/Moon Toggle -->
+            <!-- PRESSURE -->
+            <div id="pressure-card" class="card-container">
+              <h4>Pressure</h4>
+              <div id="pressure-value" class="sensor-value"></div>
+              <div class="pressure-gauge">
+                <span class="scale-label scale-300">300</span>
+                <span class="scale-label scale-500">500</span>
+                <span class="scale-label scale-700">700</span>
+                <span class="scale-label scale-900">900</span>
+                <span class="scale-label scale-1100">1100</span>
+                <div class="needle" id="pressureNeedle"></div>
+                <div class="center-hub"></div>
+              </div>
+            </div>
+
+            <!-- Light Intensity -->
             <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <h4>Light Intensity</h4>
               <div id="light-value" class="sensor-value"></div>
-              <!-- Sun SVG -->
               <svg id="light-sun" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
                 <defs>
                   <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
@@ -295,7 +262,6 @@
                     </feMerge>
                   </filter>
                 </defs>
-                <!-- Animated rays container -->
                 <g id="sun-rays" transform="translate(60, 60)">
                   <line class="sun-ray" x1="0" y1="0" x2="0" y2="-40" stroke="#4b2e00" stroke-width="4" opacity="0">
                     <animate attributeName="opacity" values="0;0.9;0" dur="4s" repeatCount="indefinite"/>
@@ -334,15 +300,12 @@
                     <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite"/>
                   </line>
                 </g>
-                <!-- Central sun circle -->
                 <circle id="sun-circle" cx="60" cy="60" r="24" fill="url(#sunGradient)" filter="url(#sunGlow)"/>
-                <!-- Inner glow circle -->
                 <circle cx="60" cy="60" r="24" fill="none" stroke="#fff" stroke-width="1" opacity="0.3">
                   <animate attributeName="r" values="24;28;24" dur="4s" repeatCount="indefinite"/>
                   <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite"/>
                 </circle>
               </svg>
-              <!-- Moon SVG -->
               <svg id="light-moon" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
                 <defs>
                   <radialGradient id="moonGradient" cx="50%" cy="50%" r="50%">
@@ -358,9 +321,7 @@
                     </feMerge>
                   </filter>
                 </defs>
-                <!-- Moon shape with crescent effect -->
                 <path id="moon-shape" d="M60 20 A40 40 0 0 1 60 100 A40 40 0 0 1 60 20 C80 30 80 90 60 100" fill="url(#moonGradient)" filter="url(#moonGlow)"/>
-                <!-- Sparkles for moon -->
                 <g id="moon-sparkles">
                   <circle cx="40" cy="40" r="2" fill="#fff" opacity="0">
                     <animate attributeName="opacity" values="0;0.7;0" dur="2s" repeatCount="indefinite"/>
@@ -378,120 +339,123 @@
               </svg>
             </div>
 
-<div id="battery-card" class="card-container" style="display: none; position: relative; padding: 15px; text-align: center;">
-  <h4>Battery Voltage</h4>
-  <div id="battery-value" class="sensor-value" style="margin-bottom: 10px;"></div>
-  <div style="display: inline-block;">
-    <svg id="battery-icon" width="80" height="100" viewBox="0 0 80 100">
-      <rect x="20" y="20" width="40" height="70" rx="5" ry="5" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-      <rect x="30" y="10" width="20" height="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-      <rect id="battery-fill" x="22" y="20" width="36" height="0" rx="4" ry="4" fill="#34d399"/>
-    </svg>
-  </div>
-</div>
+            <!-- Battery Voltage -->
+            <div id="battery-card" class="card-container" style="display: none; position: relative; padding: 15px; text-align: center;">
+              <h4>Battery Voltage</h4>
+              <div id="battery-value" class="sensor-value" style="margin-bottom: 10px;"></div>
+              <div style="display: inline-block;">
+                <svg id="battery-icon" width="80" height="100" viewBox="0 0 80 100">
+                  <rect x="20" y="20" width="40" height="70" rx="5" ry="5" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+                  <rect x="30" y="10" width="20" height="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
+                  <rect id="battery-fill" x="22" y="20" width="36" height="0" rx="4" ry="4" fill="#34d399"/>
+                </svg>
+              </div>
+            </div>
 
-<!-- Hourly Rain Gauge Card -->
-<div id="rain-gauge-hourly-card" class="wave-card-container" style="display: none;">
-  <div id="rain-hourly-overlay" class="rain-overlay" aria-hidden="true"></div>
-  <div class="rain-info" style="z-index:2; position:relative;">
-    <h4>Hourly Rainfall</h4>
-    <div class="wave-card-content">
-      <i class="fas fa-cloud-rain"></i>
-      <span id="rain-gauge-hourly-value" class="sensor-value"></span>
-    </div>
-    <svg id="rain-hourly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
-      <defs>
-        <style>
-          @keyframes realRaindropFall {
-            0% { transform: translateY(-20px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(120px); opacity: 0; }
-          }
-        </style>
-      </defs>
-      <g id="rainDrops"></g>
-    </svg>
-  </div>
-</div>
+            <!-- Hourly Rain Gauge -->
+            <div id="rain-gauge-hourly-card" class="wave-card-container" style="display: none;">
+              <div id="rain-hourly-overlay" class="rain-overlay" aria-hidden="true"></div>
+              <div class="rain-info" style="z-index:2; position:relative;">
+                <h4>Hourly Rainfall</h4>
+                <div class="wave-card-content">
+                  <i class="fas fa-cloud-rain"></i>
+                  <span id="rain-gauge-hourly-value" class="sensor-value"></span>
+                </div>
+                <svg id="rain-hourly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+                  <defs>
+                    <style>
+                      @keyframes realRaindropFall {
+                        0% { transform: translateY(-20px); opacity: 0; }
+                        10% { opacity: 1; }
+                        90% { opacity: 1; }
+                        100% { transform: translateY(120px); opacity: 0; }
+                      }
+                    </style>
+                  </defs>
+                  <g id="rainDrops"></g>
+                </svg>
+              </div>
+            </div>
 
-<!-- Daily Rain Gauge Card -->
-<div id="rain-gauge-daily-card" class="wave-card-container" style="display: none;">
-  <div id="rain-daily-overlay" class="rain-overlay" aria-hidden="true"></div>
-  <div class="rain-info" style="z-index:2; position:relative;">
-    <h4>Daily Rainfall</h4>
-    <div class="wave-card-content">
-      <i class="fas fa-cloud-rain"></i>
-      <span id="rain-gauge-daily-value" class="sensor-value"></span>
-    </div>
-    <svg id="rain-daily-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
-      <defs>
-        <style>
-          @keyframes realRaindropFall {
-            0% { transform: translateY(-20px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(120px); opacity: 0; }
-          }
-        </style>
-      </defs>
-      <g id="rainDrops"></g>
-    </svg>
-  </div>
-</div>
+            <!-- Daily Rain Gauge -->
+            <div id="rain-gauge-daily-card" class="wave-card-container" style="display: none;">
+              <div id="rain-daily-overlay" class="rain-overlay" aria-hidden="true"></div>
+              <div class="rain-info" style="z-index:2; position:relative;">
+                <h4>Daily Rainfall</h4>
+                <div class="wave-card-content">
+                  <i class="fas fa-cloud-rain"></i>
+                  <span id="rain-gauge-daily-value" class="sensor-value"></span>
+                </div>
+                <svg id="rain-daily-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+                  <defs>
+                    <style>
+                      @keyframes realRaindropFall {
+                        0% { transform: translateY(-20px); opacity: 0; }
+                        10% { opacity: 1; }
+                        90% { opacity: 1; }
+                        100% { transform: translateY(120px); opacity: 0; }
+                      }
+                    </style>
+                  </defs>
+                  <g id="rainDrops"></g>
+                </svg>
+              </div>
+            </div>
 
-<!-- Weekly Rain Gauge Card -->
-<div id="rain-gauge-weekly-card" class="wave-card-container" style="display: none;">
-  <div id="rain-weekly-overlay" class="rain-overlay" aria-hidden="true"></div>
-  <div class="rain-info" style="z-index:2; position:relative;">
-    <h4>Weekly Rainfall</h4>
-    <div class="wave-card-content">
-      <i class="fas fa-cloud-rain"></i>
-      <span id="rain-gauge-weekly-value" class="sensor-value"></span>
-    </div>
-    <svg id="rain-weekly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
-      <defs>
-        <style>
-          @keyframes realRaindropFall {
-            0% { transform: translateY(-20px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(120px); opacity: 0; }
-          }
-        </style>
-      </defs>
-      <g id="rainDrops"></g>
-    </svg>
-  </div>
-</div>
-
+            <!-- Weekly Rain Gauge -->
+            <div id="rain-gauge-weekly-card" class="wave-card-container" style="display: none;">
+              <div id="rain-weekly-overlay" class="rain-overlay" aria-hidden="true"></div>
+              <div class="rain-info" style="z-index:2; position:relative;">
+                <h4>Weekly Rainfall</h4>
+                <div class="wave-card-content">
+                  <i class="fas fa-cloud-rain"></i>
+                  <span id="rain-gauge-weekly-value" class="sensor-value"></span>
+                </div>
+                <svg id="rain-weekly-wave" width="100%" height="120" viewBox="0 0 100 120" preserveAspectRatio="none">
+                  <defs>
+                    <style>
+                      @keyframes realRaindropFall {
+                        0% { transform: translateY(-20px); opacity: 0; }
+                        10% { opacity: 1; }
+                        90% { opacity: 1; }
+                        100% { transform: translateY(120px); opacity: 0; }
+                      }
+                    </style>
+                  </defs>
+                  <g id="rainDrops"></g>
+                </svg>
+              </div>
+            </div>
           </div>
-          <!-- Calibration Section (only for I2C) -->
-          <div id="calibration-section" style="display: none;">
-            <h4><i class="fas fa-tools"></i> Sensor Calibration</h4>
-            <div class="controls">
-              <label>Temperature Offset (°C):</label>
-              <input type="number" id="temp-offset" class="input-field" step="0.1" min="-2" max="2" value="0">
-              <button class="action-button" onclick="setTempCalibration()"><i class="fas fa-save"></i> Set</button>
-            </div>
-            <div class="controls">
-              <label>Humidity Offset (%):</label>
-              <input type="number" id="hum-offset" class="input-field" step="1" min="-10" max="10" value="0">
-              <button class="action-button" onclick="setHumCalibration()"><i class="fas fa-save"></i> Set</button>
-            </div>
-            <div class="controls">
-              <label>Pressure Offset (hPa):</label>
-              <input type="number" id="press-offset" class="input-field" step="1" min="-10" max="10" value="0">
-              <button class="action-button" onclick="setPressCalibration()"><i class="fas fa-save"></i> Set</button>
-            </div>
-            <div class="controls">
-             
-              <button class="action-button" onclick="resetCalibration()"><i class="fas fa-undo"></i> Reset Calibration</button>
+
+          <!-- Calibration Section (Collapsible) -->
+     <div id="calibration-section" style="display: none; margin-bottom: 20px;">
+  <button class="collapsible">
+    <span class="section-title"><i class="fas fa-tools"></i> Sensor Calibration</span>
+    <i class="fas fa-chevron-down"></i>
+  </button>
+  <div class="collapsible-content">
+              <div class="controls">
+                <label>Temperature Offset (°C):</label>
+                <input type="number" id="temp-offset" class="input-field" step="0.1" min="-2" max="2" value="0">
+                <button class="action-button" onclick="setTempCalibration()"><i class="fas fa-save"></i> Set</button>
+              </div>
+              <div class="controls">
+                <label>Humidity Offset (%):</label>
+                <input type="number" id="hum-offset" class="input-field" step="1" min="-10" max="10" value="0" style="margin-left: 38px;">
+                <button class="action-button" onclick="setHumCalibration()"><i class="fas fa-save"></i> Set</button>
+              </div>
+              <div class="controls">
+                <label>Pressure Offset (hPa):</label>
+                <input type="number" id="press-offset" class="input-field" step="1" min="-10" max="10" value="0" style="margin-left: 25px;">
+                <button class="action-button" onclick="setPressCalibration()"><i class="fas fa-save"></i> Set</button>
+              </div>
+              <div class="controls">
+                <button class="action-button" onclick="resetCalibration()"><i class="fas fa-undo"></i> Reset Calibration</button>
+              </div>
             </div>
           </div>
         </section>
-
-
 
         <section class="control-section">
           <h3><i class="fas fa-file-alt"></i> UART Logs</h3>
@@ -513,20 +477,20 @@
     let isLedOn = false;
 
     async function restartDevice() {
-  const res = await window.electronAPI.sendData('RESTART');
-  const output = document.getElementById('output');
-  if (res.error) {
-    output.innerHTML += `<span class="log-line log-error">Failed to send RESTART command: ${res.error}</span><br>`;
-  } else {
-    output.innerHTML += `<span class="log-line log-success">Sent RESTART command to device.</span><br>`;
-  }
-  output.scrollTop = output.scrollHeight;
-  const button = document.getElementById('restart-button');
-  button.disabled = true;
-  setTimeout(() => {
-    button.disabled = false;
-  }, 5000);
-}
+      const res = await window.electronAPI.sendData('RESTART');
+      const output = document.getElementById('output');
+      if (res.error) {
+        output.innerHTML += `<span class="log-line log-error">Failed to send RESTART command: ${res.error}</span><br>`;
+      } else {
+        output.innerHTML += `<span class="log-line log-success">Sent RESTART command to device.</span><br>`;
+      }
+      output.scrollTop = output.scrollHeight;
+      const button = document.getElementById('restart-button');
+      button.disabled = true;
+      setTimeout(() => {
+        button.disabled = false;
+      }, 5000);
+    }
 
     function toggleTheme() {
       document.body.classList.toggle('dark-mode');
@@ -539,10 +503,13 @@
       document.getElementById('output').innerHTML = '';
     }
 
-    document.querySelector('.collapsible').addEventListener('click', function() {
-      this.classList.toggle('active');
-      const content = this.nextElementSibling;
-      content.classList.toggle('active');
+    // Handle collapsible sections
+    document.querySelectorAll('.collapsible').forEach(button => {
+      button.addEventListener('click', function() {
+        this.classList.toggle('active');
+        const content = this.nextElementSibling;
+        content.classList.toggle('active');
+      });
     });
 
     if (localStorage.getItem('theme') === 'dark') {
