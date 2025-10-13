@@ -228,20 +228,52 @@
               </svg>
             </div>
 
-            <!-- PRESSURE -->
-            <div id="pressure-card" class="card-container">
-              <h4>Pressure</h4>
-              <div id="pressure-value" class="sensor-value"></div>
-              <div class="pressure-gauge">
-                <span class="scale-label scale-300">300</span>
-                <span class="scale-label scale-500">500</span>
-                <span class="scale-label scale-700">700</span>
-                <span class="scale-label scale-900">900</span>
-                <span class="scale-label scale-1100">1100</span>
-                <div class="needle" id="pressureNeedle"></div>
-                <div class="center-hub"></div>
-              </div>
-            </div>
+          <!-- PRESSURE -->
+<div id="pressure-card" class="card-container">
+  <h4>Pressure</h4>
+  <div class="card-content">
+    <div id="pressure-value" class="main-value">1038</div>
+  </div>
+
+  <!-- full-circle gauge -->
+  <div class="gauge-container">
+    <svg class="gauge-svg" viewBox="0 0 200 200">
+      <defs>
+        <!-- gradient that follows .light-mode / .dark-mode -->
+        <linearGradient id="gaugeGradientLight" x1="0" y1="0" x2="200" y2="200">
+          <stop offset="0%"  stop-color="#06b6d4"/>
+          <stop offset="25%" stop-color="#10b981"/>
+          <stop offset="50%" stop-color="#f59e0b"/>
+          <stop offset="100%" stop-color="#ef4444"/>
+        </linearGradient>
+        <linearGradient id="gaugeGradientDark" x1="0" y1="0" x2="200" y2="200">
+          <stop offset="0%"  stop-color="#34d399"/>
+          <stop offset="50%" stop-color="#fbbf24"/>
+          <stop offset="100%" stop-color="#f87171"/>
+        </linearGradient>
+      </defs>
+
+      <!-- full-circle background -->
+      <circle class="gauge-outer"
+              cx="100" cy="100" r="90"
+              stroke-width="10"/>
+
+      <!-- animated value arc -->
+      <circle id="gauge-fill"
+              class="gauge-fill"
+              cx="100" cy="100" r="90"
+              stroke-width="10"
+              stroke-linecap="round"
+              stroke-dasharray="0 565.48"
+              stroke-dashoffset="0"/>
+    </svg>
+
+    <!-- centre read-out -->
+    <div class="gauge-inner">
+      <span id="pressure-value-inner" class="pressure-value">1038</span>
+    </div>
+  </div>
+</div>
 
             <!-- Light Intensity -->
             <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">

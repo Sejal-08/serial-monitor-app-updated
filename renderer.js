@@ -235,32 +235,35 @@ if (currentHumidity !== null && !isNaN(parseFloat(currentHumidity))) {
     }
 
     /* ----------  show / update pressure card  ---------- */
-    function updatePressureCard(hpa) {
-      const card   = document.getElementById('pressure-card');
-      const value  = document.getElementById('pressure-value');
-      const needle = document.getElementById('pressureNeedle');
+function updatePressureCard(hpa) {
+  const card = document.getElementById('pressure-card');
+  const topVal = document.getElementById('pressure-value');
+  const midVal = document.getElementById('pressure-value-inner');
+  const fill = document.getElementById('gauge-fill');
 
-      if (hpa === null || isNaN(hpa)) {          // no data → hide
-        card.style.display = 'none';
-        return;
-      }
+  if (hpa === null || isNaN(hpa)) {
+    card.style.display = 'none';
+    return;
+  }
 
-      card.style.display = 'flex';               // show card
-      value.textContent  = `${Number(hpa).toFixed(2)} hPa`;
+  card.style.display = 'flex';
 
-      /* 300 hPa → 0° (left)   1100 hPa → 180° (right) */
-      const minP = 300, maxP = 1100;
-      const t    = Math.min(Math.max((hpa - minP) / (maxP - minP), 0), 1);
-      /* 300 hPa → ‑90° (left)   1100 hPa → +90° (right) */
-      const angle = (t * 180) - 90;          // ‑90° … +90°
-      needle.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+  /* Single source of truth */
+  const txt = Number(hpa).toFixed(2);
+  topVal.textContent = `${txt} hPa`;
+  midVal.textContent = txt;
 
-      // optional tiny pulse on update (kept from your last code)
-      needle.classList.remove('needle-update');
-      void needle.offsetWidth;
-      needle.classList.add('needle-update');
-    }
+  /* Animate the 360° arc */
+  const minP = 300, maxP = 1100; // Adjusted range for better visualization
+  const t = Math.min(Math.max((hpa - minP) / (maxP - minP), 0), 1);
+  const circumference = 2 * Math.PI * 90; // Circle radius = 90
+  fill.style.strokeDasharray = `${t * circumference} ${(1 - t) * circumference}`;
 
+  /* Simple pulse on update */
+  card.classList.remove('update-pulse');
+  void card.offsetWidth;
+  card.classList.add('update-pulse');
+}
     /* Light Intensity */
     if (currentLight !== null && !isNaN(parseFloat(currentLight))) {
       lightCard.style.display = "block";
