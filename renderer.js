@@ -1152,3 +1152,34 @@ function clearSensorData() {
   currentLight = null;
   updateSensorUI();
 }
+
+/* ------------------------------------------------------------------ */
+/*  INTERVAL INPUT HANDLING                                           */
+/* ------------------------------------------------------------------ */
+const intervalInput = document.getElementById('interval');
+
+if (intervalInput) {
+  // Ensure only numbers can be typed
+  intervalInput.addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+  });
+
+  // On keydown, allow backspace, arrow keys, etc., and prevent invalid input
+  intervalInput.addEventListener('keydown', function(event) {
+    const allowedKeys = [
+      'Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'
+    ];
+    if (allowedKeys.includes(event.key) || /^[0-9]$/.test(event.key)) {
+      return; // Allow these keys
+    }
+    event.preventDefault(); // Prevent other keys
+  });
+}
+
+// Ensure setInterval uses the numeric value
+async function setInterval() {
+  const v = parseInt(document.getElementById("interval").value);
+  if (isNaN(v) || v <= 0) return log("Please enter a valid interval (positive seconds).", "error");
+  const res = await window.electronAPI.setInterval(v);
+  res.error ? log(res.error, "error") : log(res, "success");
+}
