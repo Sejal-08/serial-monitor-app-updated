@@ -32,6 +32,28 @@
     background: linear-gradient(135deg, rgba(107, 138, 247, 0.4), rgba(75, 108, 183, 0.4)); /* Slightly more visible on hover */
 }
 
+ .interval-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 180px; /* Adjusted width to accommodate both text and space */
+    }
+    #interval {
+      flex: 1;
+      padding-right: 80px; /* Space for the suffix on the right */
+      box-sizing: border-box;
+      min-width: 0; /* Ensures flex item can shrink */
+      overflow-x: auto; /* Enables horizontal scrollbar if needed */
+      white-space: nowrap; /* Prevents text wrapping */
+    }
+    .interval-suffix {
+      position: absolute;
+      right: 5px;
+      color: #888;
+      pointer-events: none; /* Prevents interaction with the suffix */
+      font-size: 14px; /* Matches input font size */
+    }
+    
 /* Light Mode Scrollbar Adjustments */
 body.light-mode ::-webkit-scrollbar-thumb {
     background: linear-gradient(135deg, rgba(137, 161, 240, 0.2), rgba(118, 144, 229, 0.2)); /* Lighter muted tones */
