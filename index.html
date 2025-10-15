@@ -5,29 +5,7 @@
   <title>Serial Monitor</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    .interval-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 180px; /* Adjusted width to accommodate both text and space */
-    }
-    #interval {
-      flex: 1;
-      padding-right: 80px; /* Space for the suffix on the right */
-      box-sizing: border-box;
-      min-width: 0; /* Ensures flex item can shrink */
-      overflow-x: auto; /* Enables horizontal scrollbar if needed */
-      white-space: nowrap; /* Prevents text wrapping */
-    }
-    .interval-suffix {
-      position: absolute;
-      right: 5px;
-      color: #888;
-      pointer-events: none; /* Prevents interaction with the suffix */
-      font-size: 14px; /* Matches input font size */
-    }
-  </style>
+ 
 </head>
 
 <body class="light-mode">
@@ -60,11 +38,14 @@
         </div>
       </section>
 
-      <section class="control-section">
+  <section class="control-section">
         <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
         <div class="controls">
+          <!-- Replace your current interval wrapper with this -->
           <div class="interval-wrapper">
-            <input type="number" id="interval" class="input-field" placeholder="Interval" min="1" oninput="updateIntervalDisplay()">
+            <div class="input-scroll-container">
+              <input type="number" id="interval" class="input-field" placeholder="Interval" min="1" oninput="updateIntervalDisplay()">
+            </div>
             <span class="interval-suffix">(seconds)</span>
           </div>
           <button class="action-button" onclick="setInterval()"><i class="fas fa-save"></i> Set Interval</button>
