@@ -6,7 +6,7 @@ const sensorProtocolMap = {
   I2C: ["BME680", "VEML7700"],
   ADC: ["Battery Voltage", "Rain Gauge"],
   RS232: ["Ultrasonic Sensor"],
-  RS485: [],
+  RS485: ["Registers"],
   SPI: [],
 };
 
@@ -46,6 +46,8 @@ function updateSensorUI() {
   const rainGaugeWeeklyCard = document.getElementById("rain-gauge-weekly-card");
   const calibrationSection = document.getElementById("calibration-section");
 
+  const rs485ConfigSection = document.getElementById("rs485-config-section");
+
   const thermometerFill = document.getElementById("thermometer-fill");
   const thermometerBulb = document.getElementById("thermometer-bulb");
   const thermometerValue = document.getElementById("thermometer-value");
@@ -83,6 +85,7 @@ function updateSensorUI() {
   rainGaugeDailyCard.style.display = "none";
   rainGaugeWeeklyCard.style.display = "none";
   calibrationSection.style.display = "none";
+  rs485ConfigSection.style.display = "none";
 
   if (!protocol) {
     sensorListDiv.innerHTML = "<p>No protocol selected.</p>";
@@ -634,7 +637,17 @@ if (sensorData.ADC["Light Intensity"] === undefined) {
   lightCard.querySelector("rect").style.filter = "brightness(1)";
   sparkles.style.opacity = 0;
 }
-  }}
+  } else if (protocol === "RS485") {
+  rs485ConfigSection.style.display = "block";
+
+  // Optional: Update sensor list to show something meaningful
+  sensorListDiv.innerHTML = `
+    <h4>RS485 Sensor</h4>
+    <p>Configure registers below to query Modbus values.</p>
+  `;
+  if (sensorDataDiv) sensorDataDiv.innerHTML = "<p>No data received yet.</p>";
+}
+}
 /* ------------------------------------------------------------------ */
 /*  DATA PARSER                                                       */
 /* ------------------------------------------------------------------ */
@@ -1103,6 +1116,58 @@ async function resetCalibration() {
   document.getElementById("hum-offset").value = 0;
   document.getElementById("press-offset").value = 0;
 }
+// 1. Register Address (you already have this, just making sure)
+async function setRS485Reg() {
+  const reg = document.getElementById("rs485-reg-select").value;
+  const valueInput = document.getElementById("rs485-value").value.trim();
+
+  if (!valueInput) return log("Please enter register value", "error");
+
+  let decimalValue;
+  if (valueInput.toLowerCase().startsWith("0x")) {
+    decimalValue = parseInt(valueInput, 16);
+  } else {
+    decimalValue = parseInt(valueInput, 10);
+  }
+
+  if (isNaN(decimalValue) || decimalValue < 0 || decimalValue > 0xFFFF) {
+    return log("Invalid value (0–65535 or 0x0000–0xFFFF)", "error");
+  }
+
+  const cmd = `REG_RS485_${reg}:${decimalValue}`;
+  const res = await window.electronAPI.sendData(cmd);
+  res.error ? log(res.error, "error") : log(`Set register for param ${reg} → ${decimalValue}`, "success");
+}
+
+// 2. Factor
+async function setRS485Factor() {
+  const reg = document.getElementById("rs485-factor-reg-select").value;
+  const value = document.getElementById("rs485-factor-value").value.trim();
+
+  if (!value) return log("Please enter factor value", "error");
+
+  const factor = parseFloat(value);
+  if (isNaN(factor)) return log("Invalid factor (must be a number)", "error");
+
+  const cmd = `SET_P${reg}_FACTOR:${factor}`;
+  const res = await window.electronAPI.sendData(cmd);
+  res.error ? log(res.error, "error") : log(`Factor for param ${reg} set to ${factor}`, "success");
+}
+
+// 3. Parameter Name
+async function setRS485ParamName() {
+  const reg = document.getElementById("rs485-name-reg-select").value;
+  let name = document.getElementById("rs485-name-value").value.trim();
+
+  if (!name) return log("Please enter parameter name", "error");
+
+  // Clean up name (remove dangerous chars)
+  name = name.replace(/[^a-zA-Z0-9 _-]/g, "").trim();
+
+  const cmd = `SET_RS485_P${reg}NAME:${name}`;
+  const res = await window.electronAPI.sendData(cmd);
+  res.error ? log(res.error, "error") : log(`Name for param ${reg} set to "${name}"`, "success");
+}
 
 /* ------------------------------------------------------------------ */
 /*  INIT                                                              */
@@ -1129,6 +1194,34 @@ window.addEventListener("DOMContentLoaded", () => {
       log(`Disconnected from port ${oldPort} at ${oldBaud} baud. Please reconnect with the new port.`, "info");
     }
   });
+    const rs485ValueInput = document.getElementById('rs485-value');
+  if (rs485ValueInput) {
+    rs485ValueInput.addEventListener('input', function() {
+      let val = this.value.toUpperCase();
+    
+      // Allow: 0x, digits 0-9, letters A-F
+      val = val.replace(/[^0-9A-FX]/g, '');
+    
+      // Ensure 0x is at the beginning and only once
+      if (val.includes('X')) {
+        if (!val.startsWith('0X')) {
+          val = val.replace('X', '');
+        }
+        if (val.match(/X/g)?.length > 1) {
+          val = val.replace(/X/g, match => match === 'X' ? '' : match);
+        }
+      }
+    
+      // Limit length after 0x
+      if (val.startsWith('0X')) {
+        val = '0X' + val.slice(2).slice(0, 4); // max 0xFFFF
+      } else {
+        val = val.slice(0, 5); // max 65535 in decimal
+      }
+    
+      this.value = val;
+    });
+  }
 });
 
 /* tiny helper */
