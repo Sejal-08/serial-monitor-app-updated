@@ -2,6 +2,10 @@ let selectedCACertFile = null;
 let selectedClientKeyFile = null;
 let rainResolution = 0.5; // default
 
+// Track current interval state
+let currentIntervalValue = '20';
+let currentIntervalUnit  = 'minutes';
+
 // Sensor protocol to sensor mapping
 const sensorProtocolMap = {
   I2C: ["BME680", "VEML7700"],
@@ -928,11 +932,117 @@ async function setDeviceID() {
   const res = await window.electronAPI.setDeviceID(id);
   res.error ? log(res.error, "error") : log(res, "success");
 }
-async function setInterval() {
-  const v = document.getElementById("interval").value;
-  if (!v || isNaN(v) || v <= 0) return log("Please enter a valid interval (positive seconds).", "error");
-  const res = await window.electronAPI.setInterval(v);
-  res.error ? log(res.error, "error") : log(res, "success");
+
+
+/* ------------------------------------------------------------------ */
+/*  INTERVAL FUNCTIONS                                                */
+/* ------------------------------------------------------------------ */
+
+/**
+ * setIntervalNew — reads value + unit dropdown, converts to seconds,
+ * sends SET_INTERVAL:<seconds> to the device (mirrors the Nordic app).
+ */
+async function setIntervalNew() {
+  const valueInput = document.getElementById("interval-value");
+  const unitSelect  = document.getElementById("interval-unit");
+
+  if (!valueInput || !unitSelect) return log("Interval inputs not found", "error");
+
+  const rawValue = parseInt(valueInput.value.trim());
+  const unit     = unitSelect.value;
+
+  if (isNaN(rawValue) || rawValue < 1) {
+    log("Please enter a valid number (≥ 1)", "error");
+    valueInput.focus();
+    return;
+  }
+
+  let seconds;
+  switch (unit) {
+    case "seconds": seconds = rawValue; break;
+    case "minutes": seconds = rawValue * 60; break;
+    case "hours":   seconds = rawValue * 3600; break;
+    default: return log("Invalid unit selected", "error");
+  }
+
+  if (seconds > 86400) {
+    log("Interval too large (maximum 24 hours)", "error");
+    return;
+  }
+
+  if (seconds < 10) {
+    log("Warning: Very short interval (<10 seconds) may cause high power usage", "warning");
+  }
+
+  log(`Setting interval to ${rawValue} ${unit} (${seconds} seconds)...`, "info");
+
+  try {
+    const res = await window.electronAPI.setInterval(seconds);
+    if (res.error) {
+      log(`Failed: ${res.error}`, "error");
+      return;
+    }
+    log(`Interval successfully set to ${rawValue} ${unit}!`, "success");
+
+    // Visual feedback on input
+    valueInput.style.backgroundColor = '#e8f5e9';
+    setTimeout(() => { valueInput.style.backgroundColor = ''; }, 1200);
+
+    // Update tracked state
+    currentIntervalValue = rawValue;
+    currentIntervalUnit  = unit;
+  } catch (err) {
+    log(`Communication error: ${err.message}`, "error");
+  }
+}
+
+/**
+ * getInterval — requests the current interval from the device.
+ */
+async function getInterval() {
+  if (!isConnected) {
+    log("Cannot get interval: No serial port connected", "error");
+    return;
+  }
+  try {
+    const res = await window.electronAPI.getInterval();
+    if (res.error) {
+      log(`Failed to get interval: ${res.error}`, "error");
+    } else {
+      log(`Command sent: GET_INTERVAL`, "info");
+    }
+  } catch (err) {
+    log(`Error getting interval: ${err.message}`, "error");
+  }
+}
+
+/**
+ * parseCurrentIntervalFromGET — called when device reports current
+ * interval (e.g. from a GET response). Updates the UI dropdowns.
+ */
+function parseCurrentIntervalFromGET(secondsFromDevice) {
+  if (!secondsFromDevice || isNaN(secondsFromDevice)) return;
+
+  let value, unit;
+
+  if (secondsFromDevice >= 3600 && secondsFromDevice % 3600 === 0) {
+    value = secondsFromDevice / 3600;
+    unit  = "hours";
+  } else if (secondsFromDevice >= 60 && secondsFromDevice % 60 === 0) {
+    value = secondsFromDevice / 60;
+    unit  = "minutes";
+  } else {
+    value = secondsFromDevice;
+    unit  = "seconds";
+  }
+
+  currentIntervalValue = value;
+  currentIntervalUnit  = unit;
+
+  const valueEl = document.getElementById("interval-value");
+  const unitEl  = document.getElementById("interval-unit");
+  if (valueEl) valueEl.value = value;
+  if (unitEl)  unitEl.value  = unit;
 }
 
 async function setRainResolution() {
@@ -1287,10 +1397,3 @@ if (intervalInput) {
   });
 }
 
-// Ensure setInterval uses the numeric value
-async function setInterval() {
-  const v = parseInt(document.getElementById("interval").value);
-  if (isNaN(v) || v <= 0) return log("Please enter a valid interval (positive seconds).", "error");
-  const res = await window.electronAPI.setInterval(v);
-  res.error ? log(res.error, "error") : log(res, "success");
-}
