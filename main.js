@@ -281,12 +281,13 @@ ipcMain.handle("set-interval", async (event, interval) => {
 });
 
 ipcMain.handle("set-protocol", async (event, protocol) => {
-  if (!["FTP", "MQTT", "HTTP"].includes(protocol))
+  const upperProtocol = protocol.toUpperCase();
+  if (!["DEFAULT", "FTP", "MQTT", "HTTP"].includes(upperProtocol))
     return { error: "Invalid protocol" };
-  const result = await sendCommand(`SET_PROTOCOL:${protocol}`);
-  if (!result.error) {
+  const result = await sendCommand(`SET_PROTOCOL:${upperProtocol}`);
+  if (!result.error && upperProtocol !== "DEFAULT") {
     await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for initialization
-    await sendCommand(`GET_${protocol}_CONFIG`); // Verify
+    await sendCommand(`GET_${upperProtocol}_CONFIG`); // Verify
   }
   return result;
 });

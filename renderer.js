@@ -828,6 +828,7 @@ if (rainMatch && protocol === "ADC") {
 /* ------------------------------------------------------------------ */
 function updateProtocolUI() {
   const p = document.getElementById("protocol-select").value;
+  document.getElementById("default-section").style.display = p === "DEFAULT" ? "block" : "none";
   document.getElementById("ftp-section").style.display  = p === "FTP"  ? "block" : "none";
   document.getElementById("mqtt-section").style.display = p === "MQTT" ? "block" : "none";
   document.getElementById("http-section").style.display = p === "HTTP" ? "block" : "none";

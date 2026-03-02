@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8">
   <title>Serial Monitor</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
- 
+
 </head>
 
 <body class="light-mode">
@@ -38,13 +39,14 @@
         </div>
       </section>
 
-  <section class="control-section">
+      <section class="control-section">
         <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
         <div class="controls">
           <!-- Replace your current interval wrapper with this -->
           <div class="interval-wrapper">
             <div class="input-scroll-container">
-              <input type="number" id="interval" class="input-field" placeholder="Interval" min="1" oninput="updateIntervalDisplay()">
+              <input type="number" id="interval" class="input-field" placeholder="Interval" min="1"
+                oninput="updateIntervalDisplay()">
             </div>
             <span class="interval-suffix">(seconds)</span>
           </div>
@@ -70,13 +72,18 @@
         <div class="collapsible-content">
           <div class="controls">
             <select id="protocol-select" class="input-field" onchange="updateProtocolUI()">
+              <option value="DEFAULT">DEFAULT</option>
               <option value="FTP">FTP</option>
               <option value="MQTT">MQTT</option>
               <option value="HTTP">HTTP</option>
             </select>
             <button class="action-button" onclick="setProtocol()"><i class="fas fa-save"></i> Set Protocol</button>
           </div>
-
+          <!-- DEFAULT -->
+          <div id="default-section">
+            
+           
+          </div>
           <!-- FTP -->
           <div id="ftp-section">
             <h3><i class="fas fa-cloud-upload-alt"></i> FTP Configuration</h3>
@@ -99,7 +106,8 @@
           <div id="mqtt-section" style="display: none;">
             <h3><i class="fas fa-comments"></i> MQTT Configuration</h3>
             <div class="controls">
-              <input type="text" id="mqtt-broker" class="input-field" placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
+              <input type="text" id="mqtt-broker" class="input-field"
+                placeholder="Broker (e.g., a3qvnhplljfvjr-ats.iot.us-east-1.amazonaws.com)">
             </div>
             <div class="controls">
               <input type="number" id="mqtt-port" class="input-field" placeholder="Port (e.g., 1883)" value="1883">
@@ -125,18 +133,22 @@
               <div class="controls">
                 <label>Device Certificate:</label>
                 <input type="text" id="mqtt-ca-cert-path" class="input-field" placeholder="Path to certificate">
-                <button class="action-button" onclick="browseCACert()"><i class="fas fa-folder-open"></i> Browse</button>
+                <button class="action-button" onclick="browseCACert()"><i class="fas fa-folder-open"></i>
+                  Browse</button>
               </div>
               <div class="controls">
                 <label>Private Key:</label>
                 <input type="text" id="mqtt-client-key-path" class="input-field" placeholder="Path to private key">
-                <button class="action-button" onclick="browseClientKey()"><i class="fas fa-folder-open"></i> Browse</button>
+                <button class="action-button" onclick="browseClientKey()"><i class="fas fa-folder-open"></i>
+                  Browse</button>
               </div>
             </div>
             <div class="controls">
               <button class="action-button" onclick="setMQTTConfig()"><i class="fas fa-save"></i> Set Config</button>
-              <button class="action-button" onclick="getMQTTConfig()"><i class="fas fa-eye"></i> Get MQTT Config</button>
-              <button class="action-button" id="cert-upload-button" onclick="uploadCertificates()" style="display: none;"><i class="fas fa-upload"></i> Upload Certificates</button>
+              <button class="action-button" onclick="getMQTTConfig()"><i class="fas fa-eye"></i> Get MQTT
+                Config</button>
+              <button class="action-button" id="cert-upload-button" onclick="uploadCertificates()"
+                style="display: none;"><i class="fas fa-upload"></i> Upload Certificates</button>
             </div>
           </div>
 
@@ -152,7 +164,8 @@
             </div>
             <div class="controls">
               <button class="action-button" onclick="setHTTPConfig()"><i class="fas fa-save"></i> Set Config</button>
-              <button class="action-button" onclick="getHTTPConfig()"><i class="fas fa-eye"></i> Get HTTP Config</button>
+              <button class="action-button" onclick="getHTTPConfig()"><i class="fas fa-eye"></i> Get HTTP
+                Config</button>
             </div>
           </div>
         </div>
@@ -177,7 +190,7 @@
 
           <!-- sensor list -->
           <div id="sensor-list" class="sensor-list-container"></div>
-        
+
           <div id="sensor-data" class="sensor-data-container"></div>
 
           <!-- SENSOR CARDS -->
@@ -194,25 +207,23 @@
                     <stop offset="100%" stop-color="#FFD23C" />
                   </radialGradient>
                 </defs>
-                <rect x="40" y="20" width="20" height="160" rx="10" ry="10"
-                      fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                <rect id="thermometer-fill" x="42" y="180" width="16" height="0"
-                      rx="8" ry="8" fill="url(#liquidGlow)"/>
-                <circle cx="50" cy="180" r="10"
-                        fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                <circle id="thermometer-bulb" cx="50" cy="180" r="8"
-                        fill="url(#liquidGlow)"/>
-                <line x1="65" y1="20"  x2="70"  y2="20"  stroke="#333" stroke-width="2"/>
-                <text x="75" y="25"  font-size="12" fill="var(--text-color)">50°C</text>
-                <line x1="65" y1="52"  x2="70"  y2="52"  stroke="#333" stroke-width="1"/>
-                <text x="75" y="57"  font-size="12" fill="var(--text-color)">40°C</text>
-                <line x1="65" y1="84"  x2="70"  y2="84"  stroke="#333" stroke-width="1"/>
-                <text x="75" y="89"  font-size="12" fill="var(--text-color)">30°C</text>
-                <line x1="65" y1="116" x2="70"  y2="116" stroke="#333" stroke-width="1"/>
+                <rect x="40" y="20" width="20" height="160" rx="10" ry="10" fill="#e0e7ff" stroke="#333"
+                  stroke-width="2" />
+                <rect id="thermometer-fill" x="42" y="180" width="16" height="0" rx="8" ry="8"
+                  fill="url(#liquidGlow)" />
+                <circle cx="50" cy="180" r="10" fill="#e0e7ff" stroke="#333" stroke-width="2" />
+                <circle id="thermometer-bulb" cx="50" cy="180" r="8" fill="url(#liquidGlow)" />
+                <line x1="65" y1="20" x2="70" y2="20" stroke="#333" stroke-width="2" />
+                <text x="75" y="25" font-size="12" fill="var(--text-color)">50°C</text>
+                <line x1="65" y1="52" x2="70" y2="52" stroke="#333" stroke-width="1" />
+                <text x="75" y="57" font-size="12" fill="var(--text-color)">40°C</text>
+                <line x1="65" y1="84" x2="70" y2="84" stroke="#333" stroke-width="1" />
+                <text x="75" y="89" font-size="12" fill="var(--text-color)">30°C</text>
+                <line x1="65" y1="116" x2="70" y2="116" stroke="#333" stroke-width="1" />
                 <text x="75" y="121" font-size="12" fill="var(--text-color)">20°C</text>
-                <line x1="65" y1="148" x2="70"  y2="148" stroke="#333" stroke-width="1"/>
+                <line x1="65" y1="148" x2="70" y2="148" stroke="#333" stroke-width="1" />
                 <text x="75" y="153" font-size="12" fill="var(--text-color)">10°C</text>
-                <line x1="65" y1="180" x2="70"  y2="180" stroke="#333" stroke-width="2"/>
+                <line x1="65" y1="180" x2="70" y2="180" stroke="#333" stroke-width="2" />
                 <text x="75" y="185" font-size="12" fill="var(--text-color)">0°C</text>
               </svg>
             </div>
@@ -227,166 +238,166 @@
               <svg id="humidity-wave" width="100%" height="80" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" id="waveColor1" style="stop-color:#3d8eb4;stop-opacity:0.5"/>
-                    <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1"/>
+                    <stop offset="0%" id="waveColor1" style="stop-color:#3d8eb4;stop-opacity:0.5" />
+                    <stop offset="100%" id="waveColor2" style="stop-color:#0474a8;stop-opacity:1" />
                   </linearGradient>
                 </defs>
-                <path id="wavePath" d="M 0 100 V 100 H 0 Z" fill="url(#waveGradient)"/>
+                <path id="wavePath" d="M 0 100 V 100 H 0 Z" fill="url(#waveGradient)" />
               </svg>
             </div>
 
-          <!-- PRESSURE -->
-<div id="pressure-card" class="card-container">
-  <h4>Pressure</h4>
-  <div class="card-content">
-    <div id="pressure-value" class="main-value">1038</div>
-  </div>
+            <!-- PRESSURE -->
+            <div id="pressure-card" class="card-container">
+              <h4>Pressure</h4>
+              <div class="card-content">
+                <div id="pressure-value" class="main-value">1038</div>
+              </div>
 
-  <!-- full-circle gauge -->
-  <div class="gauge-container">
-    <svg class="gauge-svg" viewBox="0 0 200 200">
-      <defs>
-        <!-- gradient that follows .light-mode / .dark-mode -->
-        <linearGradient id="gaugeGradientLight" x1="0" y1="0" x2="200" y2="200">
-          <stop offset="0%"  stop-color="#06b6d4"/>
-          <stop offset="25%" stop-color="#10b981"/>
-          <stop offset="50%" stop-color="#f59e0b"/>
-          <stop offset="100%" stop-color="#ef4444"/>
-        </linearGradient>
-        <linearGradient id="gaugeGradientDark" x1="0" y1="0" x2="200" y2="200">
-          <stop offset="0%"  stop-color="#34d399"/>
-          <stop offset="50%" stop-color="#fbbf24"/>
-          <stop offset="100%" stop-color="#f87171"/>
-        </linearGradient>
-      </defs>
+              <!-- full-circle gauge -->
+              <div class="gauge-container">
+                <svg class="gauge-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <!-- gradient that follows .light-mode / .dark-mode -->
+                    <linearGradient id="gaugeGradientLight" x1="0" y1="0" x2="200" y2="200">
+                      <stop offset="0%" stop-color="#06b6d4" />
+                      <stop offset="25%" stop-color="#10b981" />
+                      <stop offset="50%" stop-color="#f59e0b" />
+                      <stop offset="100%" stop-color="#ef4444" />
+                    </linearGradient>
+                    <linearGradient id="gaugeGradientDark" x1="0" y1="0" x2="200" y2="200">
+                      <stop offset="0%" stop-color="#34d399" />
+                      <stop offset="50%" stop-color="#fbbf24" />
+                      <stop offset="100%" stop-color="#f87171" />
+                    </linearGradient>
+                  </defs>
 
-      <!-- full-circle background -->
-      <circle class="gauge-outer"
-              cx="100" cy="100" r="90"
-              stroke-width="10"/>
+                  <!-- full-circle background -->
+                  <circle class="gauge-outer" cx="100" cy="100" r="90" stroke-width="10" />
 
-      <!-- animated value arc -->
-      <circle id="gauge-fill"
-              class="gauge-fill"
-              cx="100" cy="100" r="90"
-              stroke-width="10"
-              stroke-linecap="round"
-              stroke-dasharray="0 565.48"
-              stroke-dashoffset="0"/>
-    </svg>
+                  <!-- animated value arc -->
+                  <circle id="gauge-fill" class="gauge-fill" cx="100" cy="100" r="90" stroke-width="10"
+                    stroke-linecap="round" stroke-dasharray="0 565.48" stroke-dashoffset="0" />
+                </svg>
 
-    <!-- centre read-out -->
-    <div class="gauge-inner">
-      <span id="pressure-value-inner" class="pressure-value">1038</span>
-    </div>
-  </div>
-</div>
+                <!-- centre read-out -->
+                <div class="gauge-inner">
+                  <span id="pressure-value-inner" class="pressure-value">1038</span>
+                </div>
+              </div>
+            </div>
 
             <!-- Light Intensity -->
-            <div id="light-card" class="card-container" style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div id="light-card" class="card-container"
+              style="display: none; position: relative; border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); padding: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
               <h4>Light Intensity</h4>
               <div id="light-value" class="sensor-value"></div>
-              <svg id="light-sun" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
+              <svg id="light-sun" width="120" height="120" viewBox="0 0 120 120"
+                style="display: none; margin: 10px auto;">
                 <defs>
                   <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" style="stop-color:#ffeb3b; stop-opacity:1"/>
-                    <stop offset="60%" style="stop-color:#ff9800; stop-opacity:0.8"/>
-                    <stop offset="100%" style="stop-color:#ff6b00; stop-opacity:0.4"/>
+                    <stop offset="0%" style="stop-color:#ffeb3b; stop-opacity:1" />
+                    <stop offset="60%" style="stop-color:#ff9800; stop-opacity:0.8" />
+                    <stop offset="100%" style="stop-color:#ff6b00; stop-opacity:0.4" />
                   </radialGradient>
                   <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur" />
                     <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
                 <g id="sun-rays" transform="translate(60, 60)">
                   <line class="sun-ray" x1="0" y1="0" x2="0" y2="-40" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="-35;-50;-35" dur="4s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="-35;-50;-35" dur="4s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="28" y2="-28" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="0.5s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="0.5s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="0.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="0.5s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="0.5s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="40" y2="0" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="35;50;35" dur="4s" begin="1s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="35;50;35" dur="4s" begin="1s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="28" y2="28" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="1.5s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="0" y2="40" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="35;50;35" dur="4s" begin="2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="35;50;35" dur="4s" begin="2s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="-28" y2="28" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2.5s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="2.5s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="2.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="2.5s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="24;34;24" dur="4s" begin="2.5s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="-40" y2="0" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="-35;-50;-35" dur="4s" begin="3s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="-35;-50;-35" dur="4s" begin="3s" repeatCount="indefinite" />
                   </line>
                   <line class="sun-ray" x1="0" y1="0" x2="-28" y2="-28" stroke="#4b2e00" stroke-width="4" opacity="0">
-                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3.5s" repeatCount="indefinite"/>
-                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite"/>
-                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.9;0" dur="4s" begin="3.5s" repeatCount="indefinite" />
+                    <animate attributeName="x2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite" />
+                    <animate attributeName="y2" values="-24;-34;-24" dur="4s" begin="3.5s" repeatCount="indefinite" />
                   </line>
                 </g>
-                <circle id="sun-circle" cx="60" cy="60" r="24" fill="url(#sunGradient)" filter="url(#sunGlow)"/>
+                <circle id="sun-circle" cx="60" cy="60" r="24" fill="url(#sunGradient)" filter="url(#sunGlow)" />
                 <circle cx="60" cy="60" r="24" fill="none" stroke="#fff" stroke-width="1" opacity="0.3">
-                  <animate attributeName="r" values="24;28;24" dur="4s" repeatCount="indefinite"/>
-                  <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="24;28;24" dur="4s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite" />
                 </circle>
               </svg>
-              <svg id="light-moon" width="120" height="120" viewBox="0 0 120 120" style="display: none; margin: 10px auto;">
+              <svg id="light-moon" width="120" height="120" viewBox="0 0 120 120"
+                style="display: none; margin: 10px auto;">
                 <defs>
                   <radialGradient id="moonGradient" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" style="stop-color:#677484; stop-opacity:0.9"/>
-                    <stop offset="70%" style="stop-color:#677484; stop-opacity:0.6"/>
-                    <stop offset="100%" style="stop-color:#4682b4; stop-opacity:0.3"/>
+                    <stop offset="0%" style="stop-color:#677484; stop-opacity:0.9" />
+                    <stop offset="70%" style="stop-color:#677484; stop-opacity:0.6" />
+                    <stop offset="100%" style="stop-color:#4682b4; stop-opacity:0.3" />
                   </radialGradient>
                   <filter id="moonGlow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                    <feGaussianBlur stdDeviation="4" result="coloredBlur" />
                     <feMerge>
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
                 </defs>
-                <path id="moon-shape" d="M60 20 A40 40 0 0 1 60 100 A40 40 0 0 1 60 20 C80 30 80 90 60 100" fill="url(#moonGradient)" filter="url(#moonGlow)"/>
+                <path id="moon-shape" d="M60 20 A40 40 0 0 1 60 100 A40 40 0 0 1 60 20 C80 30 80 90 60 100"
+                  fill="url(#moonGradient)" filter="url(#moonGlow)" />
                 <g id="moon-sparkles">
                   <circle cx="40" cy="40" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;0.7;0" dur="2s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.7;0" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="2;3;2" dur="2s" repeatCount="indefinite" />
                   </circle>
                   <circle cx="80" cy="80" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;0.7;0" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.7;0" dur="2.5s" begin="0.5s"
+                      repeatCount="indefinite" />
+                    <animate attributeName="r" values="2;3;2" dur="2.5s" begin="0.5s" repeatCount="indefinite" />
                   </circle>
                   <circle cx="50" cy="70" r="2" fill="#fff" opacity="0">
-                    <animate attributeName="opacity" values="0;0.7;0" dur="3s" begin="1s" repeatCount="indefinite"/>
-                    <animate attributeName="r" values="2;3;2" dur="3s" begin="1s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0;0.7;0" dur="3s" begin="1s" repeatCount="indefinite" />
+                    <animate attributeName="r" values="2;3;2" dur="3s" begin="1s" repeatCount="indefinite" />
                   </circle>
                 </g>
               </svg>
             </div>
 
             <!-- Battery Voltage -->
-            <div id="battery-card" class="card-container" style="display: none; position: relative; padding: 15px; text-align: center;">
+            <div id="battery-card" class="card-container"
+              style="display: none; position: relative; padding: 15px; text-align: center;">
               <h4>Battery Voltage</h4>
               <div id="battery-value" class="sensor-value" style="margin-bottom: 10px;"></div>
               <div style="display: inline-block;">
                 <svg id="battery-icon" width="80" height="100" viewBox="0 0 80 100">
-                  <rect x="20" y="20" width="40" height="70" rx="5" ry="5" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                  <rect x="30" y="10" width="20" height="10" fill="#e0e7ff" stroke="#333" stroke-width="2"/>
-                  <rect id="battery-fill" x="22" y="20" width="36" height="0" rx="4" ry="4" fill="#34d399"/>
+                  <rect x="20" y="20" width="40" height="70" rx="5" ry="5" fill="#e0e7ff" stroke="#333"
+                    stroke-width="2" />
+                  <rect x="30" y="10" width="20" height="10" fill="#e0e7ff" stroke="#333" stroke-width="2" />
+                  <rect id="battery-fill" x="22" y="20" width="36" height="0" rx="4" ry="4" fill="#34d399" />
                 </svg>
               </div>
             </div>
@@ -404,10 +415,23 @@
                   <defs>
                     <style>
                       @keyframes realRaindropFall {
-                        0% { transform: translateY(-20px); opacity: 0; }
-                        10% { opacity: 1; }
-                        90% { opacity: 1; }
-                        100% { transform: translateY(120px); opacity: 0; }
+                        0% {
+                          transform: translateY(-20px);
+                          opacity: 0;
+                        }
+
+                        10% {
+                          opacity: 1;
+                        }
+
+                        90% {
+                          opacity: 1;
+                        }
+
+                        100% {
+                          transform: translateY(120px);
+                          opacity: 0;
+                        }
                       }
                     </style>
                   </defs>
@@ -429,10 +453,23 @@
                   <defs>
                     <style>
                       @keyframes realRaindropFall {
-                        0% { transform: translateY(-20px); opacity: 0; }
-                        10% { opacity: 1; }
-                        90% { opacity: 1; }
-                        100% { transform: translateY(120px); opacity: 0; }
+                        0% {
+                          transform: translateY(-20px);
+                          opacity: 0;
+                        }
+
+                        10% {
+                          opacity: 1;
+                        }
+
+                        90% {
+                          opacity: 1;
+                        }
+
+                        100% {
+                          transform: translateY(120px);
+                          opacity: 0;
+                        }
                       }
                     </style>
                   </defs>
@@ -454,10 +491,23 @@
                   <defs>
                     <style>
                       @keyframes realRaindropFall {
-                        0% { transform: translateY(-20px); opacity: 0; }
-                        10% { opacity: 1; }
-                        90% { opacity: 1; }
-                        100% { transform: translateY(120px); opacity: 0; }
+                        0% {
+                          transform: translateY(-20px);
+                          opacity: 0;
+                        }
+
+                        10% {
+                          opacity: 1;
+                        }
+
+                        90% {
+                          opacity: 1;
+                        }
+
+                        100% {
+                          transform: translateY(120px);
+                          opacity: 0;
+                        }
                       }
                     </style>
                   </defs>
@@ -468,12 +518,12 @@
           </div>
 
           <!-- Calibration Section (Collapsible) -->
-     <div id="calibration-section" style="display: none; margin-bottom: 20px;">
-  <button class="collapsible">
-    <span class="section-title"><i class="fas fa-tools"></i> Sensor Calibration</span>
-    <i class="fas fa-chevron-down"></i>
-  </button>
-  <div class="collapsible-content">
+          <div id="calibration-section" style="display: none; margin-bottom: 20px;">
+            <button class="collapsible">
+              <span class="section-title"><i class="fas fa-tools"></i> Sensor Calibration</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="collapsible-content">
               <div class="controls">
                 <label>Temperature Offset (°C):</label>
                 <input type="number" id="temp-offset" class="input-field" step="0.1" min="-2" max="2" value="0">
@@ -481,88 +531,93 @@
               </div>
               <div class="controls">
                 <label>Humidity Offset (%):</label>
-                <input type="number" id="hum-offset" class="input-field" step="1" min="-10" max="10" value="0" style="margin-left: 38px;">
+                <input type="number" id="hum-offset" class="input-field" step="1" min="-10" max="10" value="0"
+                  style="margin-left: 38px;">
                 <button class="action-button" onclick="setHumCalibration()"><i class="fas fa-save"></i> Set</button>
               </div>
               <div class="controls">
                 <label>Pressure Offset (hPa):</label>
-                <input type="number" id="press-offset" class="input-field" step="1" min="-10" max="10" value="0" style="margin-left: 25px;">
+                <input type="number" id="press-offset" class="input-field" step="1" min="-10" max="10" value="0"
+                  style="margin-left: 25px;">
                 <button class="action-button" onclick="setPressCalibration()"><i class="fas fa-save"></i> Set</button>
               </div>
               <div class="controls">
-                <button class="action-button" onclick="resetCalibration()"><i class="fas fa-undo"></i> Reset Calibration</button>
+                <button class="action-button" onclick="resetCalibration()"><i class="fas fa-undo"></i> Reset
+                  Calibration</button>
               </div>
             </div>
           </div>
         </section>
 
-                  <!-- Calibration Section (Collapsible) -->
-          <div id="calibration-section" style="display: none; margin-bottom: 20px;">
-            ... existing calibration code ...
+        <!-- Calibration Section (Collapsible) -->
+        <div id="calibration-section" style="display: none; margin-bottom: 20px;">
+          ... existing calibration code ...
+        </div>
+
+        <!-- RS485 Register Configuration (Collapsible) -->
+        <div id="rs485-config-section" style="display: none; margin-bottom: 20px;">
+          <button class="collapsible">
+            <span class="section-title"><i class="fas fa-tools"></i> RS485 Register Configuration</span>
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="collapsible-content">
+
+            <!-- Block 1: Register Address (keep as is, just for reference) -->
+            <div class="controls rs485-block" style="margin-bottom: 20px;">
+              <select id="rs485-reg-select" class="input-field">
+                <option value="1">REG_RS485_1:</option>
+                <option value="2">REG_RS485_2:</option>
+                <option value="3">REG_RS485_3:</option>
+                <option value="4">REG_RS485_4:</option>
+                <option value="5">REG_RS485_5:</option>
+                <option value="6">REG_RS485_6:</option>
+              </select>
+              <input type="text" id="rs485-value" class="input-field" placeholder="e.g. 0x01, 3, 0x0008" maxlength="6">
+              <button class="action-button" onclick="setRS485Reg()">
+                <i class="fas fa-save"></i> Set Register
+              </button>
+            </div>
+
+            <!-- Block 2: Factor -->
+            <div class="controls rs485-block" style="margin-bottom: 20px;">
+              <select id="rs485-factor-reg-select" class="input-field">
+                <option value="1">SET_P1_FACTOR:</option>
+                <option value="2">SET_P2_FACTOR:</option>
+                <option value="3">SET_P3_FACTOR:</option>
+                <option value="4">SET_P4_FACTOR:</option>
+                <option value="5">SET_P5_FACTOR:</option>
+                <option value="6">SET_P6_FACTOR:</option>
+                <option value="7">SET_P7_FACTOR:</option>
+                <option value="8">SET_P8_FACTOR:</option>
+              </select>
+              <input type="number" id="rs485-factor-value" class="input-field" step="any"
+                placeholder="e.g. 0.01, 1, 10, 0.1">
+              <button class="action-button" onclick="setRS485Factor()">
+                <i class="fas fa-calculator"></i> Set Factor
+              </button>
+            </div>
+
+            <!-- Block 3: Naming / Parameter Name -->
+            <div class="controls rs485-block">
+              <select id="rs485-name-reg-select" class="input-field">
+                <option value="1">SET_RS485_P1NAME:</option>
+                <option value="2">SET_RS485_P2NAME:</option>
+                <option value="3">SET_RS485_P3NAME:</option>
+                <option value="4">SET_RS485_P4NAME:</option>
+                <option value="5">SET_RS485_P5NAME:</option>
+                <option value="6">SET_RS485_P6NAME:</option>
+                <option value="7">SET_RS485_P7NAME:</option>
+                <option value="8">SET_RS485_P8NAME:</option>
+              </select>
+              <input type="text" id="rs485-name-value" class="input-field"
+                placeholder="e.g. Soil Moisture, pH Value, EC">
+              <button class="action-button" onclick="setRS485ParamName()">
+                <i class="fas fa-tag"></i> Set Name
+              </button>
+            </div>
+
           </div>
-
-            <!-- RS485 Register Configuration (Collapsible) -->
-<div id="rs485-config-section" style="display: none; margin-bottom: 20px;">
-  <button class="collapsible">
-    <span class="section-title"><i class="fas fa-tools"></i> RS485 Register Configuration</span>
-    <i class="fas fa-chevron-down"></i>
-  </button>
-  <div class="collapsible-content">
-
-    <!-- Block 1: Register Address (keep as is, just for reference) -->
-    <div class="controls rs485-block" style="margin-bottom: 20px;">
-      <select id="rs485-reg-select" class="input-field">
-        <option value="1">REG_RS485_1:</option>
-        <option value="2">REG_RS485_2:</option>
-        <option value="3">REG_RS485_3:</option>
-        <option value="4">REG_RS485_4:</option>
-        <option value="5">REG_RS485_5:</option>
-        <option value="6">REG_RS485_6:</option>
-      </select>
-      <input type="text" id="rs485-value" class="input-field" placeholder="e.g. 0x01, 3, 0x0008" maxlength="6">
-      <button class="action-button" onclick="setRS485Reg()">
-        <i class="fas fa-save"></i> Set Register
-      </button>
-    </div>
-
-    <!-- Block 2: Factor -->
-    <div class="controls rs485-block" style="margin-bottom: 20px;">
-      <select id="rs485-factor-reg-select" class="input-field">
-        <option value="1">SET_P1_FACTOR:</option>
-        <option value="2">SET_P2_FACTOR:</option>
-        <option value="3">SET_P3_FACTOR:</option>
-        <option value="4">SET_P4_FACTOR:</option>
-        <option value="5">SET_P5_FACTOR:</option>
-        <option value="6">SET_P6_FACTOR:</option>
-        <option value="7">SET_P7_FACTOR:</option>
-        <option value="8">SET_P8_FACTOR:</option>
-      </select>
-      <input type="number" id="rs485-factor-value" class="input-field" step="any" placeholder="e.g. 0.01, 1, 10, 0.1">
-      <button class="action-button" onclick="setRS485Factor()">
-        <i class="fas fa-calculator"></i> Set Factor
-      </button>
-    </div>
-
-    <!-- Block 3: Naming / Parameter Name -->
-    <div class="controls rs485-block">
-      <select id="rs485-name-reg-select" class="input-field">
-        <option value="1">SET_RS485_P1NAME:</option>
-        <option value="2">SET_RS485_P2NAME:</option>
-        <option value="3">SET_RS485_P3NAME:</option>
-        <option value="4">SET_RS485_P4NAME:</option>
-        <option value="5">SET_RS485_P5NAME:</option>
-        <option value="6">SET_RS485_P6NAME:</option>
-        <option value="7">SET_RS485_P7NAME:</option>
-        <option value="8">SET_RS485_P8NAME:</option>
-      </select>
-      <input type="text" id="rs485-name-value" class="input-field" placeholder="e.g. Soil Moisture, pH Value, EC">
-      <button class="action-button" onclick="setRS485ParamName()">
-        <i class="fas fa-tag"></i> Set Name
-      </button>
-    </div>
-
-  </div>
-</div>
+        </div>
 
         <section class="control-section">
           <h3><i class="fas fa-file-alt"></i> UART Logs</h3>
@@ -618,7 +673,7 @@
 
     // Handle collapsible sections
     document.querySelectorAll('.collapsible').forEach(button => {
-      button.addEventListener('click', function() {
+      button.addEventListener('click', function () {
         this.classList.toggle('active');
         const content = this.nextElementSibling;
         content.classList.toggle('active');
@@ -646,4 +701,5 @@
     }
   </script>
 </body>
+
 </html>
