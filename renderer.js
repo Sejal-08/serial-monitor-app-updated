@@ -1166,23 +1166,26 @@ function delay(ms) { return new Promise((r) => setTimeout(r, ms)); }
 /*  SERIAL DATA HANDLER                                               */
 /* ------------------------------------------------------------------ */
 window.electronAPI.onSerialData((data) => {
-  if (data.includes("DISCONNECTED:")) {
-    isConnected = false;
-    clearSensorData();
-  }
-  if (!data) return;
-  const sanitized = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  parseSensorData(sanitized);
+    if (data.includes("DISCONNECTED:")) {
+        isConnected = false;
+        clearSensorData();
+        log("Serial port disconnected", "log-error");
+        return;
+    }
 
-  if (sanitized.includes("RX Received") || sanitized.includes("Text: '") || sanitized.includes("Config saved"))
-    return;
+    if (!data.trim()) return;
 
-  let cls = "log-default";
-  if (/error|failed|ENOENT|not active/i.test(sanitized)) cls = "log-error";
-  else if (/successfully|saved ok|connected to|current interval|protocol initialized/i.test(sanitized)) cls = "log-success";
-  else if (/\/usr contents|device id:|topic=/i.test(sanitized)) cls = "log-info";
+    const sanitized = data.replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
 
-  log(sanitized, cls);
+    // ── LOG ALMOST EVERYTHING FIRST ────────────────────────────────
+    let cls = "log-default";
+    if (/error|failed|ENOENT|not active/i.test(sanitized)) cls = "log-error";
+    else if (/successfully|saved ok|connected to|current interval|tip/i.test(sanitized)) cls = "log-success";
+    else if (/voltage|rain/i.test(sanitized.toLowerCase())) cls = "log-info";  // highlight ADC
+    log(sanitized, cls);
+
+    // Then parse & update UI
+    parseSensorData(sanitized);
 
   /* auto-fill config forms */
   if (sanitized.startsWith("FTP protocol")) {
