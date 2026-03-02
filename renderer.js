@@ -32,6 +32,8 @@ let currentPort = "";
 /*  MAIN UI UPDATE                                                    */
 /* ------------------------------------------------------------------ */
 function updateSensorUI() {
+
+  document.getElementById("rain-resolution-section").style.display = "none";
   const protocol = document.getElementById("sensor-select").value;
   const sensorListDiv = document.getElementById("sensor-list");
   const sensorDataDiv = document.getElementById("sensor-data");
@@ -335,7 +337,8 @@ function updatePressureCard(hpa) {
       lightValue.textContent = `${light.toFixed(2)} lux`;
     }
   } else if (protocol === "ADC") {
-
+// Show rain resolution section for ADC
+document.getElementById("rain-resolution-section").style.display = "block";
   /* Battery Voltage */
 if (sensorData.ADC["Battery Voltage"] !== undefined && !isNaN(parseFloat(sensorData.ADC["Battery Voltage"].replace(" V", "")))) {
   batteryCard.style.display = "block";
@@ -930,6 +933,13 @@ async function setInterval() {
   const res = await window.electronAPI.setInterval(v);
   res.error ? log(res.error, "error") : log(res, "success");
 }
+
+async function setRainResolution() {
+  const resolution = document.getElementById("rain-resolution-select").value;
+  const res = await window.electronAPI.sendData(`SET_RAIN_RESOLUTION:${resolution}`);
+  res.error ? log(res.error, "error") : log(`Rain resolution set to ${resolution} mm/tip`, "success");
+}
+
 async function setProtocol() {
   const p = document.getElementById("protocol-select").value;
   const res = await window.electronAPI.setProtocol(p);

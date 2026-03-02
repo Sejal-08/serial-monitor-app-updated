@@ -715,6 +715,57 @@ body.dark-mode .sensor-value {
     color: #e0e7ff;
 }
 
+.rain-resolution-card {
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .rain-resolution-card {
+  background: linear-gradient(135deg, #7690e5, #b0bde3);
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .rain-resolution-card {
+  background: linear-gradient(135deg, #1a2a4d, #2d4060);
+  border: 1px solid rgba(45, 65, 90, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.rain-resolution-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+body.light-mode .rain-resolution-card h4 {
+  color: #2d4060;
+}
+
+body.dark-mode .rain-resolution-card h4 {
+  color: #a3bffa;
+}
+
+.resolution-hint {
+  font-size: 12px;
+  margin: 0 0 10px 0;
+}
+
+body.light-mode .resolution-hint {
+  color: #4a5568;
+}
+
+body.dark-mode .resolution-hint {
+  color: #a3bffa99;
+}
+
+.resolution-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
 /* Sensor Card Base Styles */
 .thermometer-container,
 .wave-card-container,

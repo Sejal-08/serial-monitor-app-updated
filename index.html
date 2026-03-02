@@ -517,6 +517,23 @@
             </div>
           </div>
 
+<!-- Rain Resolution Configuration -->
+<div id="rain-resolution-section" style="display: none; margin-bottom: 20px;">
+  <div class="rain-resolution-card">
+    <h4><i class="fas fa-tint"></i> Rain Gauge Resolution</h4>
+    <p class="resolution-hint">Set the tip bucket resolution (mm per tip)</p>
+    <div class="controls resolution-controls">
+      <select id="rain-resolution-select" class="input-field">
+        <option value="0.2">0.2 mm / tip</option>
+        <option value="0.5" selected>0.5 mm / tip</option>
+      </select>
+      <button class="action-button" onclick="setRainResolution()">
+        <i class="fas fa-save"></i> Set Resolution
+      </button>
+    </div>
+  </div>
+</div>
+
           <!-- Calibration Section (Collapsible) -->
           <div id="calibration-section" style="display: none; margin-bottom: 20px;">
             <button class="collapsible">
