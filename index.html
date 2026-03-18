@@ -39,17 +39,15 @@
         </div>
       </section>
 
-     <section class="control-section">
+      <section class="control-section">
         <h3><i class="fas fa-clock"></i> Interval Configuration</h3>
-        <div class="controls interval-group"
-          style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
+        <div class="controls interval-group" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;">
           <div style="flex: 1; min-width: 160px;">
             <input type="number" id="interval-value" class="input-field" min="1" value="20" placeholder="Value">
           </div>
           <select id="interval-unit" class="input-field" style="min-width: 140px;">
-            <option value="seconds">Seconds</option>
             <option value="minutes" selected>Minutes</option>
-            <option value="hours">Hourly</option>
+            <option value="hours">Hours</option>
           </select>
           <button class="action-button success-button" onclick="setIntervalNew()">
             <i class="fas fa-save"></i> Apply Interval
@@ -84,8 +82,8 @@
           </div>
           <!-- DEFAULT -->
           <div id="default-section">
-            
-           
+
+
           </div>
           <!-- FTP -->
           <div id="ftp-section">
@@ -520,22 +518,22 @@
             </div>
           </div>
 
-<!-- Rain Resolution Configuration -->
-<div id="rain-resolution-section" style="display: none; margin-bottom: 20px;">
-  <div class="rain-resolution-card">
-    <h4><i class="fas fa-tint"></i> Rain Gauge Resolution</h4>
-    <p class="resolution-hint">Set the tip bucket resolution (mm per tip)</p>
-    <div class="controls resolution-controls">
-      <select id="rain-resolution-select" class="input-field">
-        <option value="0.2">0.2 mm / tip</option>
-        <option value="0.5" selected>0.5 mm / tip</option>
-      </select>
-      <button class="action-button" onclick="setRainResolution()">
-        <i class="fas fa-save"></i> Set Resolution
-      </button>
-    </div>
-  </div>
-</div>
+          <!-- Rain Resolution Configuration -->
+          <div id="rain-resolution-section" style="display: none; margin-bottom: 20px;">
+            <div class="rain-resolution-card">
+              <h4><i class="fas fa-tint"></i> Rain Gauge Resolution</h4>
+              <p class="resolution-hint">Set the tip bucket resolution (mm per tip)</p>
+              <div class="controls resolution-controls">
+                <select id="rain-resolution-select" class="input-field">
+                  <option value="0.2">0.2 mm / tip</option>
+                  <option value="0.5" selected>0.5 mm / tip</option>
+                </select>
+                <button class="action-button" onclick="setRainResolution()">
+                  <i class="fas fa-save"></i> Set Resolution
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- Calibration Section (Collapsible) -->
           <div id="calibration-section" style="display: none; margin-bottom: 20px;">
@@ -683,6 +681,7 @@
 
     function clearOutput() {
       document.getElementById('output').innerHTML = '';
+      _logLineCount = 0
     }
 
     function updateIntervalDisplay() {

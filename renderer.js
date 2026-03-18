@@ -6,6 +6,40 @@ let rainResolution = 0.5; // default
 let currentIntervalValue = '20';
 let currentIntervalUnit  = 'minutes';
 
+
+// ── Log line cap ──────────────────────────────────────────────────────────────
+const MAX_LOG_LINES = 100;
+let _logLineCount = 0;
+ 
+function appendLog(html, cssClass = 'log-default') {
+  const outputDiv = document.getElementById('output');
+  if (!outputDiv) return;
+ 
+  const span = document.createElement('span');
+  span.className = `log-line ${cssClass}`;
+  span.innerHTML = html;
+  outputDiv.appendChild(span);
+  outputDiv.appendChild(document.createElement('br'));
+  _logLineCount++;
+ 
+  // Trim oldest lines once we exceed the cap
+  if (_logLineCount > MAX_LOG_LINES) {
+    const toRemove = (_logLineCount - MAX_LOG_LINES) * 2; // span + br pairs
+    for (let i = 0; i < toRemove && outputDiv.firstChild; i++) {
+      outputDiv.removeChild(outputDiv.firstChild);
+    }
+    _logLineCount = MAX_LOG_LINES;
+  }
+ 
+  // Auto-scroll only when user is near the bottom
+  const distFromBottom = outputDiv.scrollHeight - outputDiv.scrollTop - outputDiv.clientHeight;
+  if (distFromBottom < 100) outputDiv.scrollTop = outputDiv.scrollHeight;
+}
+
+/** Convenience wrapper — keeps existing call-sites working unchanged */
+function log(msg, type = 'default') {
+  appendLog(msg, `log-${type}`);
+}
 // Sensor protocol to sensor mapping
 const sensorProtocolMap = {
   I2C: ["BME680", "VEML7700"],
@@ -32,6 +66,8 @@ let currentLight = null;
 let isConnected = false;
 let currentBaud = 115200;
 let currentPort = "";
+
+
 
 /* ------------------------------------------------------------------ */
 /*  MAIN UI UPDATE                                                    */
@@ -916,7 +952,7 @@ async function getInterval() {
     return;
   }
   try {
-    const res = await window.electronAPI.getInterval();
+    const res = await window.electronAPI.sendData("GET_INTERVAL");
     if (res.error) {
       log(`Failed to get interval: ${res.error}`, "error");
     } else {
@@ -938,18 +974,21 @@ async function setDeviceID() {
 /*  INTERVAL FUNCTIONS                                                */
 /* ------------------------------------------------------------------ */
 
-/**
- * setIntervalNew — reads value + unit dropdown, converts to seconds,
- * sends SET_INTERVAL:<seconds> to the device (mirrors the Nordic app).
- */
+/* ------------------------------------------------------------------ */
+/*  INTERVAL FUNCTIONS                                                */
+/* ------------------------------------------------------------------ */
+
 async function setIntervalNew() {
   const valueInput = document.getElementById("interval-value");
   const unitSelect  = document.getElementById("interval-unit");
 
-  if (!valueInput || !unitSelect) return log("Interval inputs not found", "error");
+  if (!valueInput || !unitSelect) {
+    log("Interval inputs not found", "error");
+    return;
+  }
 
-  const rawValue = parseInt(valueInput.value.trim());
-  const unit     = unitSelect.value;
+  const rawValue = parseInt(valueInput.value.trim(), 10);
+  const unit     = unitSelect.value;   // "minutes" | "hours"
 
   if (isNaN(rawValue) || rawValue < 1) {
     log("Please enter a valid number (≥ 1)", "error");
@@ -957,38 +996,39 @@ async function setIntervalNew() {
     return;
   }
 
-  let seconds;
-  switch (unit) {
-    case "seconds": seconds = rawValue; break;
-    case "minutes": seconds = rawValue * 60; break;
-    case "hours":   seconds = rawValue * 3600; break;
-    default: return log("Invalid unit selected", "error");
+  // Match firmware limits exactly:
+  //   minutely: 1 – 60
+  //   hourly:   1 – 23
+  if (unit === "minutes" && (rawValue < 1 || rawValue > 60)) {
+    log("Minutes must be between 1 and 60", "error");
+    return;
   }
-
-  if (seconds > 86400) {
-    log("Interval too large (maximum 24 hours)", "error");
+  if (unit === "hours" && (rawValue < 1 || rawValue > 23)) {
+    log("Hours must be between 1 and 23", "error");
     return;
   }
 
-  if (seconds < 10) {
-    log("Warning: Very short interval (<10 seconds) may cause high power usage", "warning");
-  }
+  const intervalType = unit === "minutes" ? "minutely" : "hourly";
+  const label        = unit === "minutes" ? "minute(s)" : "hour(s)";
 
-  log(`Setting interval to ${rawValue} ${unit} (${seconds} seconds)...`, "info");
+  log(`Setting interval to ${rawValue} ${label}...`, "info");
 
   try {
-    const res = await window.electronAPI.setInterval(seconds);
+    // Firmware command format: SET_INTERVAL:minutely,5  OR  SET_INTERVAL:hourly,2
+    const res = await window.electronAPI.sendData(`SET_INTERVAL:${intervalType},${rawValue}`);
+
     if (res.error) {
-      log(`Failed: ${res.error}`, "error");
+      log(`Failed to set interval: ${res.error}`, "error");
       return;
     }
-    log(`Interval successfully set to ${rawValue} ${unit}!`, "success");
 
-    // Visual feedback on input
+    log(`Interval command sent: SET_INTERVAL:${intervalType},${rawValue}`, "success");
+
+    // Visual feedback on the input field
     valueInput.style.backgroundColor = '#e8f5e9';
     setTimeout(() => { valueInput.style.backgroundColor = ''; }, 1200);
 
-    // Update tracked state
+    // Remember for UI
     currentIntervalValue = rawValue;
     currentIntervalUnit  = unit;
   } catch (err) {
@@ -998,6 +1038,7 @@ async function setIntervalNew() {
 
 /**
  * getInterval — requests the current interval from the device.
+ * Firmware responds: "Current interval: <N>s"
  */
 async function getInterval() {
   if (!isConnected) {
@@ -1005,7 +1046,7 @@ async function getInterval() {
     return;
   }
   try {
-    const res = await window.electronAPI.getInterval();
+    const res = await window.electronAPI.sendData("GET_INTERVAL");
     if (res.error) {
       log(`Failed to get interval: ${res.error}`, "error");
     } else {
@@ -1017,33 +1058,55 @@ async function getInterval() {
 }
 
 /**
- * parseCurrentIntervalFromGET — called when device reports current
- * interval (e.g. from a GET response). Updates the UI dropdowns.
+ * parseCurrentIntervalFromGET — parses firmware responses and updates UI.
+ *
+ * Handles:
+ *   "Interval set to 5 Minute(s)"    → minutes
+ *   "Interval set to 2 Hour(s)"      → hours
+ *   "Current interval: 30s"          → raw seconds → converted to minutes
  */
-function parseCurrentIntervalFromGET(secondsFromDevice) {
-  if (!secondsFromDevice || isNaN(secondsFromDevice)) return;
+function parseCurrentIntervalFromGET(responseText) {
+  let value = null;
+  let unit  = null;
 
-  let value, unit;
+  // Firmware confirmation after SET_INTERVAL
+  const minMatch  = responseText.match(/(\d+)\s*Minute/i);
+  const hourMatch = responseText.match(/(\d+)\s*Hour/i);
 
-  if (secondsFromDevice >= 3600 && secondsFromDevice % 3600 === 0) {
-    value = secondsFromDevice / 3600;
-    unit  = "hours";
-  } else if (secondsFromDevice >= 60 && secondsFromDevice % 60 === 0) {
-    value = secondsFromDevice / 60;
+  // Firmware GET_INTERVAL response (returns raw seconds)
+  const secMatch  = responseText.match(/Current interval:\s*(\d+)s/i);
+
+  if (minMatch) {
+    value = parseInt(minMatch[1], 10);
     unit  = "minutes";
-  } else {
-    value = secondsFromDevice;
-    unit  = "seconds";
+  } else if (hourMatch) {
+    value = parseInt(hourMatch[1], 10);
+    unit  = "hours";
+  } else if (secMatch) {
+    // Firmware stores and returns the interval as the raw value the user set
+    // (e.g. "20s" means 20 minutes, not 20 seconds — the "s" is just a suffix).
+    // Use currentIntervalUnit to display it correctly; default to minutes.
+    value = parseInt(secMatch[1], 10);
+    unit  = currentIntervalUnit || "minutes";
   }
 
-  currentIntervalValue = value;
-  currentIntervalUnit  = unit;
+  if (value !== null && unit !== null) {
+    currentIntervalValue = value;
+    currentIntervalUnit  = unit;
 
-  const valueEl = document.getElementById("interval-value");
-  const unitEl  = document.getElementById("interval-unit");
-  if (valueEl) valueEl.value = value;
-  if (unitEl)  unitEl.value  = unit;
+    const valueEl = document.getElementById("interval-value");
+    const unitEl  = document.getElementById("interval-unit");
+
+    if (valueEl) valueEl.value = value;
+    if (unitEl)  unitEl.value  = unit;
+
+    log(`Device reports current interval: ${value} ${unit}`, "info");
+  } else {
+    log("Could not parse current interval from device response", "warning");
+  }
 }
+
+
 
 async function setRainResolution() {
   const resolution = document.getElementById("rain-resolution-select").value;
@@ -1182,8 +1245,9 @@ window.electronAPI.onSerialData((data) => {
     if (/error|failed|ENOENT|not active/i.test(sanitized)) cls = "log-error";
     else if (/successfully|saved ok|connected to|current interval|tip/i.test(sanitized)) cls = "log-success";
     else if (/voltage|rain/i.test(sanitized.toLowerCase())) cls = "log-info";  // highlight ADC
-    log(sanitized, cls);
+    appendLog(sanitized, cls);
 
+    
     // Then parse & update UI
     parseSensorData(sanitized);
 
